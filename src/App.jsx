@@ -4,37 +4,37 @@ import seedData from "../data/synthetic/condominio_portugal_seed.json";
 
 const MODULES = [
   { id: "dashboard", label: "Painel", mobile: "Painel" },
-  { id: "fractions", label: "Fracoes", mobile: "Fracoes" },
+  { id: "fractions", label: "Frações", mobile: "Frações" },
   { id: "finance", label: "Financeiro", mobile: "Financeiro" },
-  { id: "issues", label: "Ocorrencias", mobile: "Ocorrencias" },
+  { id: "issues", label: "Ocorrências", mobile: "Ocorrências" },
   { id: "assemblies", label: "Assembleias", mobile: "Assembleias" },
-  { id: "portal", label: "Portal condomino", mobile: "Portal" },
+  { id: "portal", label: "Portal condómino", mobile: "Portal" },
   { id: "documents", label: "Documentos", mobile: "Docs" },
   { id: "compliance", label: "Compliance", mobile: "RGPD" },
 ];
 
 const QUICK_ACTION_TYPES = [
-  { id: "fractions", label: "Fracao" },
+  { id: "fractions", label: "Fração" },
   { id: "finance", label: "Encargo" },
-  { id: "issues", label: "Ocorrencia" },
+  { id: "issues", label: "Ocorrência" },
   { id: "assemblies", label: "Assembleia" },
 ];
 
 const HEADER_ACTION_LABEL = {
-  dashboard: "Nova acao",
-  fractions: "Nova fracao",
+  dashboard: "Nova ação",
+  fractions: "Nova fração",
   finance: "Novo encargo",
-  issues: "Nova ocorrencia",
+  issues: "Nova ocorrência",
   assemblies: "Nova assembleia",
-  portal: "Nova acao",
-  documents: "Nova acao",
-  compliance: "Nova acao",
+  portal: "Nova ação",
+  documents: "Nova ação",
+  compliance: "Nova ação",
 };
 
 const PROFILE_OPTIONS = [
-  { id: "manager", label: "Gestao" },
+  { id: "manager", label: "Gestão" },
   { id: "accounting", label: "Contabilidade" },
-  { id: "operations", label: "Operacoes" },
+  { id: "operations", label: "Operações" },
 ];
 
 const PROFILE_CAPABILITIES = {
@@ -65,9 +65,9 @@ const ISSUE_COLUMNS = [
 
 const PRIORITY_LABEL = {
   low: "Baixa",
-  medium: "Media",
+  medium: "Média",
   high: "Alta",
-  critical: "Critica",
+  critical: "Crítica",
 };
 
 const ISSUE_STATUS_LABEL = {
@@ -82,28 +82,28 @@ const ISSUE_STATUS_LABEL = {
 const ISSUE_STATUS_FLOW = ["new", "triage", "in_progress", "waiting_supplier", "resolved", "closed"];
 
 const TEMPLATE_CHECKLIST = [
-  { id: "convocatoria", label: "Convocatoria de assembleia", status: "ready" },
+  { id: "convocatoria", label: "Convocatória de assembleia", status: "ready" },
   { id: "ata", label: "Ata de assembleia", status: "ready" },
-  { id: "procuracao", label: "Procuracao", status: "ready" },
-  { id: "divida", label: "Notificacao de quota em atraso", status: "ready" },
-  { id: "privacidade", label: "Politica de privacidade", status: "ready" },
+  { id: "procuracao", label: "Procuração", status: "ready" },
+  { id: "divida", label: "Notificação de quota em atraso", status: "ready" },
+  { id: "privacidade", label: "Política de privacidade", status: "ready" },
   { id: "dpa", label: "Acordo DPA", status: "ready" },
   { id: "incidente", label: "Registo de incidente RGPD", status: "ready" },
-  { id: "plano-pagamento", label: "Plano de pagamento de divida", status: "ready" },
+  { id: "plano-pagamento", label: "Plano de pagamento de dívida", status: "ready" },
 ];
 
 const COMPLIANCE_TASKS = [
   {
     title: "Mapear base legal por tipo de tratamento",
-    owner: "Gestao",
+    owner: "Gestão",
     dueDate: "2026-02-20",
-    status: "Em execucao",
+    status: "Em execução",
   },
   {
-    title: "Publicar politica de retencao por modulo",
+    title: "Publicar política de retenção por módulo",
     owner: "Produto",
     dueDate: "2026-02-24",
-    status: "Em revisao",
+    status: "Em revisão",
   },
   {
     title: "Fluxo de resposta a direitos do titular",
@@ -112,8 +112,8 @@ const COMPLIANCE_TASKS = [
     status: "Pronto",
   },
   {
-    title: "Checklist de notificacao de incidente",
-    owner: "Seguranca",
+    title: "Checklist de notificação de incidente",
+    owner: "Segurança",
     dueDate: "2026-03-02",
     status: "Pronto",
   },
@@ -146,11 +146,11 @@ function statusTone(status) {
     return "success";
   }
 
-  if (status === "overdue" || status === "critical" || status === "Critica") {
+  if (status === "overdue" || status === "critical" || status === "Crítica") {
     return "danger";
   }
 
-  if (status === "partially_paid" || status === "in_progress" || status === "Em execucao") {
+  if (status === "partially_paid" || status === "in_progress" || status === "Em execução") {
     return "warning";
   }
 
@@ -158,9 +158,25 @@ function statusTone(status) {
 }
 
 function cleanLabel(value) {
-  return value
+  const tokenOverrides = {
+    habitacao: "Habitação",
+    arrecadacao: "Arrecadação",
+    infiltracao: "Infiltração",
+    iluminacao: "Iluminação",
+    canalizacao: "Canalização",
+    media: "Média",
+    critica: "Crítica",
+    ordinaria: "Ordinária",
+    extraordinaria: "Extraordinária",
+    abstencao: "Abstenção",
+  };
+
+  return String(value || "")
     .replaceAll("_", " ")
-    .replace(/\b\w/g, (match) => match.toUpperCase());
+    .split(" ")
+    .filter(Boolean)
+    .map((token) => tokenOverrides[token.toLowerCase()] || token.replace(/^\w/, (char) => char.toUpperCase()))
+    .join(" ");
 }
 
 function buildPeopleById(people) {
@@ -298,7 +314,7 @@ function metricCards(data, finance) {
 
   return [
     {
-      label: "Taxa de cobranca",
+      label: "Taxa de cobrança",
       value: `${collectionRate.toFixed(1)}%`,
       detail: `${formatCurrency(finance.collected)} recebidos`,
       tone: "accent",
@@ -310,17 +326,17 @@ function metricCards(data, finance) {
       tone: "warning",
     },
     {
-      label: "Ocorrencias abertas",
+      label: "Ocorrências abertas",
       value: numberFormatter.format(
         data.issues.filter((issue) => ["new", "triage", "in_progress", "waiting_supplier"].includes(issue.status)).length
       ),
-      detail: `${data.issues.filter((issue) => issue.priority === "critical").length} criticas`,
+      detail: `${data.issues.filter((issue) => issue.priority === "critical").length} críticas`,
       tone: "danger",
     },
     {
-      label: "SLA medio",
+      label: "SLA médio",
       value: `${data.kpisSnapshot.avgResolutionHours}h`,
-      detail: "Resolucao media",
+      detail: "Resolução média",
       tone: "neutral",
     },
   ];
@@ -329,12 +345,12 @@ function metricCards(data, finance) {
 function getModuleTitle(moduleId) {
   const titles = {
     dashboard: "Painel de controlo",
-    fractions: "Fracoes e titulares",
-    finance: "Tesouraria e cobranca",
-    issues: "Ocorrencias e manutencao",
-    assemblies: "Assembleias e votacoes",
-    portal: "Portal do condomino",
-    documents: "Repositorio documental",
+    fractions: "Frações e titulares",
+    finance: "Tesouraria e cobrança",
+    issues: "Ocorrências e manutenção",
+    assemblies: "Assembleias e votações",
+    portal: "Portal do condómino",
+    documents: "Repositório documental",
     compliance: "RGPD e compliance",
   };
 
@@ -466,7 +482,7 @@ function buildIssueTimeline(issue, workOrder) {
   const timeline = [
     {
       id: `${issue.id}-opened`,
-      label: "Ocorrencia criada",
+      label: "Ocorrência criada",
       when: issue.openedAt,
       detail: `${cleanLabel(issue.category)} | ${PRIORITY_LABEL[issue.priority]}`,
       tone: statusTone(issue.priority),
@@ -478,7 +494,7 @@ function buildIssueTimeline(issue, workOrder) {
       id: `${issue.id}-triage`,
       label: "Triagem iniciada",
       when: issue.openedAt,
-      detail: "Ocorrencia analisada pela gestao.",
+      detail: "Ocorrência analisada pela gestão.",
       tone: "neutral",
     });
   }
@@ -496,7 +512,7 @@ function buildIssueTimeline(issue, workOrder) {
   if (workOrder?.scheduledAt) {
     timeline.push({
       id: `${issue.id}-wo-scheduled`,
-      label: "Intervencao agendada",
+      label: "Intervenção agendada",
       when: workOrder.scheduledAt,
       detail: "Fornecedor notificado e janela reservada.",
       tone: "neutral",
@@ -506,7 +522,7 @@ function buildIssueTimeline(issue, workOrder) {
   if (workOrder?.completedAt) {
     timeline.push({
       id: `${issue.id}-wo-completed`,
-      label: "Intervencao concluida",
+      label: "Intervenção concluída",
       when: workOrder.completedAt,
       detail: `Custo final ${formatCurrency(workOrder.finalCost || 0)}`,
       tone: "success",
@@ -516,7 +532,7 @@ function buildIssueTimeline(issue, workOrder) {
   if (issue.closedAt) {
     timeline.push({
       id: `${issue.id}-closed`,
-      label: issue.status === "closed" ? "Ocorrencia fechada" : "Ocorrencia resolvida",
+      label: issue.status === "closed" ? "Ocorrência fechada" : "Ocorrência resolvida",
       when: issue.closedAt,
       detail: "Registo encerrado no sistema.",
       tone: "success",
@@ -814,11 +830,11 @@ function App() {
   );
 
   const moduleBadge = {
-    dashboard: `${fractionsData.length} fracoes`,
+    dashboard: `${fractionsData.length} frações`,
     fractions: `${fractionsData.length} registos`,
     finance: `${formatCurrency(finance.openBalance)} em aberto`,
     issues: `${issuesData.length} tickets`,
-    assemblies: `${assembliesData.length} reunioes`,
+    assemblies: `${assembliesData.length} reuniões`,
     portal: `${Object.values(fractionBalances).filter((entry) => Number(entry?.balance || 0) > 0).length} saldos`,
     documents: `${documentsData.length} ficheiros`,
     compliance: `${TEMPLATE_CHECKLIST.length} templates`,
@@ -826,7 +842,7 @@ function App() {
 
   const openAllowedQuickAction = (type) => {
     if (!availableQuickActionTypes.some((item) => item.id === type)) {
-      setToastMessage(`Sem permissao no perfil ${activeProfileLabel} para criar ${cleanLabel(type)}.`);
+      setToastMessage(`Sem permissão no perfil ${activeProfileLabel} para criar ${cleanLabel(type)}.`);
       return;
     }
 
@@ -839,7 +855,7 @@ function App() {
   const nextDeadlines = useMemo(() => {
     const overdueCharges = finance.openCharges.slice(0, 4).map((charge) => ({
       type: "cobranca",
-      title: `Cobranca ${charge.period} - ${charge.fractionId.replace("fraction-", "").toUpperCase()}`,
+      title: `Cobrança ${charge.period} - ${charge.fractionId.replace("fraction-", "").toUpperCase()}`,
       date: charge.dueDate,
       amount: charge.missing,
       status: charge.status,
@@ -847,7 +863,7 @@ function App() {
 
     const assemblyEvents = assembliesData.map((assembly) => ({
       type: "assembleia",
-      title: `${assembly.meetingType === "ordinary" ? "Assembleia ordinaria" : "Assembleia extraordinaria"}`,
+      title: `${assembly.meetingType === "ordinary" ? "Assembleia ordinária" : "Assembleia extraordinária"}`,
       date: assembly.scheduledAt,
       amount: null,
       status: "agenda",
@@ -869,15 +885,15 @@ function App() {
     return [
       {
         id: "fractions-seed",
-        label: "Base de fracoes carregada",
-        detail: `${fractionsData.length} de 30 fracoes`,
+        label: "Base de frações carregada",
+        detail: `${fractionsData.length} de 30 frações`,
         done: fractionsData.length >= 30,
-        cta: "Fracao",
+        cta: "Fração",
         action: () => openAllowedQuickAction("fractions"),
       },
       {
         id: "finance-seed",
-        label: "Plano de cobranca ativo",
+        label: "Plano de cobrança ativo",
         detail: `${chargesData.length} encargos emitidos`,
         done: chargesData.length >= fractionsData.length,
         cta: "Encargo",
@@ -886,22 +902,22 @@ function App() {
       {
         id: "issues-flow",
         label: "Fluxo operacional em curso",
-        detail: `${openIssueCount} ocorrencias abertas | ${criticalIssueCount} criticas`,
+        detail: `${openIssueCount} ocorrências abertas | ${criticalIssueCount} críticas`,
         done: openIssueCount > 0,
-        cta: "Ocorrencia",
+        cta: "Ocorrência",
         action: () => openAllowedQuickAction("issues"),
       },
       {
         id: "assembly-plan",
-        label: "Calendario de assembleias definido",
-        detail: `${assembliesData.length} reunioes planeadas`,
+        label: "Calendário de assembleias definido",
+        detail: `${assembliesData.length} reuniões planeadas`,
         done: assembliesData.length >= 2,
         cta: "Assembleia",
         action: () => openAllowedQuickAction("assemblies"),
       },
       {
         id: "compliance-pack",
-        label: "Pack juridico preparado",
+        label: "Pack jurídico preparado",
         detail: `${readyTemplates}/${TEMPLATE_CHECKLIST.length} templates prontos`,
         done: readyTemplates === TEMPLATE_CHECKLIST.length,
         cta: "Compliance",
@@ -914,9 +930,9 @@ function App() {
       {
         id: "supplier-close",
         label: "Encerramentos com custo final",
-        detail: `${completedWorkOrders} ordens de trabalho concluidas`,
+        detail: `${completedWorkOrders} ordens de trabalho concluídas`,
         done: completedWorkOrders >= 2,
-        cta: "Ocorrencias",
+        cta: "Ocorrências",
         action: () => {
           setIsNotificationsOpen(false);
           setIsCommandPaletteOpen(false);
@@ -963,8 +979,8 @@ function App() {
       .slice(0, 5)
       .map((issue) => ({
         id: `notif-issue-${issue.id}`,
-        title: `Ocorrencia critica: ${issue.title}`,
-        detail: `${ISSUE_STATUS_LABEL[issue.status]} | ${issue.fractionId ? fractionCodeById[issue.fractionId] : "Area comum"}`,
+        title: `Ocorrência crítica: ${issue.title}`,
+        detail: `${ISSUE_STATUS_LABEL[issue.status]} | ${issue.fractionId ? fractionCodeById[issue.fractionId] : "Área comum"}`,
         when: issue.openedAt,
         tone: "warning",
         module: "issues",
@@ -981,7 +997,7 @@ function App() {
       .slice(0, 4)
       .map((assembly) => ({
         id: `notif-assembly-${assembly.id}`,
-        title: `Assembleia ${assembly.meetingType === "ordinary" ? "ordinaria" : "extraordinaria"} proxima`,
+        title: `Assembleia ${assembly.meetingType === "ordinary" ? "ordinária" : "extraordinária"} próxima`,
         detail: `${formatDate(assembly.scheduledAt)} | ${assembly.location}`,
         when: assembly.scheduledAt,
         tone: "neutral",
@@ -1197,7 +1213,7 @@ function App() {
 
   const inferAuditDomain = (text) => {
     const normalized = text.toLowerCase();
-    if (normalized.includes("encargo") || normalized.includes("cobranca") || normalized.includes("quota")) {
+    if (normalized.includes("encargo") || normalized.includes("cobranca") || normalized.includes("cobrança") || normalized.includes("quota")) {
       return "financeiro";
     }
     if (normalized.includes("ocorrencia") || normalized.includes("fornecedor")) {
@@ -1206,7 +1222,7 @@ function App() {
     if (normalized.includes("assembleia") || normalized.includes("ata")) {
       return "governance";
     }
-    if (normalized.includes("fracao") || normalized.includes("titular")) {
+    if (normalized.includes("fracao") || normalized.includes("fração") || normalized.includes("titular")) {
       return "cadastros";
     }
     if (normalized.includes("rgpd") || normalized.includes("compliance")) {
@@ -1234,7 +1250,7 @@ function App() {
       when: charge.dueDate,
       actor: "Sistema",
       domain: "financeiro",
-      action: `Saldo em aberto na fracao ${fractionCodeById[charge.fractionId] || charge.fractionId}`,
+      action: `Saldo em aberto na fração ${fractionCodeById[charge.fractionId] || charge.fractionId}`,
       detail: `${formatCurrency(charge.missing)} pendente | ${cleanLabel(charge.status)}`,
       tone: charge.status === "overdue" ? "danger" : "warning",
     }));
@@ -1300,7 +1316,7 @@ function App() {
 
   const openQuickAction = () => {
     if (availableQuickActionTypes.length === 0) {
-      setToastMessage(`O perfil ${activeProfileLabel} nao tem permissoes de criacao.`);
+      setToastMessage(`O perfil ${activeProfileLabel} não tem permissões de criação.`);
       return;
     }
 
@@ -1315,7 +1331,7 @@ function App() {
 
   const openQuickActionType = (type) => {
     if (!availableQuickActionTypes.some((item) => item.id === type)) {
-      setToastMessage(`Sem permissao no perfil ${activeProfileLabel} para criar ${cleanLabel(type)}.`);
+      setToastMessage(`Sem permissão no perfil ${activeProfileLabel} para criar ${cleanLabel(type)}.`);
       return;
     }
 
@@ -1327,7 +1343,7 @@ function App() {
 
   const navigateToContext = ({ module, targetId, targetType }) => {
     if (!profileCapability.modules.includes(module)) {
-      setToastMessage(`Sem acesso ao modulo ${getModuleTitle(module)} no perfil ${activeProfileLabel}.`);
+      setToastMessage(`Sem acesso ao módulo ${getModuleTitle(module)} no perfil ${activeProfileLabel}.`);
       return;
     }
 
@@ -1374,7 +1390,7 @@ function App() {
           .slice(0, 4)
           .map((fraction) => ({
             id: `fraction-${fraction.id}`,
-            type: "Fracao",
+            type: "Fração",
             module: "fractions",
             targetId: fraction.id,
             label: fraction.code,
@@ -1392,7 +1408,7 @@ function App() {
           .slice(0, 4)
           .map((issue) => ({
             id: `issue-${issue.id}`,
-            type: "Ocorrencia",
+            type: "Ocorrência",
             module: "issues",
             targetId: issue.id,
             label: issue.title,
@@ -1459,7 +1475,7 @@ function App() {
 
     const nextStatus = nextIssueStatus(issue.status);
     if (!nextStatus) {
-      setToastMessage("A ocorrencia ja esta no estado final.");
+      setToastMessage("A ocorrência já está no estado final.");
       return;
     }
 
@@ -1514,7 +1530,7 @@ function App() {
     setActivityLog((previous) => [
       {
         id: `act-${Date.now().toString(36)}-issue-status`,
-        title: `Ocorrencia ${issue.title} passou para ${ISSUE_STATUS_LABEL[nextStatus]}`,
+        title: `Ocorrência ${issue.title} passou para ${ISSUE_STATUS_LABEL[nextStatus]}`,
         detail: `Fluxo operacional atualizado`,
         createdAt: now,
         tone: statusTone(nextStatus),
@@ -1522,7 +1538,7 @@ function App() {
       ...previous,
     ]);
 
-    setToastMessage(`Ocorrencia atualizada para ${ISSUE_STATUS_LABEL[nextStatus]}.`);
+    setToastMessage(`Ocorrência atualizada para ${ISSUE_STATUS_LABEL[nextStatus]}.`);
   };
 
   const handleExportCsv = () => {
@@ -1533,7 +1549,7 @@ function App() {
 
     if (activeModule === "dashboard") {
       columns = [
-        { key: "section", label: "Secao" },
+        { key: "section", label: "Secção" },
         { key: "item", label: "Item" },
         { key: "value", label: "Valor" },
         { key: "detail", label: "Detalhe" },
@@ -1562,7 +1578,7 @@ function App() {
 
     if (activeModule === "fractions") {
       columns = [
-        { key: "fracao", label: "Fracao" },
+        { key: "fracao", label: "Fração" },
         { key: "piso", label: "Piso" },
         { key: "tipo", label: "Tipo" },
         { key: "tipologia", label: "Tipologia" },
@@ -1583,8 +1599,8 @@ function App() {
 
     if (activeModule === "finance") {
       columns = [
-        { key: "fracao", label: "Fracao" },
-        { key: "periodo", label: "Periodo" },
+        { key: "fracao", label: "Fração" },
+        { key: "periodo", label: "Período" },
         { key: "vencimento", label: "Vencimento" },
         { key: "valor", label: "Valor" },
         { key: "emFalta", label: "Em Falta" },
@@ -1603,11 +1619,11 @@ function App() {
     if (activeModule === "issues") {
       columns = [
         { key: "id", label: "ID" },
-        { key: "titulo", label: "Titulo" },
+        { key: "titulo", label: "Título" },
         { key: "categoria", label: "Categoria" },
         { key: "prioridade", label: "Prioridade" },
         { key: "estado", label: "Estado" },
-        { key: "fracao", label: "Fracao" },
+        { key: "fracao", label: "Fração" },
         { key: "fornecedor", label: "Fornecedor" },
       ];
       rows = issuesData.map((issue) => ({
@@ -1616,7 +1632,7 @@ function App() {
         categoria: cleanLabel(issue.category),
         prioridade: PRIORITY_LABEL[issue.priority],
         estado: ISSUE_STATUS_LABEL[issue.status] || cleanLabel(issue.status),
-        fracao: issue.fractionId ? fractionCodeById[issue.fractionId] || issue.fractionId : "Area comum",
+        fracao: issue.fractionId ? fractionCodeById[issue.fractionId] || issue.fractionId : "Área comum",
         fornecedor: issue.assignedSupplierPersonId ? peopleById[issue.assignedSupplierPersonId]?.fullName || "-" : "-",
       }));
     }
@@ -1631,7 +1647,7 @@ function App() {
       ];
       rows = assembliesData.map((assembly) => ({
         id: assembly.id,
-        tipo: assembly.meetingType === "ordinary" ? "Ordinaria" : "Extraordinaria",
+        tipo: assembly.meetingType === "ordinary" ? "Ordinária" : "Extraordinária",
         data: formatDate(assembly.scheduledAt),
         local: assembly.location,
         pontos: assembly.voteItems.length,
@@ -1640,9 +1656,9 @@ function App() {
 
     if (activeModule === "portal") {
       columns = [
-        { key: "fracao", label: "Fracao" },
+        { key: "fracao", label: "Fração" },
         { key: "titular", label: "Titular" },
-        { key: "periodo", label: "Periodo" },
+        { key: "periodo", label: "Período" },
         { key: "vencimento", label: "Vencimento" },
         { key: "valor", label: "Valor" },
         { key: "pago", label: "Pago" },
@@ -1663,7 +1679,7 @@ function App() {
 
     if (activeModule === "documents") {
       columns = [
-        { key: "titulo", label: "Titulo" },
+        { key: "titulo", label: "Título" },
         { key: "categoria", label: "Categoria" },
         { key: "visibilidade", label: "Visibilidade" },
         { key: "upload", label: "Upload" },
@@ -1683,7 +1699,7 @@ function App() {
         { key: "tipo", label: "Tipo" },
         { key: "item", label: "Item" },
         { key: "estado", label: "Estado" },
-        { key: "responsavel", label: "Responsavel" },
+        { key: "responsavel", label: "Responsável" },
       ];
       rows = [
         ...COMPLIANCE_TASKS.map((task) => ({
@@ -1696,7 +1712,7 @@ function App() {
           tipo: "template",
           item: template.label,
           estado: template.status === "ready" ? "Pronto" : "Em falta",
-          responsavel: "Juridico",
+          responsavel: "Jurídico",
         })),
         ...filteredAuditEntries.slice(0, 80).map((entry) => ({
           tipo: "audit",
@@ -1708,7 +1724,7 @@ function App() {
     }
 
     if (rows.length === 0) {
-      setToastMessage("Nao existem dados para exportar neste modulo.");
+      setToastMessage("Não existem dados para exportar neste módulo.");
       return;
     }
 
@@ -1716,7 +1732,7 @@ function App() {
     const profileColumns = columns.filter((column) => presetKeys.includes(column.key));
 
     if (profileColumns.length === 0) {
-      setToastMessage("O preset atual nao tem colunas para este modulo.");
+      setToastMessage("O preset atual não tem colunas para este módulo.");
       return;
     }
 
@@ -1726,7 +1742,7 @@ function App() {
     setActivityLog((previous) => [
       {
         id: `act-${Date.now().toString(36)}-export`,
-        title: `Exportacao CSV do modulo ${getModuleTitle(activeModule)}`,
+        title: `Exportação CSV do módulo ${getModuleTitle(activeModule)}`,
         detail: `Preset ${activeProfileLabel} | ${rows.length} linhas`,
         createdAt: new Date().toISOString(),
         tone: "neutral",
@@ -1739,23 +1755,23 @@ function App() {
     const moduleActions = availableModules.map((module) => ({
       id: `cmd-module-${module.id}`,
       label: `Abrir ${module.label}`,
-      detail: `Navegar para o modulo ${module.label}`,
-      search: `${module.label} modulo navegar`,
+      detail: `Navegar para o módulo ${module.label}`,
+      search: `${module.label} módulo navegar`,
       onSelect: () => navigateToContext({ module: module.id }),
     }));
 
     const quickCreateActions = availableQuickActionTypes.map((typeOption) => ({
       id: `cmd-create-${typeOption.id}`,
       label: `Criar ${typeOption.label.toLowerCase()}`,
-      detail: "Abre o painel de registo rapido",
-      search: `${typeOption.label} criar novo rapido`,
+      detail: "Abre o painel de registo rápido",
+      search: `${typeOption.label} criar novo rápido`,
       onSelect: () => openQuickActionType(typeOption.id),
     }));
 
     const utilityActions = [
       {
         id: "cmd-export",
-        label: "Exportar CSV do modulo atual",
+        label: "Exportar CSV do módulo atual",
         detail: `Preset ${activeProfileLabel}`,
         search: "csv exportar excel",
         onSelect: handleExportCsv,
@@ -1764,7 +1780,7 @@ function App() {
         id: "cmd-notifications",
         label: "Abrir centro de alertas",
         detail: `${unreadNotifications.length} alertas por ler`,
-        search: "alertas notificacoes inbox",
+        search: "alertas notificações inbox",
         onSelect: () => {
           setIsCommandPaletteOpen(false);
           setIsNotificationsOpen(true);
@@ -1815,17 +1831,17 @@ function App() {
 
   const handleQuickActionSubmit = ({ type, values }) => {
     if (!availableQuickActionTypes.some((item) => item.id === type)) {
-      throw new Error(`O perfil ${activeProfileLabel} nao permite criar ${cleanLabel(type)}.`);
+      throw new Error(`O perfil ${activeProfileLabel} não permite criar ${cleanLabel(type)}.`);
     }
 
     if (type === "fractions") {
       const code = values.code.trim().toUpperCase();
       if (!code) {
-        throw new Error("Indica o codigo da fracao.");
+        throw new Error("Indica o código da fração.");
       }
 
       if (fractionsData.some((fraction) => fraction.code === code)) {
-        throw new Error(`A fracao ${code} ja existe.`);
+        throw new Error(`A fração ${code} já existe.`);
       }
 
       const safeCode = code.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -1882,13 +1898,13 @@ function App() {
         ]);
       }
 
-      setToastMessage(`Fracao ${code} criada com sucesso.`);
+      setToastMessage(`Fração ${code} criada com sucesso.`);
       setSelectedFractionId(fractionId);
       setSelectedPortalFractionId(fractionId);
       setActivityLog((previous) => [
         {
           id: `act-${Date.now().toString(36)}-fraction`,
-          title: `Fracao ${code} criada`,
+          title: `Fração ${code} criada`,
           detail: `Piso ${floorNumber} | ${cleanLabel(values.type)} | ${formatCurrency(monthlyFee)}`,
           createdAt: new Date().toISOString(),
           tone: "success",
@@ -1901,11 +1917,11 @@ function App() {
     if (type === "finance") {
       const amount = Number(values.amount || 0);
       if (amount <= 0) {
-        throw new Error("Indica um valor valido para o encargo.");
+        throw new Error("Indica um valor válido para o encargo.");
       }
 
       if (!values.fractionId) {
-        throw new Error("Seleciona a fracao do encargo.");
+        throw new Error("Seleciona a fração do encargo.");
       }
 
       const fractionCode = fractionCodeById[values.fractionId] || "GEN";
@@ -1925,7 +1941,7 @@ function App() {
 
       setChargesData((previous) => [newCharge, ...previous]);
       setSelectedChargeId(newCharge.id);
-      setToastMessage(`Encargo criado para a fracao ${fractionCode}.`);
+      setToastMessage(`Encargo criado para a fração ${fractionCode}.`);
       setActivityLog((previous) => [
         {
           id: `act-${Date.now().toString(36)}-charge`,
@@ -1941,7 +1957,7 @@ function App() {
 
     if (type === "issues") {
       if (!values.title.trim()) {
-        throw new Error("Indica um titulo para a ocorrencia.");
+        throw new Error("Indica um título para a ocorrência.");
       }
 
       const managerId =
@@ -1957,7 +1973,7 @@ function App() {
         priority: values.priority,
         status: "new",
         title: values.title.trim(),
-        description: values.description.trim() || `Descricao inicial: ${values.title.trim()}.`,
+        description: values.description.trim() || `Descrição inicial: ${values.title.trim()}.`,
         openedAt: new Date().toISOString(),
         closedAt: null,
         assignedSupplierPersonId: null,
@@ -1965,11 +1981,11 @@ function App() {
 
       setIssuesData((previous) => [newIssue, ...previous]);
       setSelectedIssueId(newIssue.id);
-      setToastMessage("Ocorrencia registada na coluna Novo.");
+      setToastMessage("Ocorrência registada na coluna Novo.");
       setActivityLog((previous) => [
         {
           id: `act-${Date.now().toString(36)}-issue`,
-          title: `Ocorrencia criada: ${newIssue.title}`,
+          title: `Ocorrência criada: ${newIssue.title}`,
           detail: `${cleanLabel(newIssue.category)} | ${PRIORITY_LABEL[newIssue.priority]}`,
           createdAt: new Date().toISOString(),
           tone: statusTone(newIssue.priority),
@@ -1990,7 +2006,7 @@ function App() {
         condominiumId: runtimeData.condominium.id,
         meetingType: values.meetingType,
         scheduledAt: scheduleISO,
-        location: values.location.trim() || "Sala comum do condominio",
+        location: values.location.trim() || "Sala comum do condomínio",
         callNoticeSentAt: new Date().toISOString(),
         minutesDocumentId: null,
         voteItems: [],
@@ -2003,7 +2019,7 @@ function App() {
       setActivityLog((previous) => [
         {
           id: `act-${Date.now().toString(36)}-assembly`,
-          title: `Assembleia ${values.meetingType === "ordinary" ? "ordinaria" : "extraordinaria"} agendada`,
+          title: `Assembleia ${values.meetingType === "ordinary" ? "ordinária" : "extraordinária"} agendada`,
           detail: `${formatDate(scheduleISO)} | ${newAssembly.location}`,
           createdAt: new Date().toISOString(),
           tone: "neutral",
@@ -2027,10 +2043,10 @@ function App() {
         <div>
           <p className="eyebrow">CondoOS PT</p>
           <h1>{runtimeData.condominium.name}</h1>
-          <p className="sidebar-meta">11 andares | {fractionsData.length} fracoes | Piloto V1</p>
+          <p className="sidebar-meta">11 andares | {fractionsData.length} frações | Piloto V1</p>
         </div>
 
-        <nav className="module-nav" aria-label="Modulos principais">
+        <nav className="module-nav" aria-label="Módulos principais">
           {MODULES.map((module) => {
             const isAllowed = profileCapability.modules.includes(module.id);
             const isActive = activeModule === module.id;
@@ -2043,7 +2059,7 @@ function App() {
                 aria-disabled={!isAllowed}
                 onClick={() => {
                   if (!isAllowed) {
-                    setToastMessage(`Perfil ${activeProfileLabel} sem acesso ao modulo ${module.label}.`);
+                    setToastMessage(`Perfil ${activeProfileLabel} sem acesso ao módulo ${module.label}.`);
                     return;
                   }
                   setActiveModule(module.id);
@@ -2058,11 +2074,11 @@ function App() {
 
         <div className="sidebar-status">
           <h2>Estado do rollout</h2>
-          <p>Templates juridicos preparados e dataset sintetico carregado para QA.</p>
+          <p>Templates jurídicos preparados e dataset sintético carregado para QA.</p>
           <ul>
-            <li>V1 funcional: 7 modulos</li>
+            <li>V1 funcional: 7 módulos</li>
             <li>Seed de demo: 100% carregado</li>
-            <li>Build: estavel</li>
+            <li>Build: estável</li>
           </ul>
         </div>
       </aside>
@@ -2070,7 +2086,7 @@ function App() {
       <main className="workspace">
         <header className="workspace-header">
           <div>
-            <p className="eyebrow">Ambiente de demonstracao</p>
+            <p className="eyebrow">Ambiente de demonstração</p>
             <h2>{getModuleTitle(activeModule)}</h2>
             <p>{topHeaderValue}</p>
             <small className="profile-hint">Perfil ativo: {activeProfileLabel}</small>
@@ -2082,7 +2098,7 @@ function App() {
                 type="search"
                 value={globalQuery}
                 onChange={(event) => setGlobalQuery(event.target.value)}
-                placeholder="Pesquisar fracao, ocorrencia ou documento"
+                placeholder="Pesquisar fração, ocorrência ou documento"
               />
               {globalResults.length > 0 ? (
                 <ul className="global-results">
@@ -2104,7 +2120,7 @@ function App() {
               className="profile-select"
               value={activeProfile}
               onChange={(event) => setActiveProfile(event.target.value)}
-              aria-label="Preset de exportacao"
+              aria-label="Preset de exportação"
             >
               {PROFILE_OPTIONS.map((profile) => (
                 <option key={profile.id} value={profile.id}>
@@ -2127,7 +2143,7 @@ function App() {
                 Exportar CSV
               </button>
               <button type="button" className="primary-btn" onClick={openQuickAction} disabled={!hasQuickActions}>
-                {hasQuickActions ? HEADER_ACTION_LABEL[activeModule] : "Sem permissao de criacao"}
+                {hasQuickActions ? HEADER_ACTION_LABEL[activeModule] : "Sem permissão de criação"}
               </button>
             </div>
           </div>
@@ -2241,7 +2257,7 @@ function App() {
         </AnimateSection>
       </main>
 
-      <nav className="mobile-nav" aria-label="Navegacao movel">
+      <nav className="mobile-nav" aria-label="Navegação móvel">
         {availableModules.map((module) => (
           <button
             key={module.id}
@@ -2355,8 +2371,8 @@ function DashboardScreen({
       <div className="split-grid">
         <article className="panel">
           <header className="panel-header">
-            <h3>Agenda de execucao</h3>
-            <span>Proximos 30 dias</span>
+            <h3>Agenda de execução</h3>
+            <span>Próximos 30 dias</span>
           </header>
           <ul className="timeline-list">
             {nextDeadlines.map((item) => (
@@ -2377,7 +2393,7 @@ function DashboardScreen({
         <article className="panel">
           <header className="panel-header">
             <h3>Mapa por piso</h3>
-            <span>Habitacao vs nao habitacao</span>
+            <span>Habitação vs não habitação</span>
           </header>
           <div className="building-map">
             {floorMatrix.map((floor) => (
@@ -2404,7 +2420,7 @@ function DashboardScreen({
         <header className="panel-header">
           <h3>Checklist de onboarding</h3>
           <span>
-            {onboardingCompletion}/{onboardingChecklist.length} concluidos
+            {onboardingCompletion}/{onboardingChecklist.length} concluídos
           </span>
         </header>
         <div className="onboarding-progress" role="presentation">
@@ -2418,7 +2434,7 @@ function DashboardScreen({
                 <small>{item.detail}</small>
               </div>
               <div className="timeline-side">
-                <StatusPill label={item.done ? "Concluido" : "Em falta"} tone={item.done ? "success" : "warning"} />
+                <StatusPill label={item.done ? "Concluído" : "Em falta"} tone={item.done ? "success" : "warning"} />
                 <button type="button" className="mini-btn" onClick={item.action}>
                   {item.done ? "Ver" : item.cta}
                 </button>
@@ -2433,19 +2449,19 @@ function DashboardScreen({
           <h3>Atividade recente</h3>
           <div className="inline-actions">
             <button type="button" className="mini-btn" onClick={() => onOpenAction("issues")}>
-              + Ocorrencia
+              + Ocorrência
             </button>
             <button type="button" className="mini-btn" onClick={() => onOpenAction("finance")}>
               + Encargo
             </button>
             <button type="button" className="mini-btn" onClick={() => onOpenAction("fractions")}>
-              + Fracao
+              + Fração
             </button>
           </div>
         </header>
         {activityLog.length === 0 ? (
           <p className="empty-note">
-            Ainda sem registos manuais nesta sessao. Usa os botoes acima para criar uma fracao, encargo ou ocorrencia.
+            Ainda sem registos manuais nesta sessão. Usa os botões acima para criar uma fração, encargo ou ocorrência.
           </p>
         ) : (
           <ul className="activity-list">
@@ -2490,10 +2506,10 @@ function FractionsScreen({
 }) {
   const typePills = [
     { key: "all", label: "Todas", count: Object.values(typeSummary).reduce((sum, value) => sum + value, 0) },
-    { key: "habitacao", label: "Habitacao", count: typeSummary.habitacao || 0 },
+    { key: "habitacao", label: "Habitação", count: typeSummary.habitacao || 0 },
     { key: "loja", label: "Loja", count: typeSummary.loja || 0 },
     { key: "estacionamento", label: "Estacionamento", count: typeSummary.estacionamento || 0 },
-    { key: "arrecadacao", label: "Arrecadacao", count: typeSummary.arrecadacao || 0 },
+    { key: "arrecadacao", label: "Arrecadação", count: typeSummary.arrecadacao || 0 },
   ];
 
   return (
@@ -2503,14 +2519,14 @@ function FractionsScreen({
           <h3>Pesquisa e filtros</h3>
           <div className="inline-actions stretch-right">
             <button type="button" className="mini-btn" onClick={() => onOpenAction("fractions")}>
-              + Nova fracao
+              + Nova fração
             </button>
             <div className="search-wrap compact">
               <input
                 type="search"
                 value={fractionQuery}
                 onChange={(event) => setFractionQuery(event.target.value)}
-                placeholder="Filtrar por fracao ou titular"
+                placeholder="Filtrar por fração ou titular"
               />
             </div>
           </div>
@@ -2547,8 +2563,8 @@ function FractionsScreen({
             onChange={(event) => setFractionDebtFilter(event.target.value)}
             aria-label="Filtrar por saldo"
           >
-            <option value="all">Com e sem divida</option>
-            <option value="in_debt">Apenas com divida</option>
+            <option value="all">Com e sem dívida</option>
+            <option value="in_debt">Apenas com dívida</option>
             <option value="regular">Apenas regularizadas</option>
           </select>
         </div>
@@ -2557,7 +2573,7 @@ function FractionsScreen({
       <div className="fractions-layout">
         <article className="panel">
           <header className="panel-header">
-            <h3>Mapa de fracoes</h3>
+            <h3>Mapa de frações</h3>
             <span>{fractions.length} resultados</span>
           </header>
 
@@ -2565,7 +2581,7 @@ function FractionsScreen({
             <table>
               <thead>
                 <tr>
-                  <th>Fracao</th>
+                  <th>Fração</th>
                   <th>Piso</th>
                   <th>Tipo</th>
                   <th>Titologia</th>
@@ -2591,7 +2607,7 @@ function FractionsScreen({
                       <td>{formatCurrency(fraction.monthlyFee)}</td>
                       <td>
                         <StatusPill
-                          label={balance > 0 ? formatCurrency(balance) : "Sem divida"}
+                          label={balance > 0 ? formatCurrency(balance) : "Sem dívida"}
                           tone={balance > 0 ? "warning" : "success"}
                         />
                       </td>
@@ -2605,11 +2621,11 @@ function FractionsScreen({
 
         <article className="panel fraction-detail-panel">
           {!selectedFraction ? (
-            <p className="empty-note">Seleciona uma fracao para ver detalhe.</p>
+            <p className="empty-note">Seleciona uma fração para ver detalhe.</p>
           ) : (
             <>
               <header className="panel-header">
-                <h3>Detalhe da fracao</h3>
+                <h3>Detalhe da fração</h3>
                 <StatusPill
                   label={formatCurrency(balances[selectedFraction.id]?.balance || 0)}
                   tone={(balances[selectedFraction.id]?.balance || 0) > 0 ? "warning" : "success"}
@@ -2618,7 +2634,7 @@ function FractionsScreen({
 
               <div className="issue-meta-grid">
                 <span>
-                  Fracao
+                  Fração
                   <strong>{selectedFraction.code}</strong>
                 </span>
                 <span>
@@ -2638,7 +2654,7 @@ function FractionsScreen({
                   <strong>{ownerByFraction[selectedFraction.id] || "Sem titular"}</strong>
                 </span>
                 <span>
-                  Area / Permilagem
+                  Área / Permilagem
                   <strong>
                     {selectedFraction.privateAreaM2} m2 | {selectedFraction.permillage}
                   </strong>
@@ -2654,7 +2670,7 @@ function FractionsScreen({
               </div>
 
               <div className="issue-costs">
-                <h4>Ultimos encargos</h4>
+                <h4>Últimos encargos</h4>
                 <ul className="issue-timeline">
                   {selectedFractionCharges.slice(0, 6).map((charge) => (
                     <li key={charge.id}>
@@ -2706,7 +2722,7 @@ function FinanceScreen({
     <div className="stack-lg">
       <div className="kpi-grid finance-kpi-grid">
         <article className="kpi-card tone-accent">
-          <p>Emitido (periodo)</p>
+          <p>Emitido (período)</p>
           <strong>{formatCurrency(finance.emitted)}</strong>
           <span>Quotas e encargos totais</span>
         </article>
@@ -2730,7 +2746,7 @@ function FinanceScreen({
       <div className="split-grid">
         <article className="panel">
           <header className="panel-header">
-            <h3>Cobranca mensal</h3>
+            <h3>Cobrança mensal</h3>
             <span>Emitido vs recebido</span>
           </header>
 
@@ -2754,7 +2770,7 @@ function FinanceScreen({
 
         <article className="panel">
           <header className="panel-header">
-            <h3>Distribuicao por metodo</h3>
+            <h3>Distribuição por método</h3>
             <span>Pagamentos recebidos</span>
           </header>
           <ul className="simple-list">
@@ -2798,9 +2814,9 @@ function FinanceScreen({
               className="filter-select"
               value={financePeriodFilter}
               onChange={(event) => setFinancePeriodFilter(event.target.value)}
-              aria-label="Filtrar por periodo"
+              aria-label="Filtrar por período"
             >
-              <option value="all">Todos os periodos</option>
+              <option value="all">Todos os períodos</option>
               {financePeriods.map((period) => (
                 <option key={period} value={period}>
                   {period}
@@ -2813,8 +2829,8 @@ function FinanceScreen({
             <table>
               <thead>
                 <tr>
-                  <th>Fracao</th>
-                  <th>Periodo</th>
+                  <th>Fração</th>
+                  <th>Período</th>
                   <th>Vencimento</th>
                   <th>Valor</th>
                   <th>Em falta</th>
@@ -2855,11 +2871,11 @@ function FinanceScreen({
 
               <div className="issue-meta-grid">
                 <span>
-                  Fracao
+                  Fração
                   <strong>{fractionCodeById[selectedFinanceCharge.fractionId] || selectedFinanceCharge.fractionId}</strong>
                 </span>
                 <span>
-                  Periodo
+                  Período
                   <strong>{selectedFinanceCharge.period}</strong>
                 </span>
                 <span>
@@ -2927,7 +2943,7 @@ function IssuesScreen({
       <div className="issues-layout">
         <article className="panel">
           <header className="panel-header">
-            <h3>Painel Kanban de manutencao</h3>
+            <h3>Painel Kanban de manutenção</h3>
             <div className="inline-actions">
               <span>Fluxo operacional em tempo real</span>
               <button type="button" className="mini-btn" onClick={() => onOpenAction("issues")}>
@@ -2969,7 +2985,7 @@ function IssuesScreen({
                         <small>
                           {issue.assignedSupplierPersonId
                             ? peopleById[issue.assignedSupplierPersonId]?.fullName || "Fornecedor"
-                            : "Sem atribuicao"}
+                            : "Sem atribuição"}
                         </small>
                       </footer>
                     </article>
@@ -2982,7 +2998,7 @@ function IssuesScreen({
 
         <article className="panel issue-detail-panel">
           {!selectedIssue ? (
-            <p className="empty-note">Seleciona uma ocorrencia para ver detalhes.</p>
+          <p className="empty-note">Seleciona uma ocorrência para ver detalhes.</p>
           ) : (
             <>
               <header className="panel-header">
@@ -2997,7 +3013,7 @@ function IssuesScreen({
 
               <div className="issue-meta-grid">
                 <span>
-                  Fracao
+                  Fração
                   <strong>{selectedIssue.fractionId ? fractionCodeById[selectedIssue.fractionId] || selectedIssue.fractionId : "Area comum"}</strong>
                 </span>
                 <span>
@@ -3013,7 +3029,7 @@ function IssuesScreen({
                   <strong>
                     {selectedIssue.assignedSupplierPersonId
                       ? peopleById[selectedIssue.assignedSupplierPersonId]?.fullName || "Fornecedor"
-                      : "Sem atribuicao"}
+                      : "Sem atribuição"}
                   </strong>
                 </span>
               </div>
@@ -3099,7 +3115,7 @@ function AssembliesScreen({ assemblies, onOpenAction }) {
             {assemblies.map((assembly) => (
               <li key={assembly.id}>
                 <div>
-                  <p>{assembly.meetingType === "ordinary" ? "Assembleia ordinaria" : "Assembleia extraordinaria"}</p>
+                  <p>{assembly.meetingType === "ordinary" ? "Assembleia ordinária" : "Assembleia extraordinária"}</p>
                   <small>{formatDate(assembly.scheduledAt)}</small>
                 </div>
                 <div className="timeline-side">
@@ -3129,7 +3145,7 @@ function AssembliesScreen({ assemblies, onOpenAction }) {
 
       <article className="panel">
         <header className="panel-header">
-          <h3>Resumo de votacoes previstas</h3>
+        <h3>Resumo de votações previstas</h3>
           <span>Com base no seed de demo</span>
         </header>
 
@@ -3142,7 +3158,7 @@ function AssembliesScreen({ assemblies, onOpenAction }) {
                 <div>
                   <span>A favor: {item.summary.for}</span>
                   <span>Contra: {item.summary.against}</span>
-                  <span>Abstencao: {item.summary.abstention}</span>
+                  <span>Abstenção: {item.summary.abstention}</span>
                 </div>
               </article>
             ))
@@ -3172,13 +3188,13 @@ function PortalScreen({
     <div className="stack-lg">
       <article className="panel">
         <header className="panel-header split-header">
-          <h3>Conta corrente do condomino</h3>
+        <h3>Conta corrente do condómino</h3>
           <div className="inline-actions stretch-right">
             <select
               className="filter-select"
               value={selectedFraction?.id || ""}
               onChange={(event) => onSelectFraction(event.target.value)}
-              aria-label="Selecionar fracao do portal"
+              aria-label="Selecionar fração do portal"
             >
               {fractions.map((fraction) => (
                 <option key={fraction.id} value={fraction.id}>
@@ -3187,7 +3203,7 @@ function PortalScreen({
               ))}
             </select>
             <button type="button" className="mini-btn" onClick={() => onOpenAction("issues")}>
-              + Abrir ocorrencia
+            + Abrir ocorrência
             </button>
             <button type="button" className="ghost-btn" onClick={onExport}>
               Exportar extrato
@@ -3203,23 +3219,23 @@ function PortalScreen({
               <span>{ownerByFraction[selectedFraction.id] || "Sem titular"}</span>
             </article>
             <article className="kpi-card tone-accent">
-              <p>Proxima quota</p>
+            <p>Próxima quota</p>
               <strong>{portalNextCharge ? formatCurrency(portalNextCharge.missing) : formatCurrency(0)}</strong>
               <span>{portalNextCharge ? formatDate(portalNextCharge.dueDate) : "Sem encargos pendentes"}</span>
             </article>
             <article className="kpi-card tone-success">
-              <p>Pagamentos no periodo</p>
+            <p>Pagamentos no período</p>
               <strong>{formatCurrency(portalCollectedYear)}</strong>
               <span>{portalPayments.length} movimentos registados</span>
             </article>
             <article className="kpi-card tone-danger">
-              <p>Ocorrencias ativas</p>
+            <p>Ocorrências ativas</p>
               <strong>{portalOpenIssues.length}</strong>
-              <span>Inclui area comum e fracao</span>
+              <span>Inclui área comum e fração</span>
             </article>
           </div>
         ) : (
-          <p className="empty-note">Sem fracao selecionada.</p>
+        <p className="empty-note">Sem fração selecionada.</p>
         )}
       </article>
 
@@ -3233,7 +3249,7 @@ function PortalScreen({
             <table>
               <thead>
                 <tr>
-                  <th>Periodo</th>
+                <th>Período</th>
                   <th>Vencimento</th>
                   <th>Valor</th>
                   <th>Pago</th>
@@ -3262,7 +3278,7 @@ function PortalScreen({
         <article className="panel">
           <header className="panel-header">
             <h3>Pagamentos recentes</h3>
-            <span>Ultimos lancamentos</span>
+            <span>Últimos lançamentos</span>
           </header>
           {portalPayments.length === 0 ? (
             <p className="empty-note">Ainda sem pagamentos registados.</p>
@@ -3290,11 +3306,11 @@ function PortalScreen({
       <div className="split-grid">
         <article className="panel">
           <header className="panel-header">
-            <h3>Ocorrencias acompanhadas</h3>
+          <h3>Ocorrências acompanhadas</h3>
             <span>{portalOpenIssues.length} em curso</span>
           </header>
           {portalOpenIssues.length === 0 ? (
-            <p className="empty-note">Sem ocorrencias abertas para esta fracao.</p>
+          <p className="empty-note">Sem ocorrências abertas para esta fração.</p>
           ) : (
             <ul className="issue-timeline">
               {portalOpenIssues.slice(0, 6).map((issue) => (
@@ -3318,7 +3334,7 @@ function PortalScreen({
         <article className="panel">
           <header className="panel-header">
             <h3>Documentos do portal</h3>
-            <span>{portalVisibleDocuments.length} visiveis</span>
+            <span>{portalVisibleDocuments.length} visíveis</span>
           </header>
           <ul className="simple-list">
             {portalVisibleDocuments.slice(0, 8).map((document) => (
@@ -3353,7 +3369,7 @@ function DocumentsScreen({ documents, docQuery, setDocQuery }) {
               type="search"
               value={docQuery}
               onChange={(event) => setDocQuery(event.target.value)}
-              placeholder="Pesquisar por categoria, titulo ou visibilidade"
+              placeholder="Pesquisar por categoria, título ou visibilidade"
             />
           </div>
         </header>
@@ -3374,13 +3390,13 @@ function DocumentsScreen({ documents, docQuery, setDocQuery }) {
       <article className="panel">
         <header className="panel-header">
           <h3>Documentos carregados</h3>
-          <span>{documents.length} ficheiros visiveis</span>
+          <span>{documents.length} ficheiros visíveis</span>
         </header>
         <div className="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Titulo</th>
+              <th>Título</th>
                 <th>Categoria</th>
                 <th>Data upload</th>
                 <th>Visibilidade</th>
@@ -3525,8 +3541,8 @@ function CommandPalette({ open, query, actions, onQueryChange, onClose, onSelect
     <div className="drawer-backdrop command-layer" role="dialog" aria-modal="true" onClick={onClose}>
       <section className="command-panel" onClick={(event) => event.stopPropagation()}>
         <header className="panel-header">
-          <h3>Comandos rapidos</h3>
-          <span>Navegacao com setas e Enter</span>
+        <h3>Comandos rápidos</h3>
+        <span>Navegação com setas e Enter</span>
         </header>
         <div className="search-wrap">
           <input
@@ -3534,7 +3550,7 @@ function CommandPalette({ open, query, actions, onQueryChange, onClose, onSelect
             type="search"
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
-            placeholder="Procurar modulo, acao ou utilitario"
+            placeholder="Procurar módulo, ação ou utilitário"
           />
         </div>
         <ul className="command-list">
@@ -3590,7 +3606,7 @@ function QuickActionDrawer({ open, actionType, allowedActionTypes, onActionTypeC
   const [assemblyForm, setAssemblyForm] = useState({
     meetingType: "ordinary",
     scheduledAt: "2026-03-25T20:30",
-    location: "Sala comum do condominio",
+    location: "Sala comum do condomínio",
   });
 
   const orderedFractions = useMemo(() => {
@@ -3659,7 +3675,7 @@ function QuickActionDrawer({ open, actionType, allowedActionTypes, onActionTypeC
         onSubmit({ type: actionType, values: assemblyForm });
       }
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : "Nao foi possivel guardar esta acao.");
+setFormError(error instanceof Error ? error.message : "Não foi possível guardar esta ação.");
     }
   };
 
@@ -3668,8 +3684,8 @@ function QuickActionDrawer({ open, actionType, allowedActionTypes, onActionTypeC
       <aside className="quick-drawer" onClick={(event) => event.stopPropagation()}>
         <header className="drawer-header">
           <div>
-            <p className="eyebrow">Acoes rapidas</p>
-            <h3>Registar nova acao operacional</h3>
+          <p className="eyebrow">Ações rápidas</p>
+          <h3>Registar nova ação operacional</h3>
           </div>
           <button type="button" className="close-btn" onClick={onClose} aria-label="Fechar painel">
             Fechar
@@ -3693,14 +3709,14 @@ function QuickActionDrawer({ open, actionType, allowedActionTypes, onActionTypeC
         </div>
 
         {allowedActionTypes.length === 0 ? (
-          <p className="form-error">Este perfil nao tem permissoes para criar novos registos.</p>
+        <p className="form-error">Este perfil não tem permissões para criar novos registos.</p>
         ) : null}
 
         <form className="drawer-form" onSubmit={submitCurrentForm}>
           {actionType === "fractions" && (
             <div className="field-grid two-cols">
               <label className="field">
-                <span>Codigo da fracao</span>
+              <span>Código da fração</span>
                 <input
                   required
                   value={fractionForm.code}
@@ -3725,10 +3741,10 @@ function QuickActionDrawer({ open, actionType, allowedActionTypes, onActionTypeC
                   value={fractionForm.type}
                   onChange={(event) => setFractionForm((previous) => ({ ...previous, type: event.target.value }))}
                 >
-                  <option value="habitacao">Habitacao</option>
+                <option value="habitacao">Habitação</option>
                   <option value="loja">Loja</option>
                   <option value="estacionamento">Estacionamento</option>
-                  <option value="arrecadacao">Arrecadacao</option>
+                  <option value="arrecadacao">Arrecadação</option>
                 </select>
               </label>
               <label className="field">
@@ -3755,7 +3771,7 @@ function QuickActionDrawer({ open, actionType, allowedActionTypes, onActionTypeC
                 />
               </label>
               <label className="field">
-                <span>Area privativa (m2)</span>
+              <span>Área privativa (m2)</span>
                 <input
                   type="number"
                   min="0"
@@ -3785,7 +3801,7 @@ function QuickActionDrawer({ open, actionType, allowedActionTypes, onActionTypeC
                   onChange={(event) =>
                     setFractionForm((previous) => ({ ...previous, ownerName: event.target.value }))
                   }
-                  placeholder="Nome do proprietario"
+                  placeholder="Nome do proprietário"
                 />
               </label>
               <label className="field">
@@ -3800,7 +3816,7 @@ function QuickActionDrawer({ open, actionType, allowedActionTypes, onActionTypeC
                 />
               </label>
               <label className="field">
-                <span>Telemovel titular</span>
+                <span>Telemóvel titular</span>
                 <input
                   value={fractionForm.ownerPhone}
                   onChange={(event) =>
@@ -3825,7 +3841,7 @@ function QuickActionDrawer({ open, actionType, allowedActionTypes, onActionTypeC
           {actionType === "finance" && (
             <div className="field-grid">
               <label className="field">
-                <span>Fracao</span>
+              <span>Fração</span>
                 <select
                   required
                   value={chargeForm.fractionId}
@@ -3847,11 +3863,11 @@ function QuickActionDrawer({ open, actionType, allowedActionTypes, onActionTypeC
                   <option value="quota">Quota</option>
                   <option value="reserve_fund">Fundo de reserva</option>
                   <option value="adjustment">Acerto</option>
-                  <option value="penalty">Penalizacao</option>
+                  <option value="penalty">Penalização</option>
                 </select>
               </label>
               <label className="field">
-                <span>Periodo</span>
+              <span>Período</span>
                 <input
                   required
                   type="month"
@@ -3885,12 +3901,12 @@ function QuickActionDrawer({ open, actionType, allowedActionTypes, onActionTypeC
           {actionType === "issues" && (
             <div className="field-grid">
               <label className="field">
-                <span>Titulo</span>
+              <span>Título</span>
                 <input
                   required
                   value={issueForm.title}
                   onChange={(event) => setIssueForm((previous) => ({ ...previous, title: event.target.value }))}
-                  placeholder="Ex: Infiltracao na cobertura"
+                  placeholder="Ex: Infiltração na cobertura"
                 />
               </label>
               <label className="field">
@@ -3907,7 +3923,7 @@ function QuickActionDrawer({ open, actionType, allowedActionTypes, onActionTypeC
                 </select>
               </label>
               <label className="field">
-                <span>Prioridade</span>
+              <span>Prioridade</span>
                 <select
                   value={issueForm.priority}
                   onChange={(event) => setIssueForm((previous) => ({ ...previous, priority: event.target.value }))}
@@ -3915,16 +3931,16 @@ function QuickActionDrawer({ open, actionType, allowedActionTypes, onActionTypeC
                   <option value="low">Baixa</option>
                   <option value="medium">Media</option>
                   <option value="high">Alta</option>
-                  <option value="critical">Critica</option>
+                  <option value="critical">Crítica</option>
                 </select>
               </label>
               <label className="field">
-                <span>Fracao</span>
+              <span>Fração</span>
                 <select
                   value={issueForm.fractionId}
                   onChange={(event) => setIssueForm((previous) => ({ ...previous, fractionId: event.target.value }))}
                 >
-                  <option value="common">Area comum</option>
+                <option value="common">Área comum</option>
                   {orderedFractions.map((fraction) => (
                     <option key={fraction.id} value={fraction.id}>
                       {fraction.code}
@@ -3933,7 +3949,7 @@ function QuickActionDrawer({ open, actionType, allowedActionTypes, onActionTypeC
                 </select>
               </label>
               <label className="field full-row">
-                <span>Descricao</span>
+              <span>Descrição</span>
                 <textarea
                   rows={4}
                   value={issueForm.description}
@@ -3956,8 +3972,8 @@ function QuickActionDrawer({ open, actionType, allowedActionTypes, onActionTypeC
                     setAssemblyForm((previous) => ({ ...previous, meetingType: event.target.value }))
                   }
                 >
-                  <option value="ordinary">Ordinaria</option>
-                  <option value="extraordinary">Extraordinaria</option>
+                <option value="ordinary">Ordinária</option>
+                <option value="extraordinary">Extraordinária</option>
                 </select>
               </label>
               <label className="field">
@@ -3988,7 +4004,7 @@ function QuickActionDrawer({ open, actionType, allowedActionTypes, onActionTypeC
               Cancelar
             </button>
             <button type="submit" className="primary-btn" disabled={allowedActionTypes.length === 0}>
-              Guardar acao
+Guardar ação
             </button>
           </footer>
         </form>
@@ -4004,7 +4020,7 @@ function ComplianceScreen({ auditEntries, auditQuery, setAuditQuery, auditDomain
         <article className="panel">
           <header className="panel-header">
             <h3>Checklist RGPD operacional</h3>
-            <span>Prioridade de lancamento</span>
+            <span>Prioridade de lançamento</span>
           </header>
           <ul className="check-list">
             {COMPLIANCE_TASKS.map((task) => (
@@ -4024,16 +4040,16 @@ function ComplianceScreen({ auditEntries, auditQuery, setAuditQuery, auditDomain
 
         <article className="panel">
           <header className="panel-header">
-            <h3>Templates juridicos</h3>
-            <span>Pre-validados para edicao</span>
+          <h3>Templates jurídicos</h3>
+          <span>Pré-validados para edição</span>
           </header>
           <ul className="simple-list">
             <li>
-              <span>Politica de privacidade</span>
+            <span>Política de privacidade</span>
               <strong>v0.1</strong>
             </li>
             <li>
-              <span>Termos de utilizacao</span>
+            <span>Termos de utilização</span>
               <strong>v0.1</strong>
             </li>
             <li>
@@ -4062,9 +4078,9 @@ function ComplianceScreen({ auditEntries, auditQuery, setAuditQuery, auditDomain
             className="filter-select"
             value={auditDomain}
             onChange={(event) => setAuditDomain(event.target.value)}
-            aria-label="Filtrar dominio de auditoria"
+aria-label="Filtrar domínio de auditoria"
           >
-            <option value="all">Todos os dominios</option>
+          <option value="all">Todos os domínios</option>
             <option value="financeiro">Financeiro</option>
             <option value="operacional">Operacional</option>
             <option value="governance">Governance</option>
@@ -4077,7 +4093,7 @@ function ComplianceScreen({ auditEntries, auditQuery, setAuditQuery, auditDomain
               type="search"
               value={auditQuery}
               onChange={(event) => setAuditQuery(event.target.value)}
-              placeholder="Pesquisar por acao, detalhe ou ator"
+              placeholder="Pesquisar por ação, detalhe ou ator"
             />
           </div>
         </div>
@@ -4087,8 +4103,8 @@ function ComplianceScreen({ auditEntries, auditQuery, setAuditQuery, auditDomain
               <tr>
                 <th>Data</th>
                 <th>Ator</th>
-                <th>Dominio</th>
-                <th>Acao</th>
+                <th>Domínio</th>
+                <th>Ação</th>
                 <th>Detalhe</th>
               </tr>
             </thead>
@@ -4112,27 +4128,27 @@ function ComplianceScreen({ auditEntries, auditQuery, setAuditQuery, auditDomain
       <article className="panel">
         <header className="panel-header">
           <h3>Trilho de auditoria recomendado para V1</h3>
-          <span>Campos minimos</span>
+          <span>Campos mínimos</span>
         </header>
         <div className="audit-grid">
           <article>
             <h4>Financeiro</h4>
             <p>
-              Criacao/edicao de encargos, alteracao de valores, conciliacao manual e anulacoes de pagamentos devem ser
+            Criação/edição de encargos, alteração de valores, conciliação manual e anulações de pagamentos devem ser
               auditados com before/after.
             </p>
           </article>
           <article>
             <h4>Governance</h4>
             <p>
-              Convocatorias, alteracoes de ordem de trabalhos, votacoes e atas publicadas exigem registo de ator,
-              timestamp e justificacao.
+            Convocatórias, alterações de ordem de trabalhos, votações e atas publicadas exigem registo de ator,
+            timestamp e justificação.
             </p>
           </article>
           <article>
             <h4>Dados pessoais</h4>
             <p>
-              Operacoes de exportacao, apagamento e retificacao de dados devem ter trilho completo para resposta a
+            Operações de exportação, apagamento e retificação de dados devem ter trilho completo para resposta a
               pedidos do titular.
             </p>
           </article>
