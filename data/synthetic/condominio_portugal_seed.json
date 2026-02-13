@@ -1,0 +1,2718 @@
+{
+  "meta": {
+    "generatedAt": "2026-02-12",
+    "locale": "pt-PT",
+    "currency": "EUR",
+    "disclaimer": "Dados sinteticos para desenvolvimento e QA. Nao representam pessoas reais."
+  },
+  "condominium": {
+    "id": "condo-pt-001",
+    "name": "Condominio Jardim Atlantico",
+    "taxNumber": "509123456",
+    "address": "Rua das Magnolias, 25",
+    "postalCode": "1700-123",
+    "city": "Lisboa",
+    "country": "PT",
+    "floors": 11,
+    "totalFractions": 30,
+    "managementType": "professional",
+    "managerCompany": "GestCondo Pro, Lda"
+  },
+  "catalogs": {
+    "documentTypes": [
+      "regulamento_interno",
+      "ata_assembleia",
+      "convocatoria",
+      "apolice_seguro",
+      "contrato_manutencao_elevador",
+      "contrato_limpeza",
+      "certificado_eletrico",
+      "certificado_extintores",
+      "orcamento_obra",
+      "fatura_fornecedor",
+      "recibo_quota",
+      "mapa_quotas",
+      "politica_privacidade",
+      "termos_utilizacao",
+      "dpa_subcontratante",
+      "plano_emergencia",
+      "plano_preventivo_manutencao",
+      "inspecao_gas",
+      "inspecao_elevador",
+      "apolice_multirriscos"
+    ],
+    "issueCategories": [
+      "infiltracao",
+      "elevador",
+      "ruido",
+      "iluminacao",
+      "porta_garagem",
+      "limpeza",
+      "jardim",
+      "canalizacao",
+      "eletricidade",
+      "videoporteiro",
+      "pragas",
+      "seguranca"
+    ],
+    "paymentMethods": [
+      "bank_transfer",
+      "multibanco",
+      "mbway",
+      "sepa",
+      "cash"
+    ]
+  },
+  "fractions": [
+    {
+      "id": "fraction-lj1",
+      "code": "LJ1",
+      "floorNumber": 0,
+      "type": "loja",
+      "typology": "N/A",
+      "privateAreaM2": 95,
+      "permillage": 44,
+      "monthlyFee": 165,
+      "status": "active"
+    },
+    {
+      "id": "fraction-lj2",
+      "code": "LJ2",
+      "floorNumber": 0,
+      "type": "loja",
+      "typology": "N/A",
+      "privateAreaM2": 88,
+      "permillage": 40,
+      "monthlyFee": 148,
+      "status": "active"
+    },
+    {
+      "id": "fraction-g01",
+      "code": "G01",
+      "floorNumber": 0,
+      "type": "estacionamento",
+      "typology": "N/A",
+      "privateAreaM2": 14,
+      "permillage": 8,
+      "monthlyFee": 18,
+      "status": "active"
+    },
+    {
+      "id": "fraction-ar01",
+      "code": "AR01",
+      "floorNumber": 0,
+      "type": "arrecadacao",
+      "typology": "N/A",
+      "privateAreaM2": 11,
+      "permillage": 6,
+      "monthlyFee": 12,
+      "status": "active"
+    },
+    {
+      "id": "fraction-1a",
+      "code": "1A",
+      "floorNumber": 1,
+      "type": "habitacao",
+      "typology": "T0",
+      "privateAreaM2": 69.5,
+      "permillage": 30,
+      "monthlyFee": 54,
+      "status": "active"
+    },
+    {
+      "id": "fraction-1b",
+      "code": "1B",
+      "floorNumber": 1,
+      "type": "habitacao",
+      "typology": "T1",
+      "privateAreaM2": 77.5,
+      "permillage": 32,
+      "monthlyFee": 57,
+      "status": "active"
+    },
+    {
+      "id": "fraction-1c",
+      "code": "1C",
+      "floorNumber": 1,
+      "type": "habitacao",
+      "typology": "T1",
+      "privateAreaM2": 85.5,
+      "permillage": 34,
+      "monthlyFee": 60,
+      "status": "active"
+    },
+    {
+      "id": "fraction-2a",
+      "code": "2A",
+      "floorNumber": 2,
+      "type": "habitacao",
+      "typology": "T2",
+      "privateAreaM2": 95,
+      "permillage": 36,
+      "monthlyFee": 65,
+      "status": "active"
+    },
+    {
+      "id": "fraction-2b",
+      "code": "2B",
+      "floorNumber": 2,
+      "type": "habitacao",
+      "typology": "T2",
+      "privateAreaM2": 103,
+      "permillage": 38,
+      "monthlyFee": 56,
+      "status": "active"
+    },
+    {
+      "id": "fraction-2c",
+      "code": "2C",
+      "floorNumber": 2,
+      "type": "habitacao",
+      "typology": "T3",
+      "privateAreaM2": 111,
+      "permillage": 30,
+      "monthlyFee": 59,
+      "status": "active"
+    },
+    {
+      "id": "fraction-3a",
+      "code": "3A",
+      "floorNumber": 3,
+      "type": "habitacao",
+      "typology": "T3",
+      "privateAreaM2": 72.5,
+      "permillage": 32,
+      "monthlyFee": 64,
+      "status": "active"
+    },
+    {
+      "id": "fraction-3b",
+      "code": "3B",
+      "floorNumber": 3,
+      "type": "habitacao",
+      "typology": "T4",
+      "privateAreaM2": 80.5,
+      "permillage": 34,
+      "monthlyFee": 67,
+      "status": "active"
+    },
+    {
+      "id": "fraction-3c",
+      "code": "3C",
+      "floorNumber": 3,
+      "type": "habitacao",
+      "typology": "T0",
+      "privateAreaM2": 88.5,
+      "permillage": 36,
+      "monthlyFee": 58,
+      "status": "active"
+    },
+    {
+      "id": "fraction-4a",
+      "code": "4A",
+      "floorNumber": 4,
+      "type": "habitacao",
+      "typology": "T1",
+      "privateAreaM2": 98,
+      "permillage": 38,
+      "monthlyFee": 63,
+      "status": "active"
+    },
+    {
+      "id": "fraction-4b",
+      "code": "4B",
+      "floorNumber": 4,
+      "type": "habitacao",
+      "typology": "T1",
+      "privateAreaM2": 106,
+      "permillage": 30,
+      "monthlyFee": 66,
+      "status": "active"
+    },
+    {
+      "id": "fraction-4c",
+      "code": "4C",
+      "floorNumber": 4,
+      "type": "habitacao",
+      "typology": "T2",
+      "privateAreaM2": 114,
+      "permillage": 32,
+      "monthlyFee": 69,
+      "status": "active"
+    },
+    {
+      "id": "fraction-5a",
+      "code": "5A",
+      "floorNumber": 5,
+      "type": "habitacao",
+      "typology": "T2",
+      "privateAreaM2": 75.5,
+      "permillage": 34,
+      "monthlyFee": 62,
+      "status": "active"
+    },
+    {
+      "id": "fraction-5b",
+      "code": "5B",
+      "floorNumber": 5,
+      "type": "habitacao",
+      "typology": "T3",
+      "privateAreaM2": 83.5,
+      "permillage": 36,
+      "monthlyFee": 65,
+      "status": "active"
+    },
+    {
+      "id": "fraction-5c",
+      "code": "5C",
+      "floorNumber": 5,
+      "type": "habitacao",
+      "typology": "T3",
+      "privateAreaM2": 91.5,
+      "permillage": 38,
+      "monthlyFee": 68,
+      "status": "active"
+    },
+    {
+      "id": "fraction-6a",
+      "code": "6A",
+      "floorNumber": 6,
+      "type": "habitacao",
+      "typology": "T4",
+      "privateAreaM2": 101,
+      "permillage": 30,
+      "monthlyFee": 73,
+      "status": "active"
+    },
+    {
+      "id": "fraction-6b",
+      "code": "6B",
+      "floorNumber": 6,
+      "type": "habitacao",
+      "typology": "T0",
+      "privateAreaM2": 109,
+      "permillage": 32,
+      "monthlyFee": 64,
+      "status": "active"
+    },
+    {
+      "id": "fraction-6c",
+      "code": "6C",
+      "floorNumber": 6,
+      "type": "habitacao",
+      "typology": "T1",
+      "privateAreaM2": 117,
+      "permillage": 34,
+      "monthlyFee": 67,
+      "status": "active"
+    },
+    {
+      "id": "fraction-7a",
+      "code": "7A",
+      "floorNumber": 7,
+      "type": "habitacao",
+      "typology": "T1",
+      "privateAreaM2": 78.5,
+      "permillage": 36,
+      "monthlyFee": 72,
+      "status": "active"
+    },
+    {
+      "id": "fraction-7b",
+      "code": "7B",
+      "floorNumber": 7,
+      "type": "habitacao",
+      "typology": "T2",
+      "privateAreaM2": 86.5,
+      "permillage": 38,
+      "monthlyFee": 75,
+      "status": "active"
+    },
+    {
+      "id": "fraction-8a",
+      "code": "8A",
+      "floorNumber": 8,
+      "type": "habitacao",
+      "typology": "T2",
+      "privateAreaM2": 96,
+      "permillage": 30,
+      "monthlyFee": 68,
+      "status": "active"
+    },
+    {
+      "id": "fraction-8b",
+      "code": "8B",
+      "floorNumber": 8,
+      "type": "habitacao",
+      "typology": "T3",
+      "privateAreaM2": 104,
+      "permillage": 32,
+      "monthlyFee": 71,
+      "status": "active"
+    },
+    {
+      "id": "fraction-9a",
+      "code": "9A",
+      "floorNumber": 9,
+      "type": "habitacao",
+      "typology": "T3",
+      "privateAreaM2": 113.5,
+      "permillage": 34,
+      "monthlyFee": 76,
+      "status": "active"
+    },
+    {
+      "id": "fraction-9b",
+      "code": "9B",
+      "floorNumber": 9,
+      "type": "habitacao",
+      "typology": "T4",
+      "privateAreaM2": 121.5,
+      "permillage": 36,
+      "monthlyFee": 79,
+      "status": "active"
+    },
+    {
+      "id": "fraction-10a",
+      "code": "10A",
+      "floorNumber": 10,
+      "type": "habitacao",
+      "typology": "T0",
+      "privateAreaM2": 83,
+      "permillage": 38,
+      "monthlyFee": 72,
+      "status": "active"
+    },
+    {
+      "id": "fraction-10b",
+      "code": "10B",
+      "floorNumber": 10,
+      "type": "habitacao",
+      "typology": "T1",
+      "privateAreaM2": 91,
+      "permillage": 30,
+      "monthlyFee": 75,
+      "status": "active"
+    }
+  ],
+  "people": [
+    {
+      "id": "person-owner-001",
+      "fullName": "Ana Martins",
+      "roleType": "owner",
+      "taxNumber": "210000000",
+      "email": "owner001@example.pt",
+      "phone": "+35191000001"
+    },
+    {
+      "id": "person-owner-002",
+      "fullName": "Joao Pereira",
+      "roleType": "owner",
+      "taxNumber": "210000001",
+      "email": "owner002@example.pt",
+      "phone": "+35191000002"
+    },
+    {
+      "id": "person-owner-003",
+      "fullName": "Carla Sousa",
+      "roleType": "owner",
+      "taxNumber": "210000002",
+      "email": "owner003@example.pt",
+      "phone": "+35191000003"
+    },
+    {
+      "id": "person-owner-004",
+      "fullName": "Miguel Costa",
+      "roleType": "owner",
+      "taxNumber": "210000003",
+      "email": "owner004@example.pt",
+      "phone": "+35191000004"
+    },
+    {
+      "id": "person-owner-005",
+      "fullName": "Rita Gomes",
+      "roleType": "owner",
+      "taxNumber": "210000004",
+      "email": "owner005@example.pt",
+      "phone": "+35191000005"
+    },
+    {
+      "id": "person-owner-006",
+      "fullName": "Pedro Silva",
+      "roleType": "owner",
+      "taxNumber": "210000005",
+      "email": "owner006@example.pt",
+      "phone": "+35191000006"
+    },
+    {
+      "id": "person-owner-007",
+      "fullName": "Sofia Teixeira",
+      "roleType": "owner",
+      "taxNumber": "210000006",
+      "email": "owner007@example.pt",
+      "phone": "+35191000007"
+    },
+    {
+      "id": "person-owner-008",
+      "fullName": "Nuno Almeida",
+      "roleType": "owner",
+      "taxNumber": "210000007",
+      "email": "owner008@example.pt",
+      "phone": "+35191000008"
+    },
+    {
+      "id": "person-owner-009",
+      "fullName": "Ines Fernandes",
+      "roleType": "owner",
+      "taxNumber": "210000008",
+      "email": "owner009@example.pt",
+      "phone": "+35191000009"
+    },
+    {
+      "id": "person-owner-010",
+      "fullName": "Tiago Rocha",
+      "roleType": "owner",
+      "taxNumber": "210000009",
+      "email": "owner010@example.pt",
+      "phone": "+35191000010"
+    },
+    {
+      "id": "person-owner-011",
+      "fullName": "Beatriz Duarte",
+      "roleType": "owner",
+      "taxNumber": "210000010",
+      "email": "owner011@example.pt",
+      "phone": "+35191000011"
+    },
+    {
+      "id": "person-owner-012",
+      "fullName": "Diogo Araujo",
+      "roleType": "owner",
+      "taxNumber": "210000011",
+      "email": "owner012@example.pt",
+      "phone": "+35191000012"
+    },
+    {
+      "id": "person-owner-013",
+      "fullName": "Mariana Neves",
+      "roleType": "owner",
+      "taxNumber": "210000012",
+      "email": "owner013@example.pt",
+      "phone": "+35191000013"
+    },
+    {
+      "id": "person-owner-014",
+      "fullName": "Bruno Correia",
+      "roleType": "owner",
+      "taxNumber": "210000013",
+      "email": "owner014@example.pt",
+      "phone": "+35191000014"
+    },
+    {
+      "id": "person-owner-015",
+      "fullName": "Helena Cardoso",
+      "roleType": "owner",
+      "taxNumber": "210000014",
+      "email": "owner015@example.pt",
+      "phone": "+35191000015"
+    },
+    {
+      "id": "person-owner-016",
+      "fullName": "Ricardo Pires",
+      "roleType": "owner",
+      "taxNumber": "210000015",
+      "email": "owner016@example.pt",
+      "phone": "+35191000016"
+    },
+    {
+      "id": "person-owner-017",
+      "fullName": "Marta Lopes",
+      "roleType": "owner",
+      "taxNumber": "210000016",
+      "email": "owner017@example.pt",
+      "phone": "+35191000017"
+    },
+    {
+      "id": "person-owner-018",
+      "fullName": "Goncalo Faria",
+      "roleType": "owner",
+      "taxNumber": "210000017",
+      "email": "owner018@example.pt",
+      "phone": "+35191000018"
+    },
+    {
+      "id": "person-owner-019",
+      "fullName": "Patricia Reis",
+      "roleType": "owner",
+      "taxNumber": "210000018",
+      "email": "owner019@example.pt",
+      "phone": "+35191000019"
+    },
+    {
+      "id": "person-owner-020",
+      "fullName": "Luis Baptista",
+      "roleType": "owner",
+      "taxNumber": "210000019",
+      "email": "owner020@example.pt",
+      "phone": "+35191000020"
+    },
+    {
+      "id": "person-owner-021",
+      "fullName": "Sara Moreira",
+      "roleType": "owner",
+      "taxNumber": "210000020",
+      "email": "owner021@example.pt",
+      "phone": "+35191000021"
+    },
+    {
+      "id": "person-owner-022",
+      "fullName": "Andre Tavares",
+      "roleType": "owner",
+      "taxNumber": "210000021",
+      "email": "owner022@example.pt",
+      "phone": "+35191000022"
+    },
+    {
+      "id": "person-owner-023",
+      "fullName": "Vera Mota",
+      "roleType": "owner",
+      "taxNumber": "210000022",
+      "email": "owner023@example.pt",
+      "phone": "+35191000023"
+    },
+    {
+      "id": "person-owner-024",
+      "fullName": "Rui Mendonca",
+      "roleType": "owner",
+      "taxNumber": "210000023",
+      "email": "owner024@example.pt",
+      "phone": "+35191000024"
+    },
+    {
+      "id": "person-owner-025",
+      "fullName": "Claudia Matos",
+      "roleType": "owner",
+      "taxNumber": "210000024",
+      "email": "owner025@example.pt",
+      "phone": "+35191000025"
+    },
+    {
+      "id": "person-owner-026",
+      "fullName": "Daniel Coelho",
+      "roleType": "owner",
+      "taxNumber": "210000025",
+      "email": "owner026@example.pt",
+      "phone": "+35191000026"
+    },
+    {
+      "id": "person-owner-027",
+      "fullName": "Filipa Freitas",
+      "roleType": "owner",
+      "taxNumber": "210000026",
+      "email": "owner027@example.pt",
+      "phone": "+35191000027"
+    },
+    {
+      "id": "person-owner-028",
+      "fullName": "Hugo Monteiro",
+      "roleType": "owner",
+      "taxNumber": "210000027",
+      "email": "owner028@example.pt",
+      "phone": "+35191000028"
+    },
+    {
+      "id": "person-owner-029",
+      "fullName": "Teresa Vidal",
+      "roleType": "owner",
+      "taxNumber": "210000028",
+      "email": "owner029@example.pt",
+      "phone": "+35191000029"
+    },
+    {
+      "id": "person-owner-030",
+      "fullName": "Paulo Cunha",
+      "roleType": "owner",
+      "taxNumber": "210000029",
+      "email": "owner030@example.pt",
+      "phone": "+35191000030"
+    },
+    {
+      "id": "person-tenant-001",
+      "fullName": "Arrendatario 1",
+      "roleType": "tenant",
+      "taxNumber": "220000000",
+      "email": "tenant001@example.pt",
+      "phone": "+35192000001",
+      "fractionId": "fraction-1a"
+    },
+    {
+      "id": "person-tenant-002",
+      "fullName": "Arrendatario 2",
+      "roleType": "tenant",
+      "taxNumber": "220000001",
+      "email": "tenant002@example.pt",
+      "phone": "+35192000002",
+      "fractionId": "fraction-2b"
+    },
+    {
+      "id": "person-tenant-003",
+      "fullName": "Arrendatario 3",
+      "roleType": "tenant",
+      "taxNumber": "220000002",
+      "email": "tenant003@example.pt",
+      "phone": "+35192000003",
+      "fractionId": "fraction-3c"
+    },
+    {
+      "id": "person-tenant-004",
+      "fullName": "Arrendatario 4",
+      "roleType": "tenant",
+      "taxNumber": "220000003",
+      "email": "tenant004@example.pt",
+      "phone": "+35192000004",
+      "fractionId": "fraction-5a"
+    },
+    {
+      "id": "person-tenant-005",
+      "fullName": "Arrendatario 5",
+      "roleType": "tenant",
+      "taxNumber": "220000004",
+      "email": "tenant005@example.pt",
+      "phone": "+35192000005",
+      "fractionId": "fraction-6b"
+    },
+    {
+      "id": "person-tenant-006",
+      "fullName": "Arrendatario 6",
+      "roleType": "tenant",
+      "taxNumber": "220000005",
+      "email": "tenant006@example.pt",
+      "phone": "+35192000006",
+      "fractionId": "fraction-8a"
+    },
+    {
+      "id": "person-tenant-007",
+      "fullName": "Arrendatario 7",
+      "roleType": "tenant",
+      "taxNumber": "220000006",
+      "email": "tenant007@example.pt",
+      "phone": "+35192000007",
+      "fractionId": "fraction-10a"
+    },
+    {
+      "id": "person-manager-001",
+      "fullName": "Luis Laginha",
+      "roleType": "manager",
+      "taxNumber": "299000001",
+      "email": "gestor1@example.pt",
+      "phone": "+351930000001"
+    },
+    {
+      "id": "person-manager-002",
+      "fullName": "Mafalda Ribeiro",
+      "roleType": "manager",
+      "taxNumber": "299000002",
+      "email": "gestor2@example.pt",
+      "phone": "+351930000002"
+    },
+    {
+      "id": "person-supplier-001",
+      "fullName": "Elevadores Atlantico Lda",
+      "roleType": "supplier",
+      "taxNumber": "509000001",
+      "email": "suporte@elevadoresatlantico.pt",
+      "phone": "+351210000001",
+      "specialty": "elevador"
+    },
+    {
+      "id": "person-supplier-002",
+      "fullName": "CanalMax Servicos",
+      "roleType": "supplier",
+      "taxNumber": "509000002",
+      "email": "equipas@canalmax.pt",
+      "phone": "+351210000002",
+      "specialty": "canalizacao"
+    },
+    {
+      "id": "person-supplier-003",
+      "fullName": "LuzPronta Manutencao",
+      "roleType": "supplier",
+      "taxNumber": "509000003",
+      "email": "helpdesk@luzpronta.pt",
+      "phone": "+351210000003",
+      "specialty": "eletricidade"
+    },
+    {
+      "id": "person-supplier-004",
+      "fullName": "PortaSegura Tecnica",
+      "roleType": "supplier",
+      "taxNumber": "509000004",
+      "email": "operacoes@portasegura.pt",
+      "phone": "+351210000004",
+      "specialty": "acessos"
+    },
+    {
+      "id": "person-supplier-005",
+      "fullName": "HigiaLimpa Lda",
+      "roleType": "supplier",
+      "taxNumber": "509000005",
+      "email": "coord@higialimpa.pt",
+      "phone": "+351210000005",
+      "specialty": "limpeza"
+    }
+  ],
+  "fractionParties": [
+    {
+      "id": "fp-owner-001",
+      "fractionId": "fraction-lj1",
+      "personId": "person-owner-001",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-002",
+      "fractionId": "fraction-lj2",
+      "personId": "person-owner-002",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-003",
+      "fractionId": "fraction-g01",
+      "personId": "person-owner-003",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-004",
+      "fractionId": "fraction-ar01",
+      "personId": "person-owner-004",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-005",
+      "fractionId": "fraction-1a",
+      "personId": "person-owner-005",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-006",
+      "fractionId": "fraction-1b",
+      "personId": "person-owner-006",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-007",
+      "fractionId": "fraction-1c",
+      "personId": "person-owner-007",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-008",
+      "fractionId": "fraction-2a",
+      "personId": "person-owner-008",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-009",
+      "fractionId": "fraction-2b",
+      "personId": "person-owner-009",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-010",
+      "fractionId": "fraction-2c",
+      "personId": "person-owner-010",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-011",
+      "fractionId": "fraction-3a",
+      "personId": "person-owner-011",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-012",
+      "fractionId": "fraction-3b",
+      "personId": "person-owner-012",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-013",
+      "fractionId": "fraction-3c",
+      "personId": "person-owner-013",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-014",
+      "fractionId": "fraction-4a",
+      "personId": "person-owner-014",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-015",
+      "fractionId": "fraction-4b",
+      "personId": "person-owner-015",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-016",
+      "fractionId": "fraction-4c",
+      "personId": "person-owner-016",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-017",
+      "fractionId": "fraction-5a",
+      "personId": "person-owner-017",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-018",
+      "fractionId": "fraction-5b",
+      "personId": "person-owner-018",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-019",
+      "fractionId": "fraction-5c",
+      "personId": "person-owner-019",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-020",
+      "fractionId": "fraction-6a",
+      "personId": "person-owner-020",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-021",
+      "fractionId": "fraction-6b",
+      "personId": "person-owner-021",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-022",
+      "fractionId": "fraction-6c",
+      "personId": "person-owner-022",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-023",
+      "fractionId": "fraction-7a",
+      "personId": "person-owner-023",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-024",
+      "fractionId": "fraction-7b",
+      "personId": "person-owner-024",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-025",
+      "fractionId": "fraction-8a",
+      "personId": "person-owner-025",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-026",
+      "fractionId": "fraction-8b",
+      "personId": "person-owner-026",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-027",
+      "fractionId": "fraction-9a",
+      "personId": "person-owner-027",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-028",
+      "fractionId": "fraction-9b",
+      "personId": "person-owner-028",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-029",
+      "fractionId": "fraction-10a",
+      "personId": "person-owner-029",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-owner-030",
+      "fractionId": "fraction-10b",
+      "personId": "person-owner-030",
+      "relationship": "owner",
+      "startDate": "2024-01-01",
+      "endDate": null,
+      "isPrimary": true
+    },
+    {
+      "id": "fp-tenant-001",
+      "fractionId": "fraction-1a",
+      "personId": "person-tenant-001",
+      "relationship": "tenant",
+      "startDate": "2025-01-01",
+      "endDate": null,
+      "isPrimary": false
+    },
+    {
+      "id": "fp-tenant-002",
+      "fractionId": "fraction-2b",
+      "personId": "person-tenant-002",
+      "relationship": "tenant",
+      "startDate": "2025-01-01",
+      "endDate": null,
+      "isPrimary": false
+    },
+    {
+      "id": "fp-tenant-003",
+      "fractionId": "fraction-3c",
+      "personId": "person-tenant-003",
+      "relationship": "tenant",
+      "startDate": "2025-01-01",
+      "endDate": null,
+      "isPrimary": false
+    },
+    {
+      "id": "fp-tenant-004",
+      "fractionId": "fraction-5a",
+      "personId": "person-tenant-004",
+      "relationship": "tenant",
+      "startDate": "2025-01-01",
+      "endDate": null,
+      "isPrimary": false
+    },
+    {
+      "id": "fp-tenant-005",
+      "fractionId": "fraction-6b",
+      "personId": "person-tenant-005",
+      "relationship": "tenant",
+      "startDate": "2025-01-01",
+      "endDate": null,
+      "isPrimary": false
+    },
+    {
+      "id": "fp-tenant-006",
+      "fractionId": "fraction-8a",
+      "personId": "person-tenant-006",
+      "relationship": "tenant",
+      "startDate": "2025-01-01",
+      "endDate": null,
+      "isPrimary": false
+    },
+    {
+      "id": "fp-tenant-007",
+      "fractionId": "fraction-10a",
+      "personId": "person-tenant-007",
+      "relationship": "tenant",
+      "startDate": "2025-01-01",
+      "endDate": null,
+      "isPrimary": false
+    }
+  ],
+  "charges": [
+    {
+      "id": "charge-2026-01-lj1",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-lj1",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 165,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-lj2",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-lj2",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 148,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-g01",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-g01",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 18,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-ar01",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-ar01",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 12,
+      "status": "overdue"
+    },
+    {
+      "id": "charge-2026-01-1a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-1a",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 54,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-1b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-1b",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 57,
+      "status": "overdue"
+    },
+    {
+      "id": "charge-2026-01-1c",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-1c",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 60,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-2a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-2a",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 65,
+      "status": "overdue"
+    },
+    {
+      "id": "charge-2026-01-2b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-2b",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 56,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-2c",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-2c",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 59,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-3a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-3a",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 64,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-3b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-3b",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 67,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-3c",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-3c",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 58,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-4a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-4a",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 63,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-4b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-4b",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 66,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-4c",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-4c",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 69,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-5a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-5a",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 62,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-5b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-5b",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 65,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-5c",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-5c",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 68,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-6a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-6a",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 73,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-6b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-6b",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 64,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-6c",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-6c",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 67,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-7a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-7a",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 72,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-7b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-7b",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 75,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-8a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-8a",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 68,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-8b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-8b",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 71,
+      "status": "overdue"
+    },
+    {
+      "id": "charge-2026-01-9a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-9a",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 76,
+      "status": "overdue"
+    },
+    {
+      "id": "charge-2026-01-9b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-9b",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 79,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-10a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-10a",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 72,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-01-10b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-10b",
+      "kind": "quota",
+      "period": "2026-01",
+      "dueDate": "2026-01-08",
+      "amount": 75,
+      "status": "paid"
+    },
+    {
+      "id": "charge-2026-02-lj1",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-lj1",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 165,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-lj2",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-lj2",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 148,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-g01",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-g01",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 18,
+      "status": "partially_paid"
+    },
+    {
+      "id": "charge-2026-02-ar01",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-ar01",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 12,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-1a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-1a",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 54,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-1b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-1b",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 57,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-1c",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-1c",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 60,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-2a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-2a",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 65,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-2b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-2b",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 56,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-2c",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-2c",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 59,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-3a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-3a",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 64,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-3b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-3b",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 67,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-3c",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-3c",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 58,
+      "status": "partially_paid"
+    },
+    {
+      "id": "charge-2026-02-4a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-4a",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 63,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-4b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-4b",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 66,
+      "status": "partially_paid"
+    },
+    {
+      "id": "charge-2026-02-4c",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-4c",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 69,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-5a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-5a",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 62,
+      "status": "partially_paid"
+    },
+    {
+      "id": "charge-2026-02-5b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-5b",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 65,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-5c",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-5c",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 68,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-6a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-6a",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 73,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-6b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-6b",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 64,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-6c",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-6c",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 67,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-7a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-7a",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 72,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-7b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-7b",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 75,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-8a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-8a",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 68,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-8b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-8b",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 71,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-9a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-9a",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 76,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-9b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-9b",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 79,
+      "status": "partially_paid"
+    },
+    {
+      "id": "charge-2026-02-10a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-10a",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 72,
+      "status": "open"
+    },
+    {
+      "id": "charge-2026-02-10b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-10b",
+      "kind": "quota",
+      "period": "2026-02",
+      "dueDate": "2026-02-08",
+      "amount": 75,
+      "status": "partially_paid"
+    }
+  ],
+  "payments": [
+    {
+      "id": "pay-charge-2026-01-lj1",
+      "chargeId": "charge-2026-01-lj1",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-lj1",
+      "method": "bank_transfer",
+      "amount": 165,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100263",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-lj2",
+      "chargeId": "charge-2026-01-lj2",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-lj2",
+      "method": "multibanco",
+      "amount": 148,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100264",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-g01",
+      "chargeId": "charge-2026-01-g01",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-g01",
+      "method": "bank_transfer",
+      "amount": 18,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100200",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-1a",
+      "chargeId": "charge-2026-01-1a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-1a",
+      "method": "bank_transfer",
+      "amount": 54,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100146",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-1c",
+      "chargeId": "charge-2026-01-1c",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-1c",
+      "method": "mbway",
+      "amount": 60,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100148",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-2b",
+      "chargeId": "charge-2026-01-2b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-2b",
+      "method": "mbway",
+      "amount": 56,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100148",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-2c",
+      "chargeId": "charge-2026-01-2c",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-2c",
+      "method": "bank_transfer",
+      "amount": 59,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100149",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-3a",
+      "chargeId": "charge-2026-01-3a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-3a",
+      "method": "mbway",
+      "amount": 64,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100148",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-3b",
+      "chargeId": "charge-2026-01-3b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-3b",
+      "method": "bank_transfer",
+      "amount": 67,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100149",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-3c",
+      "chargeId": "charge-2026-01-3c",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-3c",
+      "method": "multibanco",
+      "amount": 58,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100150",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-4a",
+      "chargeId": "charge-2026-01-4a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-4a",
+      "method": "bank_transfer",
+      "amount": 63,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100149",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-4b",
+      "chargeId": "charge-2026-01-4b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-4b",
+      "method": "multibanco",
+      "amount": 66,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100150",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-4c",
+      "chargeId": "charge-2026-01-4c",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-4c",
+      "method": "mbway",
+      "amount": 69,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100151",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-5a",
+      "chargeId": "charge-2026-01-5a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-5a",
+      "method": "multibanco",
+      "amount": 62,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100150",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-5b",
+      "chargeId": "charge-2026-01-5b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-5b",
+      "method": "mbway",
+      "amount": 65,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100151",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-5c",
+      "chargeId": "charge-2026-01-5c",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-5c",
+      "method": "bank_transfer",
+      "amount": 68,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100152",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-6a",
+      "chargeId": "charge-2026-01-6a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-6a",
+      "method": "mbway",
+      "amount": 73,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100151",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-6b",
+      "chargeId": "charge-2026-01-6b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-6b",
+      "method": "bank_transfer",
+      "amount": 64,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100152",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-6c",
+      "chargeId": "charge-2026-01-6c",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-6c",
+      "method": "multibanco",
+      "amount": 67,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100153",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-7a",
+      "chargeId": "charge-2026-01-7a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-7a",
+      "method": "bank_transfer",
+      "amount": 72,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100152",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-7b",
+      "chargeId": "charge-2026-01-7b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-7b",
+      "method": "multibanco",
+      "amount": 75,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100153",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-8a",
+      "chargeId": "charge-2026-01-8a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-8a",
+      "method": "multibanco",
+      "amount": 68,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100153",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-9b",
+      "chargeId": "charge-2026-01-9b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-9b",
+      "method": "bank_transfer",
+      "amount": 79,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100155",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-10a",
+      "chargeId": "charge-2026-01-10a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-10a",
+      "method": "bank_transfer",
+      "amount": 72,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100194",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-01-10b",
+      "chargeId": "charge-2026-01-10b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-10b",
+      "method": "multibanco",
+      "amount": 75,
+      "paidAt": "2026-01-06",
+      "reference": "MB-100195",
+      "source": "imported"
+    },
+    {
+      "id": "pay-charge-2026-02-g01-partial",
+      "chargeId": "charge-2026-02-g01",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-g01",
+      "method": "mbway",
+      "amount": 9,
+      "paidAt": "2026-02-07",
+      "reference": "MBW-200200",
+      "source": "manual"
+    },
+    {
+      "id": "pay-charge-2026-02-3c-partial",
+      "chargeId": "charge-2026-02-3c",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-3c",
+      "method": "mbway",
+      "amount": 29,
+      "paidAt": "2026-02-07",
+      "reference": "MBW-200150",
+      "source": "manual"
+    },
+    {
+      "id": "pay-charge-2026-02-4b-partial",
+      "chargeId": "charge-2026-02-4b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-4b",
+      "method": "mbway",
+      "amount": 33,
+      "paidAt": "2026-02-07",
+      "reference": "MBW-200150",
+      "source": "manual"
+    },
+    {
+      "id": "pay-charge-2026-02-5a-partial",
+      "chargeId": "charge-2026-02-5a",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-5a",
+      "method": "mbway",
+      "amount": 31,
+      "paidAt": "2026-02-07",
+      "reference": "MBW-200150",
+      "source": "manual"
+    },
+    {
+      "id": "pay-charge-2026-02-9b-partial",
+      "chargeId": "charge-2026-02-9b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-9b",
+      "method": "mbway",
+      "amount": 39.5,
+      "paidAt": "2026-02-07",
+      "reference": "MBW-200155",
+      "source": "manual"
+    },
+    {
+      "id": "pay-charge-2026-02-10b-partial",
+      "chargeId": "charge-2026-02-10b",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-10b",
+      "method": "mbway",
+      "amount": 37.5,
+      "paidAt": "2026-02-07",
+      "reference": "MBW-200195",
+      "source": "manual"
+    }
+  ],
+  "documents": [
+    {
+      "id": "doc-001",
+      "condominiumId": "condo-pt-001",
+      "category": "regulamento_interno",
+      "title": "REGULAMENTO INTERNO 1",
+      "visibility": "manager_only",
+      "uploadedByPersonId": "person-manager-001",
+      "uploadedAt": "2026-01-01",
+      "storagePath": "/condo-pt-001/documents/regulamento_interno-1.pdf"
+    },
+    {
+      "id": "doc-002",
+      "condominiumId": "condo-pt-001",
+      "category": "ata_assembleia",
+      "title": "ATA ASSEMBLEIA 2",
+      "visibility": "residents",
+      "uploadedByPersonId": "person-manager-001",
+      "uploadedAt": "2026-01-02",
+      "storagePath": "/condo-pt-001/documents/ata_assembleia-2.pdf"
+    },
+    {
+      "id": "doc-003",
+      "condominiumId": "condo-pt-001",
+      "category": "convocatoria",
+      "title": "CONVOCATORIA 3",
+      "visibility": "all",
+      "uploadedByPersonId": "person-manager-001",
+      "uploadedAt": "2026-01-03",
+      "storagePath": "/condo-pt-001/documents/convocatoria-3.pdf"
+    },
+    {
+      "id": "doc-004",
+      "condominiumId": "condo-pt-001",
+      "category": "apolice_seguro",
+      "title": "APOLICE SEGURO 4",
+      "visibility": "manager_only",
+      "uploadedByPersonId": "person-manager-001",
+      "uploadedAt": "2026-01-04",
+      "storagePath": "/condo-pt-001/documents/apolice_seguro-4.pdf"
+    },
+    {
+      "id": "doc-005",
+      "condominiumId": "condo-pt-001",
+      "category": "contrato_manutencao_elevador",
+      "title": "CONTRATO MANUTENCAO ELEVADOR 5",
+      "visibility": "residents",
+      "uploadedByPersonId": "person-manager-001",
+      "uploadedAt": "2026-01-05",
+      "storagePath": "/condo-pt-001/documents/contrato_manutencao_elevador-5.pdf"
+    },
+    {
+      "id": "doc-006",
+      "condominiumId": "condo-pt-001",
+      "category": "contrato_limpeza",
+      "title": "CONTRATO LIMPEZA 6",
+      "visibility": "all",
+      "uploadedByPersonId": "person-manager-001",
+      "uploadedAt": "2026-01-06",
+      "storagePath": "/condo-pt-001/documents/contrato_limpeza-6.pdf"
+    },
+    {
+      "id": "doc-007",
+      "condominiumId": "condo-pt-001",
+      "category": "certificado_eletrico",
+      "title": "CERTIFICADO ELETRICO 7",
+      "visibility": "manager_only",
+      "uploadedByPersonId": "person-manager-001",
+      "uploadedAt": "2026-01-07",
+      "storagePath": "/condo-pt-001/documents/certificado_eletrico-7.pdf"
+    },
+    {
+      "id": "doc-008",
+      "condominiumId": "condo-pt-001",
+      "category": "certificado_extintores",
+      "title": "CERTIFICADO EXTINTORES 8",
+      "visibility": "residents",
+      "uploadedByPersonId": "person-manager-001",
+      "uploadedAt": "2026-01-08",
+      "storagePath": "/condo-pt-001/documents/certificado_extintores-8.pdf"
+    },
+    {
+      "id": "doc-009",
+      "condominiumId": "condo-pt-001",
+      "category": "orcamento_obra",
+      "title": "ORCAMENTO OBRA 9",
+      "visibility": "all",
+      "uploadedByPersonId": "person-manager-001",
+      "uploadedAt": "2026-01-09",
+      "storagePath": "/condo-pt-001/documents/orcamento_obra-9.pdf"
+    },
+    {
+      "id": "doc-010",
+      "condominiumId": "condo-pt-001",
+      "category": "fatura_fornecedor",
+      "title": "FATURA FORNECEDOR 10",
+      "visibility": "manager_only",
+      "uploadedByPersonId": "person-manager-001",
+      "uploadedAt": "2026-01-10",
+      "storagePath": "/condo-pt-001/documents/fatura_fornecedor-10.pdf"
+    },
+    {
+      "id": "doc-011",
+      "condominiumId": "condo-pt-001",
+      "category": "recibo_quota",
+      "title": "RECIBO QUOTA 11",
+      "visibility": "residents",
+      "uploadedByPersonId": "person-manager-001",
+      "uploadedAt": "2026-01-11",
+      "storagePath": "/condo-pt-001/documents/recibo_quota-11.pdf"
+    },
+    {
+      "id": "doc-012",
+      "condominiumId": "condo-pt-001",
+      "category": "mapa_quotas",
+      "title": "MAPA QUOTAS 12",
+      "visibility": "all",
+      "uploadedByPersonId": "person-manager-001",
+      "uploadedAt": "2026-01-12",
+      "storagePath": "/condo-pt-001/documents/mapa_quotas-12.pdf"
+    },
+    {
+      "id": "doc-013",
+      "condominiumId": "condo-pt-001",
+      "category": "politica_privacidade",
+      "title": "POLITICA PRIVACIDADE 13",
+      "visibility": "manager_only",
+      "uploadedByPersonId": "person-manager-001",
+      "uploadedAt": "2026-01-13",
+      "storagePath": "/condo-pt-001/documents/politica_privacidade-13.pdf"
+    },
+    {
+      "id": "doc-014",
+      "condominiumId": "condo-pt-001",
+      "category": "termos_utilizacao",
+      "title": "TERMOS UTILIZACAO 14",
+      "visibility": "residents",
+      "uploadedByPersonId": "person-manager-001",
+      "uploadedAt": "2026-01-14",
+      "storagePath": "/condo-pt-001/documents/termos_utilizacao-14.pdf"
+    },
+    {
+      "id": "doc-015",
+      "condominiumId": "condo-pt-001",
+      "category": "dpa_subcontratante",
+      "title": "DPA SUBCONTRATANTE 15",
+      "visibility": "all",
+      "uploadedByPersonId": "person-manager-001",
+      "uploadedAt": "2026-01-15",
+      "storagePath": "/condo-pt-001/documents/dpa_subcontratante-15.pdf"
+    },
+    {
+      "id": "doc-016",
+      "condominiumId": "condo-pt-001",
+      "category": "plano_emergencia",
+      "title": "PLANO EMERGENCIA 16",
+      "visibility": "manager_only",
+      "uploadedByPersonId": "person-manager-001",
+      "uploadedAt": "2026-01-16",
+      "storagePath": "/condo-pt-001/documents/plano_emergencia-16.pdf"
+    },
+    {
+      "id": "doc-017",
+      "condominiumId": "condo-pt-001",
+      "category": "plano_preventivo_manutencao",
+      "title": "PLANO PREVENTIVO MANUTENCAO 17",
+      "visibility": "residents",
+      "uploadedByPersonId": "person-manager-001",
+      "uploadedAt": "2026-01-17",
+      "storagePath": "/condo-pt-001/documents/plano_preventivo_manutencao-17.pdf"
+    },
+    {
+      "id": "doc-018",
+      "condominiumId": "condo-pt-001",
+      "category": "inspecao_gas",
+      "title": "INSPECAO GAS 18",
+      "visibility": "all",
+      "uploadedByPersonId": "person-manager-001",
+      "uploadedAt": "2026-01-18",
+      "storagePath": "/condo-pt-001/documents/inspecao_gas-18.pdf"
+    },
+    {
+      "id": "doc-019",
+      "condominiumId": "condo-pt-001",
+      "category": "inspecao_elevador",
+      "title": "INSPECAO ELEVADOR 19",
+      "visibility": "manager_only",
+      "uploadedByPersonId": "person-manager-001",
+      "uploadedAt": "2026-01-19",
+      "storagePath": "/condo-pt-001/documents/inspecao_elevador-19.pdf"
+    },
+    {
+      "id": "doc-020",
+      "condominiumId": "condo-pt-001",
+      "category": "apolice_multirriscos",
+      "title": "APOLICE MULTIRRISCOS 20",
+      "visibility": "residents",
+      "uploadedByPersonId": "person-manager-001",
+      "uploadedAt": "2026-01-20",
+      "storagePath": "/condo-pt-001/documents/apolice_multirriscos-20.pdf"
+    }
+  ],
+  "issues": [
+    {
+      "id": "issue-001",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-6a",
+      "createdByPersonId": "person-owner-001",
+      "category": "infiltracao",
+      "priority": "high",
+      "status": "in_progress",
+      "title": "Infiltracao na parede da caixa de escadas",
+      "description": "Descricao detalhada da ocorrencia: Infiltracao na parede da caixa de escadas.",
+      "openedAt": "2026-01-01T10:30:00Z",
+      "closedAt": null,
+      "assignedSupplierPersonId": "person-supplier-002"
+    },
+    {
+      "id": "issue-002",
+      "condominiumId": "condo-pt-001",
+      "fractionId": null,
+      "createdByPersonId": "person-owner-002",
+      "category": "elevador",
+      "priority": "critical",
+      "status": "waiting_supplier",
+      "title": "Elevador para entre os pisos 3 e 4",
+      "description": "Descricao detalhada da ocorrencia: Elevador para entre os pisos 3 e 4.",
+      "openedAt": "2026-01-02T10:30:00Z",
+      "closedAt": null,
+      "assignedSupplierPersonId": "person-supplier-001"
+    },
+    {
+      "id": "issue-003",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-2b",
+      "createdByPersonId": "person-owner-003",
+      "category": "ruido",
+      "priority": "medium",
+      "status": "new",
+      "title": "Queixa de ruido apos as 23h",
+      "description": "Descricao detalhada da ocorrencia: Queixa de ruido apos as 23h.",
+      "openedAt": "2026-01-03T10:30:00Z",
+      "closedAt": null,
+      "assignedSupplierPersonId": null
+    },
+    {
+      "id": "issue-004",
+      "condominiumId": "condo-pt-001",
+      "fractionId": null,
+      "createdByPersonId": "person-owner-004",
+      "category": "iluminacao",
+      "priority": "low",
+      "status": "resolved",
+      "title": "Luminaria fundida no piso -1",
+      "description": "Descricao detalhada da ocorrencia: Luminaria fundida no piso -1.",
+      "openedAt": "2026-01-04T10:30:00Z",
+      "closedAt": "2026-02-04T16:00:00Z",
+      "assignedSupplierPersonId": "person-supplier-003"
+    },
+    {
+      "id": "issue-005",
+      "condominiumId": "condo-pt-001",
+      "fractionId": null,
+      "createdByPersonId": "person-owner-005",
+      "category": "porta_garagem",
+      "priority": "high",
+      "status": "in_progress",
+      "title": "Porta da garagem nao fecha totalmente",
+      "description": "Descricao detalhada da ocorrencia: Porta da garagem nao fecha totalmente.",
+      "openedAt": "2026-01-05T10:30:00Z",
+      "closedAt": null,
+      "assignedSupplierPersonId": "person-supplier-004"
+    },
+    {
+      "id": "issue-006",
+      "condominiumId": "condo-pt-001",
+      "fractionId": null,
+      "createdByPersonId": "person-owner-006",
+      "category": "limpeza",
+      "priority": "low",
+      "status": "closed",
+      "title": "Reforco de limpeza no hall principal",
+      "description": "Descricao detalhada da ocorrencia: Reforco de limpeza no hall principal.",
+      "openedAt": "2026-01-06T10:30:00Z",
+      "closedAt": "2026-02-06T16:00:00Z",
+      "assignedSupplierPersonId": "person-supplier-005"
+    },
+    {
+      "id": "issue-007",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-5b",
+      "createdByPersonId": "person-owner-007",
+      "category": "canalizacao",
+      "priority": "high",
+      "status": "triage",
+      "title": "Fuga de agua no patamar do 5o andar",
+      "description": "Descricao detalhada da ocorrencia: Fuga de agua no patamar do 5o andar.",
+      "openedAt": "2026-01-07T10:30:00Z",
+      "closedAt": null,
+      "assignedSupplierPersonId": "person-supplier-002"
+    },
+    {
+      "id": "issue-008",
+      "condominiumId": "condo-pt-001",
+      "fractionId": null,
+      "createdByPersonId": "person-owner-008",
+      "category": "eletricidade",
+      "priority": "critical",
+      "status": "waiting_supplier",
+      "title": "Quadro eletrico com disparos recorrentes",
+      "description": "Descricao detalhada da ocorrencia: Quadro eletrico com disparos recorrentes.",
+      "openedAt": "2026-01-08T10:30:00Z",
+      "closedAt": null,
+      "assignedSupplierPersonId": "person-supplier-003"
+    },
+    {
+      "id": "issue-009",
+      "condominiumId": "condo-pt-001",
+      "fractionId": null,
+      "createdByPersonId": "person-owner-009",
+      "category": "videoporteiro",
+      "priority": "medium",
+      "status": "new",
+      "title": "Videoporteiro sem audio na entrada B",
+      "description": "Descricao detalhada da ocorrencia: Videoporteiro sem audio na entrada B.",
+      "openedAt": "2026-01-09T10:30:00Z",
+      "closedAt": null,
+      "assignedSupplierPersonId": "person-supplier-004"
+    },
+    {
+      "id": "issue-010",
+      "condominiumId": "condo-pt-001",
+      "fractionId": null,
+      "createdByPersonId": "person-owner-010",
+      "category": "jardim",
+      "priority": "low",
+      "status": "resolved",
+      "title": "Sistema de rega avariado",
+      "description": "Descricao detalhada da ocorrencia: Sistema de rega avariado.",
+      "openedAt": "2026-01-10T10:30:00Z",
+      "closedAt": "2026-02-10T16:00:00Z",
+      "assignedSupplierPersonId": "person-supplier-005"
+    },
+    {
+      "id": "issue-011",
+      "condominiumId": "condo-pt-001",
+      "fractionId": null,
+      "createdByPersonId": "person-owner-011",
+      "category": "pragas",
+      "priority": "medium",
+      "status": "in_progress",
+      "title": "Sinais de pragas na zona de lixo",
+      "description": "Descricao detalhada da ocorrencia: Sinais de pragas na zona de lixo.",
+      "openedAt": "2026-01-11T10:30:00Z",
+      "closedAt": null,
+      "assignedSupplierPersonId": "person-supplier-005"
+    },
+    {
+      "id": "issue-012",
+      "condominiumId": "condo-pt-001",
+      "fractionId": null,
+      "createdByPersonId": "person-owner-012",
+      "category": "seguranca",
+      "priority": "high",
+      "status": "closed",
+      "title": "Fechadura avariada na porta tecnica",
+      "description": "Descricao detalhada da ocorrencia: Fechadura avariada na porta tecnica.",
+      "openedAt": "2026-01-12T10:30:00Z",
+      "closedAt": "2026-02-02T16:00:00Z",
+      "assignedSupplierPersonId": "person-supplier-004"
+    },
+    {
+      "id": "issue-013",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-8b",
+      "createdByPersonId": "person-owner-013",
+      "category": "infiltracao",
+      "priority": "medium",
+      "status": "triage",
+      "title": "Humidade no teto da fracao 8B",
+      "description": "Descricao detalhada da ocorrencia: Humidade no teto da fracao 8B.",
+      "openedAt": "2026-01-13T10:30:00Z",
+      "closedAt": null,
+      "assignedSupplierPersonId": "person-supplier-002"
+    },
+    {
+      "id": "issue-014",
+      "condominiumId": "condo-pt-001",
+      "fractionId": null,
+      "createdByPersonId": "person-owner-014",
+      "category": "elevador",
+      "priority": "medium",
+      "status": "resolved",
+      "title": "Ruido anormal na subida",
+      "description": "Descricao detalhada da ocorrencia: Ruido anormal na subida.",
+      "openedAt": "2026-01-14T10:30:00Z",
+      "closedAt": "2026-02-04T16:00:00Z",
+      "assignedSupplierPersonId": "person-supplier-001"
+    },
+    {
+      "id": "issue-015",
+      "condominiumId": "condo-pt-001",
+      "fractionId": null,
+      "createdByPersonId": "person-owner-015",
+      "category": "limpeza",
+      "priority": "low",
+      "status": "closed",
+      "title": "Reposicao de consumiveis WC comum",
+      "description": "Descricao detalhada da ocorrencia: Reposicao de consumiveis WC comum.",
+      "openedAt": "2026-01-15T10:30:00Z",
+      "closedAt": "2026-02-05T16:00:00Z",
+      "assignedSupplierPersonId": "person-supplier-005"
+    },
+    {
+      "id": "issue-016",
+      "condominiumId": "condo-pt-001",
+      "fractionId": "fraction-10a",
+      "createdByPersonId": "person-owner-016",
+      "category": "canalizacao",
+      "priority": "medium",
+      "status": "new",
+      "title": "Baixa pressao de agua no 10A",
+      "description": "Descricao detalhada da ocorrencia: Baixa pressao de agua no 10A.",
+      "openedAt": "2026-01-16T10:30:00Z",
+      "closedAt": null,
+      "assignedSupplierPersonId": "person-supplier-002"
+    }
+  ],
+  "workOrders": [
+    {
+      "id": "wo-001",
+      "issueId": "issue-001",
+      "supplierPersonId": "person-supplier-002",
+      "requestedAt": "2026-01-01T10:30:00Z",
+      "scheduledAt": "2026-02-01T09:00:00Z",
+      "completedAt": null,
+      "estimatedCost": 80,
+      "finalCost": null,
+      "notes": "A aguardar conclusao do fornecedor."
+    },
+    {
+      "id": "wo-002",
+      "issueId": "issue-002",
+      "supplierPersonId": "person-supplier-001",
+      "requestedAt": "2026-01-02T10:30:00Z",
+      "scheduledAt": "2026-02-02T09:00:00Z",
+      "completedAt": null,
+      "estimatedCost": 105,
+      "finalCost": null,
+      "notes": "A aguardar conclusao do fornecedor."
+    },
+    {
+      "id": "wo-003",
+      "issueId": "issue-004",
+      "supplierPersonId": "person-supplier-003",
+      "requestedAt": "2026-01-04T10:30:00Z",
+      "scheduledAt": "2026-02-03T09:00:00Z",
+      "completedAt": "2026-02-04T16:00:00Z",
+      "estimatedCost": 130,
+      "finalCost": 130,
+      "notes": "Intervencao concluida e validada."
+    },
+    {
+      "id": "wo-004",
+      "issueId": "issue-005",
+      "supplierPersonId": "person-supplier-004",
+      "requestedAt": "2026-01-05T10:30:00Z",
+      "scheduledAt": "2026-02-04T09:00:00Z",
+      "completedAt": null,
+      "estimatedCost": 155,
+      "finalCost": null,
+      "notes": "A aguardar conclusao do fornecedor."
+    },
+    {
+      "id": "wo-005",
+      "issueId": "issue-006",
+      "supplierPersonId": "person-supplier-005",
+      "requestedAt": "2026-01-06T10:30:00Z",
+      "scheduledAt": "2026-02-05T09:00:00Z",
+      "completedAt": "2026-02-06T16:00:00Z",
+      "estimatedCost": 180,
+      "finalCost": 170,
+      "notes": "Intervencao concluida e validada."
+    },
+    {
+      "id": "wo-006",
+      "issueId": "issue-007",
+      "supplierPersonId": "person-supplier-002",
+      "requestedAt": "2026-01-07T10:30:00Z",
+      "scheduledAt": "2026-02-06T09:00:00Z",
+      "completedAt": null,
+      "estimatedCost": 205,
+      "finalCost": null,
+      "notes": "A aguardar conclusao do fornecedor."
+    },
+    {
+      "id": "wo-007",
+      "issueId": "issue-008",
+      "supplierPersonId": "person-supplier-003",
+      "requestedAt": "2026-01-08T10:30:00Z",
+      "scheduledAt": "2026-02-07T09:00:00Z",
+      "completedAt": null,
+      "estimatedCost": 230,
+      "finalCost": null,
+      "notes": "A aguardar conclusao do fornecedor."
+    },
+    {
+      "id": "wo-008",
+      "issueId": "issue-009",
+      "supplierPersonId": "person-supplier-004",
+      "requestedAt": "2026-01-09T10:30:00Z",
+      "scheduledAt": "2026-02-08T09:00:00Z",
+      "completedAt": null,
+      "estimatedCost": 255,
+      "finalCost": null,
+      "notes": "A aguardar conclusao do fornecedor."
+    },
+    {
+      "id": "wo-009",
+      "issueId": "issue-010",
+      "supplierPersonId": "person-supplier-005",
+      "requestedAt": "2026-01-10T10:30:00Z",
+      "scheduledAt": "2026-02-09T09:00:00Z",
+      "completedAt": "2026-02-10T16:00:00Z",
+      "estimatedCost": 280,
+      "finalCost": 250,
+      "notes": "Intervencao concluida e validada."
+    },
+    {
+      "id": "wo-010",
+      "issueId": "issue-011",
+      "supplierPersonId": "person-supplier-005",
+      "requestedAt": "2026-01-11T10:30:00Z",
+      "scheduledAt": "2026-02-10T09:00:00Z",
+      "completedAt": null,
+      "estimatedCost": 305,
+      "finalCost": null,
+      "notes": "A aguardar conclusao do fornecedor."
+    },
+    {
+      "id": "wo-011",
+      "issueId": "issue-012",
+      "supplierPersonId": "person-supplier-004",
+      "requestedAt": "2026-01-12T10:30:00Z",
+      "scheduledAt": "2026-02-01T09:00:00Z",
+      "completedAt": "2026-02-02T16:00:00Z",
+      "estimatedCost": 330,
+      "finalCost": 290,
+      "notes": "Intervencao concluida e validada."
+    },
+    {
+      "id": "wo-012",
+      "issueId": "issue-013",
+      "supplierPersonId": "person-supplier-002",
+      "requestedAt": "2026-01-13T10:30:00Z",
+      "scheduledAt": "2026-02-02T09:00:00Z",
+      "completedAt": null,
+      "estimatedCost": 355,
+      "finalCost": null,
+      "notes": "A aguardar conclusao do fornecedor."
+    },
+    {
+      "id": "wo-013",
+      "issueId": "issue-014",
+      "supplierPersonId": "person-supplier-001",
+      "requestedAt": "2026-01-14T10:30:00Z",
+      "scheduledAt": "2026-02-03T09:00:00Z",
+      "completedAt": "2026-02-04T16:00:00Z",
+      "estimatedCost": 380,
+      "finalCost": 330,
+      "notes": "Intervencao concluida e validada."
+    },
+    {
+      "id": "wo-014",
+      "issueId": "issue-015",
+      "supplierPersonId": "person-supplier-005",
+      "requestedAt": "2026-01-15T10:30:00Z",
+      "scheduledAt": "2026-02-04T09:00:00Z",
+      "completedAt": "2026-02-05T16:00:00Z",
+      "estimatedCost": 405,
+      "finalCost": 350,
+      "notes": "Intervencao concluida e validada."
+    },
+    {
+      "id": "wo-015",
+      "issueId": "issue-016",
+      "supplierPersonId": "person-supplier-002",
+      "requestedAt": "2026-01-16T10:30:00Z",
+      "scheduledAt": "2026-02-05T09:00:00Z",
+      "completedAt": null,
+      "estimatedCost": 430,
+      "finalCost": null,
+      "notes": "A aguardar conclusao do fornecedor."
+    }
+  ],
+  "assemblies": [
+    {
+      "id": "assembly-2026-ord-01",
+      "condominiumId": "condo-pt-001",
+      "meetingType": "ordinary",
+      "scheduledAt": "2026-03-20T20:30:00Z",
+      "location": "Sala comum do condominio",
+      "callNoticeSentAt": "2026-03-05T09:00:00Z",
+      "minutesDocumentId": null,
+      "voteItems": [
+        {
+          "id": "vote-item-001",
+          "itemNumber": 1,
+          "description": "Aprovacao de contas de 2025",
+          "votingRule": "simple_majority",
+          "summary": {
+            "for": 680,
+            "against": 120,
+            "abstention": 60
+          }
+        },
+        {
+          "id": "vote-item-002",
+          "itemNumber": 2,
+          "description": "Aprovacao do orcamento de 2026",
+          "votingRule": "simple_majority",
+          "summary": {
+            "for": 640,
+            "against": 150,
+            "abstention": 70
+          }
+        },
+        {
+          "id": "vote-item-003",
+          "itemNumber": 3,
+          "description": "Substituicao de videoporteiro",
+          "votingRule": "permillage_majority",
+          "summary": {
+            "for": 720,
+            "against": 90,
+            "abstention": 50
+          }
+        }
+      ]
+    },
+    {
+      "id": "assembly-2026-ext-01",
+      "condominiumId": "condo-pt-001",
+      "meetingType": "extraordinary",
+      "scheduledAt": "2026-05-12T20:30:00Z",
+      "location": "Sala comum do condominio",
+      "callNoticeSentAt": "2026-04-28T09:00:00Z",
+      "minutesDocumentId": null,
+      "voteItems": [
+        {
+          "id": "vote-item-004",
+          "itemNumber": 1,
+          "description": "Obra de impermeabilizacao da cobertura",
+          "votingRule": "permillage_majority",
+          "summary": {
+            "for": 760,
+            "against": 120,
+            "abstention": 30
+          }
+        }
+      ]
+    }
+  ],
+  "kpisSnapshot": {
+    "period": "2026-02",
+    "totalFractions": 30,
+    "activeResidentsApprox": 37,
+    "chargesOpen": 35,
+    "chargesPaid": 25,
+    "collectionRatePercent": 78.4,
+    "issuesOpen": 10,
+    "issuesClosed": 6,
+    "avgResolutionHours": 42
+  }
+}
