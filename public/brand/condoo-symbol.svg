@@ -1,0 +1,20 @@
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="condooBg" x1="12" y1="10" x2="85" y2="86" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1F7A6E"/>
+      <stop offset="1" stop-color="#145A52"/>
+    </linearGradient>
+    <linearGradient id="condooGlow" x1="56" y1="16" x2="80" y2="44" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F6C680" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#F6C680" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="80" height="80" rx="24" fill="url(#condooBg)"/>
+  <path d="M22 47.5L48 27L74 47.5V71C74 73.2 72.2 75 70 75H26C23.8 75 22 73.2 22 71V47.5Z" fill="white" fill-opacity="0.95"/>
+  <path d="M34 75V54H62V75" fill="#C8E5DD"/>
+  <rect x="39" y="59" width="6" height="6" rx="1.4" fill="#145A52"/>
+  <rect x="51" y="59" width="6" height="6" rx="1.4" fill="#145A52"/>
+  <rect x="39" y="68" width="6" height="7" rx="1.4" fill="#145A52"/>
+  <rect x="51" y="68" width="6" height="7" rx="1.4" fill="#145A52"/>
+  <circle cx="71" cy="25" r="10" fill="url(#condooGlow)"/>
+</svg>

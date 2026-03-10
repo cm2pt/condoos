@@ -5,3 +5,13 @@ artifacts/
 *.log
 *.pid
 coverage/
+playwright-report/
+test-results/
+tests/ui/.auth/
+.env
+.env.*
+!.env.example
+!.env.*.example
+backend/data/*.sqlite
+backend/data/*.sqlite-shm
+backend/data/*.sqlite-wal

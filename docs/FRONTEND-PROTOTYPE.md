@@ -15,7 +15,7 @@ Esta nota descreve o prototipo funcional de UI para a plataforma de gestao de co
 - Centro de alertas operacional (quotas em atraso, criticidade e proximas assembleias).
 - Command palette com atalhos de teclado para navegar e executar acoes.
 - Checklist de onboarding operacional dentro do painel de controlo.
-- RBAC visual por perfil (modulos bloqueados e acoes rapidas filtradas).
+- RBAC por perfil com modulos efetivamente visiveis por permissao e acoes rapidas filtradas.
 
 ## Acoes rapidas implementadas (drawer)
 
@@ -39,6 +39,30 @@ Isto inclui:
 - fracao ativa no portal do condomino,
 - perfil ativo de exportacao,
 - alertas ja lidos no centro de notificacoes.
+
+## Modo API (beta de integracao)
+
+A UI suporta agora sessao backend no painel lateral `Sessao API`:
+
+- acesso inicial com `login gate` obrigatorio antes de entrar na aplicacao;
+- login por `email/password`;
+- login rapido por perfil demo (`Gestao`, `Contabilidade`, `Operacoes`, `Condomino`);
+- sincronizacao de dados core (fracoes, pessoas, associacoes pessoa-fracao, encargos, pagamentos, ocorrencias, documentos, audit log);
+- criacao de fracao/encargo/ocorrencia com persistencia server-side;
+- criacao de titular principal ao criar fracao em modo API;
+- registo manual de pagamento no detalhe de encargo;
+- download de recibo PDF por pagamento no modulo financeiro e portal;
+- upload de documentos em modo API;
+- upload de nova versao para documentos existentes;
+- avancar estado de ocorrencia com update no backend;
+- fallback para modo local quando sem sessao API.
+
+Perfis para validacao de permissoes:
+
+- `Gestao`: acesso completo aos modulos core.
+- `Contabilidade`: foco em financeiro, sem update de estado de ocorrencias.
+- `Operacoes`: foco em ocorrencias, sem criacao de encargos.
+- `Condomino`: pode abrir ocorrencias, sem criar fracoes/encargos.
 
 ## Exportacao CSV
 
@@ -130,6 +154,6 @@ Exemplo:
 
 ## Limitacoes atuais
 
-- Sem backend/API nesta fase (apenas estado local no browser).
-- RBAC ainda e visual/local (sem enforcement de backend, autenticacao real ou sessao por utilizador).
+- Frontend continua monolitico em `src/App.jsx`, apesar de ja estar integrado com backend.
+- Fluxos de refresh token e reset password estao implementados na API, mas a UI ainda usa apenas sessao direta de login.
 - Presets CSV estao definidos por perfil base e ainda nao sao personalizaveis por utilizador individual.

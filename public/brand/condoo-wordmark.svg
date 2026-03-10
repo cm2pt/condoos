@@ -1,0 +1,24 @@
+<svg width="420" height="110" viewBox="0 0 420 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="condooWordmarkBg" x1="12" y1="10" x2="85" y2="86" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1F7A6E"/>
+      <stop offset="1" stop-color="#145A52"/>
+    </linearGradient>
+    <linearGradient id="condooWordmarkGlow" x1="56" y1="16" x2="80" y2="44" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F6C680" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#F6C680" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="6" y="15" width="80" height="80" rx="24" fill="url(#condooWordmarkBg)"/>
+  <path d="M20 54.5L46 34L72 54.5V78C72 80.2 70.2 82 68 82H24C21.8 82 20 80.2 20 78V54.5Z" fill="white" fill-opacity="0.95"/>
+  <path d="M32 82V61H60V82" fill="#C8E5DD"/>
+  <rect x="37" y="66" width="6" height="6" rx="1.4" fill="#145A52"/>
+  <rect x="49" y="66" width="6" height="6" rx="1.4" fill="#145A52"/>
+  <rect x="37" y="75" width="6" height="7" rx="1.4" fill="#145A52"/>
+  <rect x="49" y="75" width="6" height="7" rx="1.4" fill="#145A52"/>
+  <circle cx="69" cy="32" r="10" fill="url(#condooWordmarkGlow)"/>
+
+  <text x="104" y="58" fill="#123A38" font-family="Avenir Next, Segoe UI, Helvetica Neue, sans-serif" font-size="47" font-weight="700" letter-spacing="-0.02em">Condoo</text>
+  <text x="106" y="80" fill="#4C6666" font-family="Avenir Next, Segoe UI, Helvetica Neue, sans-serif" font-size="14" font-weight="500" letter-spacing="0.14em">GESTAO DE CONDOMINIOS</text>
+</svg>

@@ -2,26 +2,26 @@
 
 ## Sprint 0 - Fundacao tecnica
 
-- [ ] Setup projeto backend/frontend.
-- [ ] Autenticacao base e RBAC.
-- [ ] Multi-tenant (escopo por condominio).
-- [ ] Logging, metricas e auditoria minima.
+- [x] Setup projeto backend/frontend.
+- [x] Autenticacao base e RBAC.
+- [x] Multi-tenant (escopo por condominio).
+- [x] Logging, metricas e auditoria minima.
 
 Criterios de aceitacao:
-- [ ] Login funcional por papel.
-- [ ] Utilizador nao acede a dados de outro condominio.
-- [ ] Operacoes sensiveis ficam registadas em audit_log.
+- [x] Login funcional por papel.
+- [x] Utilizador nao acede a dados de outro condominio.
+- [x] Operacoes sensiveis ficam registadas em audit_log.
 
 ## Sprint 1 - Cadastros nucleares
 
-- [ ] CRUD de condominio.
-- [ ] CRUD de fracao.
-- [ ] CRUD de pessoas (proprietario/arrendatario/condomino).
-- [ ] Associacao pessoa-fracao.
+- [x] CRUD de condominio.
+- [x] CRUD de fracao.
+- [x] CRUD de pessoas (proprietario/arrendatario/condomino).
+- [x] Associacao pessoa-fracao.
 
 Criterios de aceitacao:
-- [ ] Criar condominio e importar 30 fracoes via CSV.
-- [ ] Consultar ficha de fracao com historico e contactos.
+- [x] Criar condominio e importar 30 fracoes via CSV.
+- [x] Consultar ficha de fracao com historico e contactos.
 
 ## Sprint 2 - Financeiro base
 

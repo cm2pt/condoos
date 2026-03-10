@@ -1,16 +1,51 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import seedData from "../data/synthetic/condominio_portugal_seed.json";
+import {
+  advanceIssueStatusApi,
+  clearStoredAuthSession,
+  createChargeApi,
+  createFractionPartyApi,
+  createFractionApi,
+  createIssueApi,
+  createPersonApi,
+  createPaymentApi,
+  downloadPaymentReceiptApi,
+  downloadDocumentApi,
+  fetchCoreRuntime,
+  fetchMySession,
+  loginApi,
+  persistAuthSession,
+  readStoredAuthSession,
+  uploadDocumentApi,
+  uploadDocumentVersionApi,
+} from "./services/condoosApi.js";
+
+import LoginPage from "./pages/LoginPage.jsx";
+import DashboardPage from "./pages/DashboardPage.jsx";
+import FractionsPage from "./pages/FractionsPage.jsx";
+import FinancePage from "./pages/FinancePage.jsx";
+import IssuesPage from "./pages/IssuesPage.jsx";
+import AssembliesPage from "./pages/AssembliesPage.jsx";
+import PortalPage from "./pages/PortalPage.jsx";
+import DocumentsPage from "./pages/DocumentsPage.jsx";
+import CompliancePage from "./pages/CompliancePage.jsx";
+import NotificationCenter from "./features/notifications/NotificationCenter.jsx";
+import CommandPalette from "./features/command-palette/CommandPalette.jsx";
+import QuickActionDrawer from "./features/quick-actions/QuickActionDrawer.jsx";
+import AnimateSection from "./components/shared/AnimateSection.jsx";
+import Icon from "./components/shared/Icon.jsx";
 
 const MODULES = [
-  { id: "dashboard", label: "Painel", mobile: "Painel" },
-  { id: "fractions", label: "Frações", mobile: "Frações" },
-  { id: "finance", label: "Financeiro", mobile: "Financeiro" },
-  { id: "issues", label: "Ocorrências", mobile: "Ocorrências" },
-  { id: "assemblies", label: "Assembleias", mobile: "Assembleias" },
-  { id: "portal", label: "Portal condómino", mobile: "Portal" },
-  { id: "documents", label: "Documentos", mobile: "Docs" },
-  { id: "compliance", label: "Compliance", mobile: "RGPD" },
+  { id: "dashboard", label: "Painel", mobile: "Painel", icon: "LayoutDashboard" },
+  { id: "fractions", label: "Frações", mobile: "Frações", icon: "Building2" },
+  { id: "finance", label: "Financeiro", mobile: "Financeiro", icon: "Wallet" },
+  { id: "issues", label: "Ocorrências", mobile: "Ocorrências", icon: "Wrench" },
+  { id: "assemblies", label: "Assembleias", mobile: "Assembleias", icon: "Vote" },
+  { id: "portal", label: "Portal condómino", mobile: "Portal", icon: "Users" },
+  { id: "documents", label: "Documentos", mobile: "Docs", icon: "FolderOpen" },
+  { id: "compliance", label: "Compliance", mobile: "RGPD", icon: "ShieldCheck" },
 ];
 
 const QUICK_ACTION_TYPES = [
@@ -35,6 +70,7 @@ const PROFILE_OPTIONS = [
   { id: "manager", label: "Gestão" },
   { id: "accounting", label: "Contabilidade" },
   { id: "operations", label: "Operações" },
+  { id: "resident", label: "Condómino" },
 ];
 
 const PROFILE_CAPABILITIES = {
@@ -50,9 +86,93 @@ const PROFILE_CAPABILITIES = {
     modules: ["dashboard", "fractions", "finance", "issues", "assemblies", "portal", "documents", "compliance"],
     quickActions: ["fractions", "issues", "assemblies"],
   },
+  resident: {
+    modules: ["dashboard", "finance", "issues", "portal", "documents"],
+    quickActions: ["issues"],
+  },
 };
 
 const STORAGE_KEY = "condoos_runtime_v1";
+const DEV_DEMO_PROFILE_CREDENTIALS = {
+  manager: {
+    email: "gestao.demo@condoos.pt",
+    password: "Condoos!Gestao2026",
+  },
+  accounting: {
+    email: "contabilidade.demo@condoos.pt",
+    password: "Condoos!Contabilidade2026",
+  },
+  operations: {
+    email: "operacoes.demo@condoos.pt",
+    password: "Condoos!Operacoes2026",
+  },
+  resident: {
+    email: "condomino.demo@condoos.pt",
+    password: "Condoos!Condomino2026",
+  },
+};
+
+function toEnvText(value) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function toEnvBool(value, fallback = false) {
+  const normalized = toEnvText(value).toLowerCase();
+  if (!normalized) {
+    return fallback;
+  }
+
+  if (["1", "true", "yes", "on"].includes(normalized)) {
+    return true;
+  }
+
+  if (["0", "false", "no", "off"].includes(normalized)) {
+    return false;
+  }
+
+  return fallback;
+}
+
+function buildDemoCredentials() {
+  if (import.meta.env.DEV) {
+    return DEV_DEMO_PROFILE_CREDENTIALS;
+  }
+
+  return {
+    manager: {
+      email: toEnvText(import.meta.env.VITE_DEMO_MANAGER_EMAIL),
+      password: toEnvText(import.meta.env.VITE_DEMO_MANAGER_PASSWORD),
+    },
+    accounting: {
+      email: toEnvText(import.meta.env.VITE_DEMO_ACCOUNTING_EMAIL),
+      password: toEnvText(import.meta.env.VITE_DEMO_ACCOUNTING_PASSWORD),
+    },
+    operations: {
+      email: toEnvText(import.meta.env.VITE_DEMO_OPERATIONS_EMAIL),
+      password: toEnvText(import.meta.env.VITE_DEMO_OPERATIONS_PASSWORD),
+    },
+    resident: {
+      email: toEnvText(import.meta.env.VITE_DEMO_RESIDENT_EMAIL),
+      password: toEnvText(import.meta.env.VITE_DEMO_RESIDENT_PASSWORD),
+    },
+  };
+}
+
+const DEMO_PROFILE_CREDENTIALS = buildDemoCredentials();
+const DEMO_LOGIN_ENABLED = toEnvBool(import.meta.env.VITE_ENABLE_DEMO_LOGIN, import.meta.env.DEV);
+const DEMO_PROFILES_AVAILABLE = PROFILE_OPTIONS.filter((profile) => {
+  const credentials = DEMO_PROFILE_CREDENTIALS[profile.id];
+  return Boolean(credentials?.email && credentials?.password);
+});
+
+const DEMO_PROFILE_COPY = {
+  manager: "Visão completa da gestão diária do condomínio.",
+  accounting: "Acompanhamento de quotas, cobranças e pagamentos.",
+  operations: "Abertura e acompanhamento de ocorrências operacionais.",
+  resident: "Experiência do condómino no portal da sua fração.",
+};
+const BRAND_SYMBOL_SRC = "/brand/condoo-symbol.svg";
+const BRAND_WORDMARK_SRC = "/brand/condoo-wordmark.svg";
 
 const ISSUE_COLUMNS = [
   { key: "new", label: "Novo" },
@@ -129,6 +249,51 @@ const dateFormatter = new Intl.DateTimeFormat("pt-PT", {
   dateStyle: "medium",
 });
 
+const LABEL_OVERRIDES = {
+  manager: "Gestão",
+  accounting: "Contabilidade",
+  operations: "Operações",
+  resident: "Condómino",
+  active: "Ativo",
+  inactive: "Inativo",
+  open: "Em aberto",
+  partially_paid: "Parcialmente pago",
+  paid: "Pago",
+  overdue: "Em atraso",
+  new: "Novo",
+  triage: "Triagem",
+  in_progress: "Em curso",
+  waiting_supplier: "A aguardar fornecedor",
+  resolved: "Resolvido",
+  closed: "Fechado",
+  manager_only: "Gestão",
+  residents: "Condóminos",
+  all: "Todos",
+  agenda: "Agendado",
+  reserve_fund: "Fundo de reserva",
+  adjustment: "Acerto",
+  penalty: "Penalização",
+  bank_transfer: "Transferência bancária",
+  direct_debit: "Débito direto",
+  credit_card: "Cartão de crédito",
+  debit_card: "Cartão de débito",
+  card: "Cartão",
+  cash: "Numerário",
+  mbway: "MB WAY",
+  governance: "Governação",
+  compliance: "Conformidade",
+  rgpd: "RGPD",
+  ready: "Pronto",
+};
+
+function normalizeKey(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replaceAll("-", "_")
+    .replace(/\s+/g, "_");
+}
+
 function formatCurrency(value) {
   return currencyFormatter.format(Number(value || 0));
 }
@@ -142,15 +307,32 @@ function formatDate(dateLike) {
 }
 
 function statusTone(status) {
-  if (status === "paid" || status === "resolved" || status === "closed" || status === "Pronto") {
+  const normalized = normalizeKey(status);
+
+  if (["paid", "resolved", "closed", "pronto", "ready", "active", "ativo"].includes(normalized)) {
     return "success";
   }
 
-  if (status === "overdue" || status === "critical" || status === "Crítica") {
+  if (["overdue", "critical", "crítica", "critica", "em_atraso"].includes(normalized)) {
     return "danger";
   }
 
-  if (status === "partially_paid" || status === "in_progress" || status === "Em execução") {
+  if (
+    [
+      "partially_paid",
+      "in_progress",
+      "em_execução",
+      "em_execucao",
+      "triage",
+      "open",
+      "new",
+      "waiting_supplier",
+      "agenda",
+      "review",
+      "em_revisão",
+      "em_revisao",
+    ].includes(normalized)
+  ) {
     return "warning";
   }
 
@@ -158,6 +340,11 @@ function statusTone(status) {
 }
 
 function cleanLabel(value) {
+  const normalizedValue = normalizeKey(value);
+  if (LABEL_OVERRIDES[normalizedValue]) {
+    return LABEL_OVERRIDES[normalizedValue];
+  }
+
   const tokenOverrides = {
     habitacao: "Habitação",
     arrecadacao: "Arrecadação",
@@ -171,7 +358,7 @@ function cleanLabel(value) {
     abstencao: "Abstenção",
   };
 
-  return String(value || "")
+  return normalizedValue
     .replaceAll("_", " ")
     .split(" ")
     .filter(Boolean)
@@ -357,8 +544,48 @@ function getModuleTitle(moduleId) {
   return titles[moduleId];
 }
 
-function getProfileCapability(profileId) {
-  return PROFILE_CAPABILITIES[profileId] || PROFILE_CAPABILITIES.manager;
+function getProfileCapability(profileId, capabilityMap = PROFILE_CAPABILITIES) {
+  return capabilityMap[profileId] || PROFILE_CAPABILITIES[profileId] || PROFILE_CAPABILITIES.manager;
+}
+
+function normalizeCapabilityForProfile(capability, profileId) {
+  const fallback = getProfileCapability(profileId, PROFILE_CAPABILITIES);
+  const allowedModuleIds = new Set(MODULES.map((module) => module.id));
+  const allowedQuickActionIds = new Set(QUICK_ACTION_TYPES.map((item) => item.id));
+  const hasCapabilityModules = Array.isArray(capability?.modules);
+  const hasCapabilityQuickActions = Array.isArray(capability?.quickActions);
+
+  const modules = hasCapabilityModules
+    ? capability.modules.filter((moduleId) => typeof moduleId === "string" && allowedModuleIds.has(moduleId))
+    : fallback.modules;
+
+  const quickActions = hasCapabilityQuickActions
+    ? capability.quickActions.filter((actionId) => typeof actionId === "string" && allowedQuickActionIds.has(actionId))
+    : fallback.quickActions;
+
+  const sanitizedModules = [...new Set(modules)];
+  const sanitizedQuickActions = [...new Set(quickActions)];
+
+  return {
+    modules: hasCapabilityModules ? sanitizedModules : fallback.modules,
+    quickActions: hasCapabilityQuickActions ? sanitizedQuickActions : fallback.quickActions,
+  };
+}
+
+function getDocumentVisibilityScope(profileId) {
+  const visibilityByProfile = {
+    manager: ["manager_only", "residents", "all"],
+    accounting: ["residents", "all"],
+    operations: ["residents", "all"],
+    resident: ["residents", "all"],
+  };
+
+  return visibilityByProfile[profileId] || [];
+}
+
+function canProfileReadDocument(profileId, documentVisibility) {
+  const allowedVisibilities = getDocumentVisibilityScope(profileId);
+  return allowedVisibilities.includes(documentVisibility);
 }
 
 function getExportPresetKeys(moduleId, profileId) {
@@ -392,6 +619,16 @@ function getExportPresetKeys(moduleId, profileId) {
       portal: ["fracao", "titular", "periodo", "vencimento", "estado"],
       documents: ["titulo", "categoria", "visibilidade"],
       compliance: ["tipo", "item", "estado", "responsavel"],
+    },
+    resident: {
+      dashboard: ["section", "item", "value"],
+      fractions: ["fracao", "titular"],
+      finance: ["fracao", "periodo", "vencimento", "valor", "emFalta", "estado"],
+      issues: ["id", "titulo", "categoria", "prioridade", "estado"],
+      assemblies: ["id", "tipo", "data"],
+      portal: ["fracao", "periodo", "vencimento", "valor", "estado"],
+      documents: ["titulo", "categoria", "upload"],
+      compliance: ["tipo", "item", "estado"],
     },
   };
 
@@ -448,12 +685,11 @@ function buildCsv(columns, rows) {
   return `${head}\n${body}\n`;
 }
 
-function downloadCsv(filename, csvText) {
+function downloadBlob(filename, blob) {
   if (typeof window === "undefined") {
     return;
   }
 
-  const blob = new Blob([csvText], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   const url = URL.createObjectURL(blob);
 
@@ -463,6 +699,21 @@ function downloadCsv(filename, csvText) {
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
+}
+
+function downloadCsv(filename, csvText) {
+  downloadBlob(filename, new Blob([csvText], { type: "text/csv;charset=utf-8;" }));
+}
+
+function buildDocumentDownloadName(title) {
+  const normalized = String(title || "documento")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return `${normalized || "documento"}.txt`;
 }
 
 function nextIssueStatus(currentStatus) {
@@ -554,35 +805,65 @@ function buildIssueAttachments(issue) {
   ];
 }
 
+function moduleFromPath(pathname) {
+  const segment = (pathname || "/").replace(/^\//, "").split("/")[0];
+  return MODULES.some((m) => m.id === segment) ? segment : null;
+}
+
 function App() {
   const baseData = seedData;
-  const queryParams = useMemo(() => {
-    if (typeof window === "undefined") {
-      return new URLSearchParams();
-    }
-
-    return new URLSearchParams(window.location.search);
-  }, []);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const routePath = location.pathname;
+  const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const isCaptureMode = queryParams.get("capture") === "1";
-  const queryModule = queryParams.get("module");
   const queryProfile = queryParams.get("profile");
   const querySearch = queryParams.get("q") || "";
   const queryNotificationsOpen = queryParams.get("notifications") === "1";
   const queryCommandOpen = queryParams.get("command") === "1";
   const queryCommandText = queryParams.get("cmdq") || "";
+  const isLoginRoute = routePath === "/login";
   const [persistedRuntime] = useState(() => (isCaptureMode ? null : getPersistedRuntime(baseData)));
-
-  const [activeModule, setActiveModule] = useState(() => {
-    return MODULES.some((module) => module.id === queryModule) ? queryModule : "dashboard";
+  const [apiSession, setApiSession] = useState(() => (isCaptureMode ? null : readStoredAuthSession()));
+  const [apiLoginForm, setApiLoginForm] = useState({
+    email: "",
+    password: "",
   });
+  const [apiLoginError, setApiLoginError] = useState("");
+  const [isApiSyncing, setIsApiSyncing] = useState(false);
+  const [apiLastSyncAt, setApiLastSyncAt] = useState("");
+  const [apiAuditEntries, setApiAuditEntries] = useState([]);
+  const isServerMode = Boolean(apiSession?.token && apiSession?.tenantId);
+
+  const activeModule = moduleFromPath(routePath) || "dashboard";
+  const setActiveModule = useCallback((mod) => {
+    navigate(`/${mod}${location.search}`, { replace: true });
+  }, [navigate, location.search]);
   const [activeProfile, setActiveProfile] = useState(() => {
+    if (apiSession?.user?.role && PROFILE_OPTIONS.some((option) => option.id === apiSession.user.role)) {
+      return apiSession.user.role;
+    }
+
     if (PROFILE_OPTIONS.some((option) => option.id === queryProfile)) {
       return queryProfile;
     }
 
     return persistedRuntime?.activeProfile || "manager";
   });
-  const profileCapability = useMemo(() => getProfileCapability(activeProfile), [activeProfile]);
+  const serverProfileCapability = useMemo(() => {
+    if (!isServerMode || !apiSession?.user?.role || activeProfile !== apiSession.user.role) {
+      return null;
+    }
+
+    return normalizeCapabilityForProfile(apiSession.capabilities, apiSession.user.role);
+  }, [activeProfile, apiSession, isServerMode]);
+  const profileCapability = useMemo(() => {
+    if (serverProfileCapability) {
+      return serverProfileCapability;
+    }
+
+    return getProfileCapability(activeProfile);
+  }, [activeProfile, serverProfileCapability]);
   const availableModules = useMemo(
     () => MODULES.filter((module) => profileCapability.modules.includes(module.id)),
     [profileCapability]
@@ -610,6 +891,9 @@ function App() {
   const [auditDomain, setAuditDomain] = useState("all");
   const [toastMessage, setToastMessage] = useState("");
   const [activityLog, setActivityLog] = useState(persistedRuntime?.activityLog || []);
+  const [isUploadingDocument, setIsUploadingDocument] = useState(false);
+  const documentUploadInputRef = useRef(null);
+  const documentUploadVersionTargetRef = useRef(null);
 
   const [fractionsData, setFractionsData] = useState(persistedRuntime?.fractions || baseData.fractions);
   const [peopleData, setPeopleData] = useState(persistedRuntime?.people || baseData.people);
@@ -617,10 +901,10 @@ function App() {
     persistedRuntime?.fractionParties || baseData.fractionParties
   );
   const [chargesData, setChargesData] = useState(persistedRuntime?.charges || baseData.charges);
-  const [paymentsData] = useState(persistedRuntime?.payments || baseData.payments);
+  const [paymentsData, setPaymentsData] = useState(persistedRuntime?.payments || baseData.payments);
   const [issuesData, setIssuesData] = useState(persistedRuntime?.issues || baseData.issues);
   const [assembliesData, setAssembliesData] = useState(persistedRuntime?.assemblies || baseData.assemblies);
-  const [documentsData] = useState(persistedRuntime?.documents || baseData.documents);
+  const [documentsData, setDocumentsData] = useState(persistedRuntime?.documents || baseData.documents);
   const [workOrdersData, setWorkOrdersData] = useState(persistedRuntime?.workOrders || baseData.workOrders);
   const [selectedIssueId, setSelectedIssueId] = useState(
     persistedRuntime?.selectedIssueId || (persistedRuntime?.issues || baseData.issues)[0]?.id || ""
@@ -633,6 +917,294 @@ function App() {
   );
   const [selectedChargeId, setSelectedChargeId] = useState(
     persistedRuntime?.selectedChargeId || (persistedRuntime?.charges || baseData.charges)[0]?.id || ""
+  );
+
+  const navigateToPath = useCallback((path, { replace = false } = {}) => {
+    navigate(path, { replace });
+  }, [navigate]);
+
+  const resetRuntimeToLocal = useCallback(() => {
+    setFractionsData(persistedRuntime?.fractions || baseData.fractions);
+    setPeopleData(persistedRuntime?.people || baseData.people);
+    setFractionPartiesData(persistedRuntime?.fractionParties || baseData.fractionParties);
+    setChargesData(persistedRuntime?.charges || baseData.charges);
+    setPaymentsData(persistedRuntime?.payments || baseData.payments);
+    setIssuesData(persistedRuntime?.issues || baseData.issues);
+    setAssembliesData(persistedRuntime?.assemblies || baseData.assemblies);
+    setDocumentsData(persistedRuntime?.documents || baseData.documents);
+    setWorkOrdersData(persistedRuntime?.workOrders || baseData.workOrders);
+    setApiAuditEntries([]);
+  }, [baseData, persistedRuntime]);
+
+  const syncRuntimeFromApi = useCallback(async (session) => {
+    if (!session?.token || !session?.tenantId) {
+      return false;
+    }
+
+    setIsApiSyncing(true);
+    setApiLoginError("");
+    try {
+      const runtime = await fetchCoreRuntime(session);
+      const sortedFractions = [...runtime.fractions].sort((a, b) =>
+        a.floorNumber === b.floorNumber ? a.code.localeCompare(b.code) : a.floorNumber - b.floorNumber
+      );
+
+      setFractionsData(sortedFractions);
+      setPeopleData(runtime.people || []);
+      setFractionPartiesData(runtime.fractionParties || []);
+      setChargesData(runtime.charges);
+      setPaymentsData(runtime.payments);
+      setIssuesData(runtime.issues);
+      setDocumentsData(runtime.documents);
+      setApiAuditEntries(runtime.auditEntries);
+      setApiLastSyncAt(new Date().toISOString());
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Falha ao sincronizar dados da API.";
+      setApiLoginError(message);
+      clearStoredAuthSession();
+      setApiSession(null);
+      resetRuntimeToLocal();
+      return false;
+    } finally {
+      setIsApiSyncing(false);
+    }
+  }, [resetRuntimeToLocal]);
+
+  const performApiLogin = useCallback(
+    async ({ email, password }) => {
+      setApiLoginError("");
+      setIsApiSyncing(true);
+
+      try {
+        const session = await loginApi({
+          email: email.trim(),
+          password,
+        });
+
+        const me = await fetchMySession(session);
+        const tenantId = session.tenantId || me.tenant?.id || me.tenants?.[0]?.id;
+        const hydratedSession = {
+          ...session,
+          tenantId,
+          tenantName: me.tenant?.name || me.tenants?.find((item) => item.id === tenantId)?.name || "",
+          tenants: me.tenants || session.tenants || [],
+          user: me.user || session.user,
+          capabilities: me.capabilities || session.capabilities || null,
+        };
+
+        persistAuthSession(hydratedSession);
+        setApiSession(hydratedSession);
+        setActiveProfile(hydratedSession.user?.role || "manager");
+        setApiLoginForm({
+          email: hydratedSession.user?.email || email,
+          password: "",
+        });
+        navigateToPath("/", { replace: true });
+        setToastMessage(`Sessao API iniciada com o perfil ${cleanLabel(hydratedSession.user?.role || "manager")}.`);
+        await syncRuntimeFromApi(hydratedSession);
+      } catch (error) {
+        setApiLoginError(error instanceof Error ? error.message : "Nao foi possivel iniciar sessao na API.");
+      } finally {
+        setIsApiSyncing(false);
+      }
+    },
+    [navigateToPath, syncRuntimeFromApi]
+  );
+
+  const handleApiLogin = useCallback(
+    async (event) => {
+      event.preventDefault();
+      await performApiLogin({
+        email: apiLoginForm.email,
+        password: apiLoginForm.password,
+      });
+    },
+    [apiLoginForm, performApiLogin]
+  );
+
+  const handleApiLoginAsDemoProfile = useCallback(
+    async (profileId) => {
+      if (!DEMO_LOGIN_ENABLED) {
+        return;
+      }
+
+      const credentials = DEMO_PROFILE_CREDENTIALS[profileId];
+      if (!credentials?.email || !credentials?.password) {
+        setApiLoginError("Credenciais demo indisponíveis neste ambiente.");
+        return;
+      }
+
+      setApiLoginForm({
+        email: credentials.email,
+        password: credentials.password,
+      });
+
+      await performApiLogin(credentials);
+    },
+    [performApiLogin]
+  );
+
+  const handleApiLogout = useCallback(() => {
+    clearStoredAuthSession();
+    setApiSession(null);
+    setApiLastSyncAt("");
+    setApiLoginError("");
+    resetRuntimeToLocal();
+    navigateToPath("/login", { replace: true });
+    setToastMessage("Sessao API terminada. Aplicacao em modo local.");
+  }, [navigateToPath, resetRuntimeToLocal]);
+
+  const handleApiSyncNow = useCallback(async () => {
+    if (!apiSession) {
+      return;
+    }
+
+    const didSync = await syncRuntimeFromApi(apiSession);
+    if (didSync) {
+      setToastMessage("Dados sincronizados a partir da API.");
+    }
+  }, [apiSession, syncRuntimeFromApi]);
+
+  const handleDocumentDownload = useCallback(
+    async (docItem) => {
+      if (!docItem?.id) {
+        return;
+      }
+
+      try {
+        if (isServerMode) {
+          const file = await downloadDocumentApi(apiSession, docItem.id, docItem.title);
+          downloadBlob(file.filename, file.blob);
+        } else {
+          const previewContent = [
+            "Condoos | Documento de demonstração",
+            `Título: ${docItem.title}`,
+            `Categoria: ${cleanLabel(docItem.category)}`,
+            `Visibilidade: ${cleanLabel(docItem.visibility)}`,
+            `Data de upload: ${formatDate(docItem.uploadedAt)}`,
+            "",
+            "Nota: conteúdo de demonstração gerado no frontend.",
+          ].join("\n");
+
+          downloadBlob(
+            buildDocumentDownloadName(docItem.title),
+            new Blob([previewContent], { type: "text/plain;charset=utf-8;" })
+          );
+        }
+
+        setToastMessage(`Download iniciado: ${docItem.title}.`);
+      } catch (error) {
+        setToastMessage(error instanceof Error ? error.message : "Não foi possível descarregar o documento.");
+      }
+    },
+    [apiSession, isServerMode]
+  );
+
+  const triggerDocumentUpload = useCallback((documentItem = null) => {
+    if (!documentUploadInputRef.current) {
+      return;
+    }
+
+    documentUploadVersionTargetRef.current = documentItem?.id || null;
+    documentUploadInputRef.current.value = "";
+    documentUploadInputRef.current.click();
+  }, []);
+
+  const handleDocumentUploadSelection = useCallback(
+    async (event) => {
+      const input = event.target;
+      const selectedFile = input?.files?.[0];
+      if (!selectedFile) {
+        documentUploadVersionTargetRef.current = null;
+        return;
+      }
+
+      if (typeof window === "undefined") {
+        documentUploadVersionTargetRef.current = null;
+        return;
+      }
+
+      const versionTargetId = documentUploadVersionTargetRef.current;
+      const isNewVersion = Boolean(versionTargetId);
+      const versionTarget = isNewVersion ? documentsData.find((document) => document.id === versionTargetId) : null;
+
+      try {
+        setIsUploadingDocument(true);
+
+        if (isNewVersion) {
+          if (!isServerMode || !apiSession) {
+            setToastMessage("Atualização de versão disponível apenas no modo API.");
+            return;
+          }
+
+          await uploadDocumentVersionApi(apiSession, versionTargetId, {
+            file: selectedFile,
+          });
+          await syncRuntimeFromApi(apiSession);
+          setToastMessage(`Nova versão carregada para ${versionTarget?.title || "documento"}.`);
+          return;
+        }
+
+        const defaultTitle = selectedFile.name.replace(/\.[^.]+$/, "") || "Novo documento";
+        const title = window.prompt("Título do documento", defaultTitle)?.trim();
+        if (!title) {
+          return;
+        }
+
+        const categoryInput = window.prompt("Categoria (ex: legal, financeiro, manutencao)", "general");
+        const category = categoryInput ? categoryInput.trim().toLowerCase() : "general";
+
+        let visibility = "residents";
+        if (activeProfile === "manager") {
+          const visibilityInput = window.prompt(
+            "Visibilidade (manager_only | residents | all)",
+            "residents"
+          );
+          const normalized = normalizeKey(visibilityInput || "residents");
+          if (["manager_only", "residents", "all"].includes(normalized)) {
+            visibility = normalized;
+          }
+        }
+
+        if (isServerMode && apiSession) {
+          const uploaded = await uploadDocumentApi(apiSession, {
+            title,
+            category,
+            visibility,
+            file: selectedFile,
+          });
+          setDocumentsData((previous) =>
+            [uploaded, ...previous].sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
+          );
+          setToastMessage(`Documento ${title} carregado com sucesso.`);
+          await syncRuntimeFromApi(apiSession);
+          return;
+        }
+
+        const localDoc = {
+          id: `doc-local-${Date.now().toString(36)}`,
+          condominiumId: baseData.condominium.id,
+          category,
+          title,
+          visibility,
+          uploadedByPersonId: null,
+          uploadedAt: new Date().toISOString(),
+          storagePath: `local/uploads/${selectedFile.name}`,
+        };
+        setDocumentsData((previous) => [localDoc, ...previous]);
+        setToastMessage(`Documento ${title} carregado em modo local.`);
+      } catch (error) {
+        setToastMessage(error instanceof Error ? error.message : "Nao foi possivel carregar o documento.");
+      } finally {
+        documentUploadVersionTargetRef.current = null;
+        if (input) {
+          input.value = "";
+        }
+        setIsUploadingDocument(false);
+      }
+    },
+    [activeProfile, apiSession, baseData.condominium.id, documentsData, isServerMode, syncRuntimeFromApi]
   );
 
   const runtimeData = useMemo(
@@ -664,22 +1236,69 @@ function App() {
 
   useEffect(() => {
     if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    const onPopState = () => {
+      setRoutePath(window.location.pathname || "/");
+    };
+
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  useEffect(() => {
+    if (isCaptureMode) {
       return;
     }
 
-    const url = new URL(window.location.href);
-    url.searchParams.set("module", activeModule);
-    url.searchParams.set("profile", activeProfile);
-    if (globalQuery.trim()) {
-      url.searchParams.set("q", globalQuery.trim());
-    } else {
-      url.searchParams.delete("q");
+    if (!isServerMode && !isLoginRoute) {
+      navigateToPath("/login", { replace: true });
+      return;
     }
-    window.history.replaceState({}, "", url);
-  }, [activeModule, activeProfile, globalQuery]);
+
+    if (isServerMode && isLoginRoute) {
+      navigateToPath("/", { replace: true });
+    }
+  }, [isCaptureMode, isLoginRoute, isServerMode, navigateToPath]);
+
+  useEffect(() => {
+    if (!isServerMode || isCaptureMode) {
+      return;
+    }
+
+    syncRuntimeFromApi(apiSession);
+  }, [apiSession, isCaptureMode, isServerMode, syncRuntimeFromApi]);
+
+  useEffect(() => {
+    if (!isServerMode || !apiSession?.user?.role) {
+      return;
+    }
+
+    if (activeProfile !== apiSession.user.role) {
+      setActiveProfile(apiSession.user.role);
+    }
+  }, [activeProfile, apiSession, isServerMode]);
+
+  useEffect(() => {
+    if (isLoginRoute) return;
+    const params = new URLSearchParams(location.search);
+    params.set("profile", activeProfile);
+    if (globalQuery.trim()) { params.set("q", globalQuery.trim()); } else { params.delete("q"); }
+    const targetPath = `/${activeModule}`;
+    const targetSearch = params.toString();
+    const currentFull = `${location.pathname}?${new URLSearchParams(location.search).toString()}`;
+    const newFull = `${targetPath}?${targetSearch}`;
+    if (currentFull !== newFull) {
+      navigate(`${targetPath}?${targetSearch}`, { replace: true });
+    }
+  }, [activeModule, activeProfile, globalQuery, isLoginRoute, navigate, location.pathname, location.search]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
+      return;
+    }
+    if (isLoginRoute) {
       return;
     }
 
@@ -694,7 +1313,7 @@ function App() {
       }
       setIsQuickActionOpen(true);
     }
-  }, [availableQuickActionTypes]);
+  }, [availableQuickActionTypes, isLoginRoute]);
 
   useEffect(() => {
     if (!profileCapability.modules.includes(activeModule)) {
@@ -828,15 +1447,21 @@ function App() {
     () => Object.fromEntries(fractionsData.map((fraction) => [fraction.id, fraction.code])),
     [fractionsData]
   );
+  const visibleDocuments = useMemo(
+    () => documentsData.filter((document) => canProfileReadDocument(activeProfile, document.visibility)),
+    [documentsData, activeProfile]
+  );
+  const canShowDocumentVisibility = activeProfile !== "resident";
+  const canUploadDocuments = isServerMode && activeProfile !== "resident";
 
   const moduleBadge = {
     dashboard: `${fractionsData.length} frações`,
     fractions: `${fractionsData.length} registos`,
     finance: `${formatCurrency(finance.openBalance)} em aberto`,
-    issues: `${issuesData.length} tickets`,
+    issues: `${issuesData.length} ocorrências`,
     assemblies: `${assembliesData.length} reuniões`,
     portal: `${Object.values(fractionBalances).filter((entry) => Number(entry?.balance || 0) > 0).length} saldos`,
-    documents: `${documentsData.length} ficheiros`,
+    documents: `${visibleDocuments.length} ficheiros`,
     compliance: `${TEMPLATE_CHECKLIST.length} templates`,
   };
 
@@ -1079,15 +1704,16 @@ function App() {
   }, [issuesData]);
 
   const documentList = useMemo(() => {
-    return documentsData.filter((document) => {
+    return visibleDocuments.filter((document) => {
       if (!docQuery.trim()) {
         return true;
       }
 
-      const text = `${document.title} ${document.category} ${document.visibility}`.toLowerCase();
+      const visibilityChunk = canShowDocumentVisibility ? ` ${document.visibility}` : "";
+      const text = `${document.title} ${document.category}${visibilityChunk}`.toLowerCase();
       return text.includes(docQuery.toLowerCase());
     });
-  }, [documentsData, docQuery]);
+  }, [visibleDocuments, docQuery, canShowDocumentVisibility]);
 
   const floorOptions = useMemo(
     () =>
@@ -1203,8 +1829,8 @@ function App() {
     [selectedPortalFraction, issuesData]
   );
   const portalVisibleDocuments = useMemo(
-    () => documentsData.filter((document) => ["residents", "all"].includes(document.visibility)),
-    [documentsData]
+    () => visibleDocuments.filter((document) => ["residents", "all"].includes(document.visibility)),
+    [visibleDocuments]
   );
   const portalCollectedYear = useMemo(
     () => portalPayments.reduce((sum, payment) => sum + payment.amount, 0),
@@ -1265,10 +1891,10 @@ function App() {
       tone: statusTone(issue.priority),
     }));
 
-    return [...activityEntries, ...overdueEntries, ...issueEntries]
+    return [...apiAuditEntries, ...activityEntries, ...overdueEntries, ...issueEntries]
       .sort((a, b) => new Date(b.when).getTime() - new Date(a.when).getTime())
       .slice(0, 120);
-  }, [activityLog, activeProfileLabel, finance.openCharges, fractionCodeById, issuesData]);
+  }, [activityLog, activeProfileLabel, apiAuditEntries, finance.openCharges, fractionCodeById, issuesData]);
 
   const filteredAuditEntries = useMemo(() => {
     return auditEntries.filter((entry) => {
@@ -1370,7 +1996,7 @@ function App() {
     }
 
     if (module === "documents" && targetId) {
-      const document = documentsData.find((item) => item.id === targetId);
+      const document = visibleDocuments.find((item) => item.id === targetId);
       setDocQuery(document?.title || "");
     }
   };
@@ -1417,7 +2043,7 @@ function App() {
       : [];
 
     const documentMatches = profileCapability.modules.includes("documents")
-      ? documentsData
+      ? visibleDocuments
           .filter(
             (document) =>
               document.title.toLowerCase().includes(query) ||
@@ -1435,7 +2061,7 @@ function App() {
       : [];
 
     return [...fractionMatches, ...issueMatches, ...documentMatches].slice(0, 9);
-  }, [globalQuery, fractionsData, ownerByFraction, issuesData, documentsData, profileCapability]);
+  }, [globalQuery, fractionsData, ownerByFraction, issuesData, visibleDocuments, profileCapability]);
 
   const handleSelectGlobalResult = (result) => {
     navigateToContext({ module: result.module, targetId: result.targetId, targetType: result.type.toLowerCase() });
@@ -1467,7 +2093,7 @@ function App() {
     });
   };
 
-  const handleAdvanceIssueStatus = (issueId) => {
+  const handleAdvanceIssueStatus = async (issueId) => {
     const issue = issuesData.find((item) => item.id === issueId);
     if (!issue) {
       return;
@@ -1480,17 +2106,23 @@ function App() {
     }
 
     const now = new Date().toISOString();
-    setIssuesData((previous) =>
-      previous.map((item) =>
-        item.id === issueId
-          ? {
-              ...item,
-              status: nextStatus,
-              closedAt: nextStatus === "resolved" || nextStatus === "closed" ? now : item.closedAt,
-            }
-          : item
-      )
-    );
+    let updatedIssue = {
+      ...issue,
+      status: nextStatus,
+      closedAt: nextStatus === "resolved" || nextStatus === "closed" ? now : issue.closedAt,
+    };
+
+    if (isServerMode) {
+      try {
+        updatedIssue = await advanceIssueStatusApi(apiSession, issueId, nextStatus);
+        setIssuesData((previous) => previous.map((item) => (item.id === issueId ? updatedIssue : item)));
+      } catch (error) {
+        setToastMessage(error instanceof Error ? error.message : "Nao foi possivel atualizar a ocorrencia.");
+        return;
+      }
+    } else {
+      setIssuesData((previous) => previous.map((item) => (item.id === issueId ? updatedIssue : item)));
+    }
 
     if (nextStatus === "waiting_supplier") {
       const existingWorkOrder = workOrdersData.find((workOrder) => workOrder.issueId === issueId);
@@ -1540,6 +2172,155 @@ function App() {
 
     setToastMessage(`Ocorrência atualizada para ${ISSUE_STATUS_LABEL[nextStatus]}.`);
   };
+
+  const handleRegisterPayment = async (chargeId) => {
+    const charge = chargesData.find((item) => item.id === chargeId);
+    if (!charge) {
+      return;
+    }
+
+    const alreadyPaid = paymentsData
+      .filter((payment) => payment.chargeId === chargeId)
+      .reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
+    const missing = Math.max(Number(charge.amount || 0) - alreadyPaid, 0);
+    if (missing <= 0.009) {
+      setToastMessage("Este encargo ja se encontra totalmente liquidado.");
+      return;
+    }
+
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const amountInput = window.prompt("Valor do pagamento (EUR)", missing.toFixed(2));
+    if (amountInput == null) {
+      return;
+    }
+
+    const normalizedAmount = Number(amountInput.replace(",", "."));
+    if (!Number.isFinite(normalizedAmount) || normalizedAmount <= 0) {
+      setToastMessage("Valor de pagamento invalido.");
+      return;
+    }
+
+    const paymentAmount = Math.min(normalizedAmount, missing);
+    const paidAt = new Date().toISOString().slice(0, 10);
+    const reference = `MAN-${Date.now().toString(36).toUpperCase()}`;
+    const method = "bank_transfer";
+    let resultingChargeStatus = charge.status;
+
+    if (isServerMode) {
+      try {
+        const result = await createPaymentApi(apiSession, {
+          chargeId,
+          amount: paymentAmount,
+          method,
+          paidAt,
+          reference,
+          source: "manual",
+        });
+
+        setPaymentsData((previous) => [result.item, ...previous]);
+        resultingChargeStatus = result.chargeStatus || resultingChargeStatus;
+        setChargesData((previous) =>
+          previous.map((item) =>
+            item.id === chargeId
+              ? {
+                  ...item,
+                  status: resultingChargeStatus,
+                }
+              : item
+          )
+        );
+        syncRuntimeFromApi(apiSession);
+      } catch (error) {
+        setToastMessage(error instanceof Error ? error.message : "Nao foi possivel registar o pagamento.");
+        return;
+      }
+    } else {
+      const localPayment = {
+        id: `pay-manual-${Date.now().toString(36)}`,
+        chargeId,
+        condominiumId: charge.condominiumId || runtimeData.condominium.id,
+        fractionId: charge.fractionId,
+        method,
+        amount: paymentAmount,
+        paidAt,
+        reference,
+        source: "manual",
+      };
+
+      const totalAfter = alreadyPaid + paymentAmount;
+      if (totalAfter >= Number(charge.amount || 0) - 0.009) {
+        resultingChargeStatus = "paid";
+      } else if (totalAfter > 0) {
+        resultingChargeStatus = "partially_paid";
+      }
+
+      setPaymentsData((previous) => [localPayment, ...previous]);
+      setChargesData((previous) =>
+        previous.map((item) =>
+          item.id === chargeId
+            ? {
+                ...item,
+                status: resultingChargeStatus,
+              }
+            : item
+        )
+      );
+    }
+
+    setActivityLog((previous) => [
+      {
+        id: `act-${Date.now().toString(36)}-payment`,
+        title: `Pagamento registado (${fractionCodeById[charge.fractionId] || charge.fractionId})`,
+        detail: `${formatCurrency(paymentAmount)} | ${cleanLabel(method)} | ${reference}`,
+        createdAt: new Date().toISOString(),
+        tone: "success",
+      },
+      ...previous,
+    ]);
+
+    setToastMessage(`Pagamento registado com sucesso (${formatCurrency(paymentAmount)}).`);
+  };
+
+  const handleDownloadPaymentReceipt = useCallback(
+    async (paymentId) => {
+      if (!paymentId) {
+        return;
+      }
+
+      try {
+        if (isServerMode && apiSession) {
+          const file = await downloadPaymentReceiptApi(apiSession, paymentId);
+          downloadBlob(file.filename, file.blob);
+          setPaymentsData((previous) =>
+            previous.map((payment) =>
+              payment.id === paymentId
+                ? {
+                    ...payment,
+                    hasReceipt: true,
+                  }
+                : payment
+            )
+          );
+          setToastMessage("Recibo PDF descarregado com sucesso.");
+          return;
+        }
+
+        const placeholder = [
+          "Recibo local de demonstração",
+          `Pagamento: ${paymentId}`,
+          `Data: ${new Date().toISOString().slice(0, 10)}`,
+        ].join("\n");
+        downloadBlob(`recibo-${paymentId}.txt`, new Blob([placeholder], { type: "text/plain;charset=utf-8;" }));
+        setToastMessage("Recibo local descarregado.");
+      } catch (error) {
+        setToastMessage(error instanceof Error ? error.message : "Nao foi possivel descarregar o recibo.");
+      }
+    },
+    [apiSession, isServerMode]
+  );
 
   const handleExportCsv = () => {
     const exportDate = new Date().toISOString().slice(0, 10);
@@ -1829,7 +2610,7 @@ function App() {
     setIsCommandPaletteOpen(false);
   };
 
-  const handleQuickActionSubmit = ({ type, values }) => {
+  const handleQuickActionSubmit = async ({ type, values }) => {
     if (!availableQuickActionTypes.some((item) => item.id === type)) {
       throw new Error(`O perfil ${activeProfileLabel} não permite criar ${cleanLabel(type)}.`);
     }
@@ -1848,59 +2629,118 @@ function App() {
       const fractionId = `fraction-${safeCode || Date.now().toString(36)}`;
       const floorNumber = Number(values.floorNumber || 0);
       const monthlyFee = Number(values.monthlyFee || 0);
-      const privateAreaM2 = Number(values.privateAreaM2 || 80);
+      let createdFractionId = fractionId;
 
-      const newFraction = {
-        id: fractionId,
-        code,
-        floorNumber,
-        type: values.type,
-        typology: values.typology || "N/A",
-        privateAreaM2,
-        permillage: Number(values.permillage || 30),
-        monthlyFee,
-        status: "active",
-      };
+      if (isServerMode) {
+        const createdFraction = await createFractionApi(apiSession, {
+          code,
+          floorNumber,
+          type: values.type,
+          typology: values.typology || "N/A",
+          privateAreaM2: Number(values.privateAreaM2 || 80),
+          permillage: Number(values.permillage || 30),
+          monthlyFeeAmount: monthlyFee,
+          status: "active",
+        });
 
-      setFractionsData((previous) =>
-        [...previous, newFraction].sort((a, b) =>
-          a.floorNumber === b.floorNumber ? a.code.localeCompare(b.code) : a.floorNumber - b.floorNumber
-        )
-      );
+        createdFractionId = createdFraction.id;
+        setFractionsData((previous) =>
+          [...previous, createdFraction].sort((a, b) =>
+            a.floorNumber === b.floorNumber ? a.code.localeCompare(b.code) : a.floorNumber - b.floorNumber
+          )
+        );
 
-      if (values.ownerName.trim()) {
-        const ownerId = `person-owner-manual-${Date.now().toString(36)}`;
-        const relationId = `fp-owner-manual-${Date.now().toString(36)}`;
-
-        setPeopleData((previous) => [
-          ...previous,
-          {
-            id: ownerId,
+        let ownerLinked = false;
+        if (values.ownerName.trim()) {
+          const createdOwner = await createPersonApi(apiSession, {
             fullName: values.ownerName.trim(),
             roleType: "owner",
             taxNumber: values.ownerTaxNumber.trim(),
             email: values.ownerEmail.trim(),
             phone: values.ownerPhone.trim(),
-          },
-        ]);
+          });
+          setPeopleData((previous) => [...previous, createdOwner]);
 
-        setFractionPartiesData((previous) => [
-          ...previous,
-          {
-            id: relationId,
-            fractionId,
-            personId: ownerId,
+          const createdRelation = await createFractionPartyApi(apiSession, {
+            fractionId: createdFraction.id,
+            personId: createdOwner.id,
             relationship: "owner",
             startDate: new Date().toISOString().slice(0, 10),
             endDate: null,
             isPrimary: true,
-          },
-        ]);
+          });
+          setFractionPartiesData((previous) => [
+            ...previous.filter(
+              (relation) =>
+                !(
+                  relation.fractionId === createdRelation.fractionId &&
+                  relation.relationship === "owner" &&
+                  relation.isPrimary
+                )
+            ),
+            createdRelation,
+          ]);
+          ownerLinked = true;
+        }
+
+        setToastMessage(
+          ownerLinked ? `Fração ${code} criada com titular principal associado.` : `Fração ${code} criada com sucesso.`
+        );
+      } else {
+        const privateAreaM2 = Number(values.privateAreaM2 || 80);
+        const newFraction = {
+          id: fractionId,
+          code,
+          floorNumber,
+          type: values.type,
+          typology: values.typology || "N/A",
+          privateAreaM2,
+          permillage: Number(values.permillage || 30),
+          monthlyFee,
+          status: "active",
+        };
+
+        setFractionsData((previous) =>
+          [...previous, newFraction].sort((a, b) =>
+            a.floorNumber === b.floorNumber ? a.code.localeCompare(b.code) : a.floorNumber - b.floorNumber
+          )
+        );
+
+        if (values.ownerName.trim()) {
+          const ownerId = `person-owner-manual-${Date.now().toString(36)}`;
+          const relationId = `fp-owner-manual-${Date.now().toString(36)}`;
+
+          setPeopleData((previous) => [
+            ...previous,
+            {
+              id: ownerId,
+              fullName: values.ownerName.trim(),
+              roleType: "owner",
+              taxNumber: values.ownerTaxNumber.trim(),
+              email: values.ownerEmail.trim(),
+              phone: values.ownerPhone.trim(),
+            },
+          ]);
+
+          setFractionPartiesData((previous) => [
+            ...previous,
+            {
+              id: relationId,
+              fractionId,
+              personId: ownerId,
+              relationship: "owner",
+              startDate: new Date().toISOString().slice(0, 10),
+              endDate: null,
+              isPrimary: true,
+            },
+          ]);
+        }
+
+        setToastMessage(`Fração ${code} criada com sucesso.`);
       }
 
-      setToastMessage(`Fração ${code} criada com sucesso.`);
-      setSelectedFractionId(fractionId);
-      setSelectedPortalFractionId(fractionId);
+      setSelectedFractionId(createdFractionId);
+      setSelectedPortalFractionId(createdFractionId);
       setActivityLog((previous) => [
         {
           id: `act-${Date.now().toString(36)}-fraction`,
@@ -1925,28 +2765,44 @@ function App() {
       }
 
       const fractionCode = fractionCodeById[values.fractionId] || "GEN";
-      const period = values.period || new Date().toISOString().slice(0, 7);
-      const suffix = Date.now().toString(36).slice(-5);
+      let createdChargeId = "";
 
-      const newCharge = {
-        id: `charge-${period}-${fractionCode.toLowerCase()}-${suffix}`,
-        condominiumId: runtimeData.condominium.id,
-        fractionId: values.fractionId,
-        kind: values.kind,
-        period,
-        dueDate: values.dueDate || new Date().toISOString().slice(0, 10),
-        amount,
-        status: "open",
-      };
+      if (isServerMode) {
+        const createdCharge = await createChargeApi(apiSession, {
+          fractionId: values.fractionId,
+          kind: values.kind,
+          period: values.period || new Date().toISOString().slice(0, 7),
+          dueDate: values.dueDate || new Date().toISOString().slice(0, 10),
+          amount,
+          status: "open",
+        });
+        createdChargeId = createdCharge.id;
+        setChargesData((previous) => [createdCharge, ...previous]);
+      } else {
+        const period = values.period || new Date().toISOString().slice(0, 7);
+        const suffix = Date.now().toString(36).slice(-5);
+        const newCharge = {
+          id: `charge-${period}-${fractionCode.toLowerCase()}-${suffix}`,
+          condominiumId: runtimeData.condominium.id,
+          fractionId: values.fractionId,
+          kind: values.kind,
+          period,
+          dueDate: values.dueDate || new Date().toISOString().slice(0, 10),
+          amount,
+          status: "open",
+        };
 
-      setChargesData((previous) => [newCharge, ...previous]);
-      setSelectedChargeId(newCharge.id);
+        createdChargeId = newCharge.id;
+        setChargesData((previous) => [newCharge, ...previous]);
+      }
+
+      setSelectedChargeId(createdChargeId);
       setToastMessage(`Encargo criado para a fração ${fractionCode}.`);
       setActivityLog((previous) => [
         {
           id: `act-${Date.now().toString(36)}-charge`,
           title: `Encargo criado para ${fractionCode}`,
-          detail: `${cleanLabel(values.kind)} | ${formatCurrency(amount)} | Vencimento ${formatDate(newCharge.dueDate)}`,
+          detail: `${cleanLabel(values.kind)} | ${formatCurrency(amount)} | Vencimento ${formatDate(values.dueDate)}`,
           createdAt: new Date().toISOString(),
           tone: "warning",
         },
@@ -1964,31 +2820,46 @@ function App() {
         peopleData.find((person) => person.roleType === "manager")?.id ||
         peopleData.find((person) => person.roleType === "owner")?.id;
 
-      const newIssue = {
-        id: `issue-${String(issuesData.length + 1).padStart(3, "0")}-${Date.now().toString(36).slice(-3)}`,
-        condominiumId: runtimeData.condominium.id,
-        fractionId: values.fractionId === "common" ? null : values.fractionId,
-        createdByPersonId: managerId,
-        category: values.category,
-        priority: values.priority,
-        status: "new",
-        title: values.title.trim(),
-        description: values.description.trim() || `Descrição inicial: ${values.title.trim()}.`,
-        openedAt: new Date().toISOString(),
-        closedAt: null,
-        assignedSupplierPersonId: null,
-      };
+      let createdIssue;
 
-      setIssuesData((previous) => [newIssue, ...previous]);
-      setSelectedIssueId(newIssue.id);
+      if (isServerMode) {
+        createdIssue = await createIssueApi(apiSession, {
+          fractionId: values.fractionId === "common" ? null : values.fractionId,
+          createdByPersonId: managerId,
+          category: values.category,
+          priority: values.priority,
+          status: "new",
+          title: values.title.trim(),
+          description: values.description.trim() || `Descricao inicial: ${values.title.trim()}.`,
+          assignedSupplierPersonId: null,
+        });
+      } else {
+        createdIssue = {
+          id: `issue-${String(issuesData.length + 1).padStart(3, "0")}-${Date.now().toString(36).slice(-3)}`,
+          condominiumId: runtimeData.condominium.id,
+          fractionId: values.fractionId === "common" ? null : values.fractionId,
+          createdByPersonId: managerId,
+          category: values.category,
+          priority: values.priority,
+          status: "new",
+          title: values.title.trim(),
+          description: values.description.trim() || `Descrição inicial: ${values.title.trim()}.`,
+          openedAt: new Date().toISOString(),
+          closedAt: null,
+          assignedSupplierPersonId: null,
+        };
+      }
+
+      setIssuesData((previous) => [createdIssue, ...previous]);
+      setSelectedIssueId(createdIssue.id);
       setToastMessage("Ocorrência registada na coluna Novo.");
       setActivityLog((previous) => [
         {
           id: `act-${Date.now().toString(36)}-issue`,
-          title: `Ocorrência criada: ${newIssue.title}`,
-          detail: `${cleanLabel(newIssue.category)} | ${PRIORITY_LABEL[newIssue.priority]}`,
+          title: `Ocorrência criada: ${createdIssue.title}`,
+          detail: `${cleanLabel(createdIssue.category)} | ${PRIORITY_LABEL[createdIssue.priority]}`,
           createdAt: new Date().toISOString(),
-          tone: statusTone(newIssue.priority),
+          tone: statusTone(createdIssue.priority),
         },
         ...previous,
       ]);
@@ -2029,10 +2900,30 @@ function App() {
       setActiveModule("assemblies");
     }
 
+    if (isServerMode) {
+      syncRuntimeFromApi(apiSession);
+    }
+
     setIsQuickActionOpen(false);
   };
 
-  const topHeaderValue = `${runtimeData.condominium.name} | ${runtimeData.condominium.city}`;
+  const tenantDisplayName = isServerMode ? apiSession.tenantName || runtimeData.condominium.name : runtimeData.condominium.name;
+  const topHeaderValue = `${tenantDisplayName} | ${runtimeData.condominium.city} | ${isServerMode ? "API" : "Local"}`;
+
+  if (!isServerMode) {
+    return (
+      <LoginPage
+        apiLoginForm={apiLoginForm}
+        setApiLoginForm={setApiLoginForm}
+        apiLoginError={apiLoginError}
+        isApiSyncing={isApiSyncing}
+        showDemoProfiles={DEMO_LOGIN_ENABLED && DEMO_PROFILES_AVAILABLE.length > 0}
+        demoProfiles={DEMO_PROFILES_AVAILABLE}
+        onSubmit={handleApiLogin}
+        onLoginAsProfile={handleApiLoginAsDemoProfile}
+      />
+    );
+  }
 
   return (
     <div className="condo-app">
@@ -2040,60 +2931,97 @@ function App() {
       <div className="orb orb-two" aria-hidden="true" />
 
       <aside className="sidebar">
-        <div>
-          <p className="eyebrow">CondoOS PT</p>
-          <h1>{runtimeData.condominium.name}</h1>
-          <p className="sidebar-meta">11 andares | {fractionsData.length} frações | Piloto V1</p>
+        <div className="sidebar-top">
+          <div className="brand-lockup">
+            <img className="brand-wordmark" src={BRAND_WORDMARK_SRC} alt="Condoo" />
+          </div>
+
+          <div className="sidebar-tenant-card">
+            <Icon name="Building2" size={16} className="sidebar-tenant-icon" />
+            <div>
+              <strong>{tenantDisplayName}</strong>
+              <small>11 andares · {fractionsData.length} frações</small>
+            </div>
+          </div>
+
+          <p className="sidebar-section-label">Módulos</p>
+
+          <nav className="module-nav" aria-label="Módulos principais">
+            {availableModules.map((module) => {
+              const isActive = activeModule === module.id;
+              return (
+                <button
+                  key={module.id}
+                  type="button"
+                  className={isActive ? "module-btn active" : "module-btn"}
+                  onClick={() => setActiveModule(module.id)}
+                >
+                  <div className="module-btn-left">
+                    <Icon name={module.icon} size={17} />
+                    <span>{module.label}</span>
+                  </div>
+                  {moduleBadge[module.id] ? <small>{moduleBadge[module.id]}</small> : null}
+                </button>
+              );
+            })}
+          </nav>
         </div>
 
-        <nav className="module-nav" aria-label="Módulos principais">
-          {MODULES.map((module) => {
-            const isAllowed = profileCapability.modules.includes(module.id);
-            const isActive = activeModule === module.id;
-            const buttonClass = isAllowed ? (isActive ? "module-btn active" : "module-btn") : "module-btn locked";
-            return (
-              <button
-                key={module.id}
-                type="button"
-                className={buttonClass}
-                aria-disabled={!isAllowed}
-                onClick={() => {
-                  if (!isAllowed) {
-                    setToastMessage(`Perfil ${activeProfileLabel} sem acesso ao módulo ${module.label}.`);
-                    return;
-                  }
-                  setActiveModule(module.id);
-                }}
-              >
-                <span>{module.label}</span>
-                <small>{isAllowed ? moduleBadge[module.id] : "Sem acesso"}</small>
-              </button>
-            );
-          })}
-        </nav>
+        <div className="sidebar-bottom">
+          <details className="sidebar-debug">
+            <summary>
+              <Icon name="Settings" size={14} />
+              <span>Detalhes da sessão</span>
+            </summary>
+            <div className="sidebar-debug-content">
+              <p className="api-meta">
+                Tenant: <strong>{apiSession.tenantName || apiSession.tenantId}</strong>
+              </p>
+              <p className="api-meta">
+                Sync: <strong>{apiLastSyncAt ? formatDate(apiLastSyncAt) : "-"}</strong>
+              </p>
+              <div className="api-actions">
+                <button type="button" className="ghost-btn compact" onClick={handleApiSyncNow} disabled={isApiSyncing}>
+                  <Icon name="RefreshCw" size={13} />
+                  {isApiSyncing ? "A sincronizar..." : "Sincronizar"}
+                </button>
+              </div>
+            </div>
+          </details>
 
-        <div className="sidebar-status">
-          <h2>Estado do rollout</h2>
-          <p>Templates jurídicos preparados e dataset sintético carregado para QA.</p>
-          <ul>
-            <li>V1 funcional: 7 módulos</li>
-            <li>Seed de demo: 100% carregado</li>
-            <li>Build: estável</li>
-          </ul>
+          <div className="sidebar-user">
+            <div className="sidebar-avatar">
+              <Icon name="User" size={16} />
+            </div>
+            <div className="sidebar-user-info">
+              <strong>{apiSession.user?.email || "demo@condoos.pt"}</strong>
+              <small>{activeProfileLabel} · online</small>
+            </div>
+            <button type="button" className="sidebar-logout-btn" onClick={handleApiLogout} aria-label="Terminar sessão">
+              <Icon name="LogOut" size={15} />
+            </button>
+          </div>
         </div>
       </aside>
 
       <main className="workspace">
         <header className="workspace-header">
           <div>
-            <p className="eyebrow">Ambiente de demonstração</p>
+            <div className="workspace-brandline">
+              <img className="workspace-brand-icon" src={BRAND_SYMBOL_SRC} alt="" aria-hidden="true" />
+              <p className="eyebrow">{isServerMode ? "Ambiente de integração API" : "Ambiente de demonstração"}</p>
+            </div>
             <h2>{getModuleTitle(activeModule)}</h2>
             <p>{topHeaderValue}</p>
-            <small className="profile-hint">Perfil ativo: {activeProfileLabel}</small>
+            <small className="profile-hint">
+              Perfil ativo: {activeProfileLabel}
+              {isServerMode ? " (enforcement backend)" : " (modo local)"}
+            </small>
           </div>
 
           <div className="header-tools">
             <div className="global-search-wrap">
+              <Icon name="Search" size={16} className="global-search-icon" />
               <input
                 type="search"
                 value={globalQuery}
@@ -2121,6 +3049,7 @@ function App() {
               value={activeProfile}
               onChange={(event) => setActiveProfile(event.target.value)}
               aria-label="Preset de exportação"
+              disabled={isServerMode}
             >
               {PROFILE_OPTIONS.map((profile) => (
                 <option key={profile.id} value={profile.id}>
@@ -2131,18 +3060,23 @@ function App() {
 
             <div className="header-actions">
               <button type="button" className="ghost-btn" onClick={handleOpenCommandPalette}>
-                Comandos <span className="shortcut-hint">{commandShortcutLabel}</span>
+                <Icon name="Command" size={15} />
+                Comandos
+                <span className="shortcut-hint">{commandShortcutLabel}</span>
               </button>
               <button type="button" className="ghost-btn notification-btn" onClick={handleOpenNotifications}>
+                <Icon name="Bell" size={15} />
                 Alertas
                 {unreadNotifications.length > 0 ? (
                   <span className="notification-count">{unreadNotifications.length}</span>
                 ) : null}
               </button>
               <button type="button" className="ghost-btn" onClick={handleExportCsv}>
+                <Icon name="Download" size={15} />
                 Exportar CSV
               </button>
               <button type="button" className="primary-btn" onClick={openQuickAction} disabled={!hasQuickActions}>
+                <Icon name="Plus" size={15} />
                 {hasQuickActions ? HEADER_ACTION_LABEL[activeModule] : "Sem permissão de criação"}
               </button>
             </div>
@@ -2151,7 +3085,7 @@ function App() {
 
         <AnimateSection keyName={activeModule} disableAnimation={isCaptureMode}>
           {activeModule === "dashboard" && (
-            <DashboardScreen
+            <DashboardPage
               cards={cards}
               floorMatrix={floorMatrix}
               nextDeadlines={nextDeadlines}
@@ -2164,7 +3098,7 @@ function App() {
           )}
 
           {activeModule === "fractions" && (
-            <FractionsScreen
+            <FractionsPage
               fractions={filteredFractions}
               ownerByFraction={ownerByFraction}
               balances={fractionBalances}
@@ -2187,7 +3121,7 @@ function App() {
           )}
 
           {activeModule === "finance" && (
-            <FinanceScreen
+            <FinancePage
               finance={finance}
               fractions={fractionsData}
               financeRows={financeRows}
@@ -2200,11 +3134,13 @@ function App() {
               selectedFinanceChargePayments={selectedFinanceChargePayments}
               onSelectCharge={setSelectedChargeId}
               onOpenAction={openQuickActionType}
+              onRegisterPayment={handleRegisterPayment}
+              onDownloadReceipt={handleDownloadPaymentReceipt}
             />
           )}
 
           {activeModule === "issues" && (
-            <IssuesScreen
+            <IssuesPage
               issuesByStatus={issuesByStatus}
               peopleById={peopleById}
               onOpenAction={openQuickActionType}
@@ -2220,15 +3156,25 @@ function App() {
           )}
 
           {activeModule === "assemblies" && (
-            <AssembliesScreen assemblies={assembliesData} onOpenAction={openQuickActionType} />
+            <AssembliesPage assemblies={assembliesData} onOpenAction={openQuickActionType} />
           )}
 
           {activeModule === "documents" && (
-            <DocumentsScreen documents={documentList} docQuery={docQuery} setDocQuery={setDocQuery} />
+            <DocumentsPage
+              documents={documentList}
+              docQuery={docQuery}
+              setDocQuery={setDocQuery}
+              showVisibility={canShowDocumentVisibility}
+              showStoragePath={activeProfile === "manager"}
+              onDownloadDocument={handleDocumentDownload}
+              onUploadDocument={canUploadDocuments ? () => triggerDocumentUpload(null) : null}
+              onUploadDocumentVersion={canUploadDocuments ? (document) => triggerDocumentUpload(document) : null}
+              isUploadingDocument={isUploadingDocument}
+            />
           )}
 
           {activeModule === "portal" && (
-            <PortalScreen
+            <PortalPage
               selectedFraction={selectedPortalFraction}
               fractions={fractionsData}
               ownerByFraction={ownerByFraction}
@@ -2242,11 +3188,13 @@ function App() {
               onSelectFraction={setSelectedPortalFractionId}
               onOpenAction={openQuickActionType}
               onExport={handleExportCsv}
+              onDownloadDocument={handleDocumentDownload}
+              onDownloadReceipt={handleDownloadPaymentReceipt}
             />
           )}
 
           {activeModule === "compliance" && (
-            <ComplianceScreen
+            <CompliancePage
               auditEntries={filteredAuditEntries}
               auditQuery={auditQuery}
               setAuditQuery={setAuditQuery}
@@ -2265,10 +3213,19 @@ function App() {
             className={module.id === activeModule ? "mobile-nav-btn active" : "mobile-nav-btn"}
             onClick={() => setActiveModule(module.id)}
           >
-            {module.mobile}
+            <Icon name={module.icon} size={20} />
+            <span>{module.mobile}</span>
           </button>
         ))}
       </nav>
+
+      <input
+        ref={documentUploadInputRef}
+        type="file"
+        accept=".pdf,.png,.jpg,.jpeg,.txt,.csv,.zip,.json,application/pdf,image/*,text/plain,text/csv,application/json,application/zip"
+        style={{ display: "none" }}
+        onChange={handleDocumentUploadSelection}
+      />
 
       <QuickActionDrawer
         open={isQuickActionOpen}
@@ -2278,6 +3235,8 @@ function App() {
         onClose={() => setIsQuickActionOpen(false)}
         onSubmit={handleQuickActionSubmit}
         fractions={fractionsData}
+        allowCommonIssueArea={activeProfile !== "resident"}
+        issueCategories={baseData.catalogs.issueCategories}
       />
 
       <NotificationCenter
@@ -2302,1864 +3261,6 @@ function App() {
       {toastMessage ? <div className="toast-note">{toastMessage}</div> : null}
     </div>
   );
-}
-
-function AnimateSection({ children, keyName, disableAnimation = false }) {
-  if (disableAnimation) {
-    return <section className="screen capture-screen">{children}</section>;
-  }
-
-  return (
-    <motion.section
-      key={keyName}
-      className="screen"
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
-    >
-      {children}
-    </motion.section>
-  );
-}
-
-function DashboardScreen({
-  cards,
-  floorMatrix,
-  nextDeadlines,
-  disableMotion = false,
-  activityLog,
-  onboardingChecklist,
-  onboardingCompletion,
-  onOpenAction,
-}) {
-  const kpiCards = cards.map((card) => (
-    <article key={card.label} className={`kpi-card tone-${card.tone}`}>
-      <p>{card.label}</p>
-      <strong>{card.value}</strong>
-      <span>{card.detail}</span>
-    </article>
-  ));
-
-  return (
-    <div className="stack-lg">
-      {disableMotion ? (
-        <div className="kpi-grid">{kpiCards}</div>
-      ) : (
-        <motion.div
-          className="kpi-grid"
-          initial="hidden"
-          animate="show"
-          variants={{
-            hidden: { opacity: 0 },
-            show: { opacity: 1, transition: { staggerChildren: 0.07 } },
-          }}
-        >
-          {cards.map((card) => (
-            <motion.article
-              key={card.label}
-              className={`kpi-card tone-${card.tone}`}
-              variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
-            >
-              <p>{card.label}</p>
-              <strong>{card.value}</strong>
-              <span>{card.detail}</span>
-            </motion.article>
-          ))}
-        </motion.div>
-      )}
-
-      <div className="split-grid">
-        <article className="panel">
-          <header className="panel-header">
-            <h3>Agenda de execução</h3>
-            <span>Próximos 30 dias</span>
-          </header>
-          <ul className="timeline-list">
-            {nextDeadlines.map((item) => (
-              <li key={`${item.type}-${item.title}`}>
-                <div>
-                  <p>{item.title}</p>
-                  <small>{formatDate(item.date)}</small>
-                </div>
-                <div className="timeline-side">
-                  {item.amount ? <strong>{formatCurrency(item.amount)}</strong> : <strong>{cleanLabel(item.type)}</strong>}
-                  <StatusPill label={cleanLabel(item.status)} tone={statusTone(item.status)} />
-                </div>
-              </li>
-            ))}
-          </ul>
-        </article>
-
-        <article className="panel">
-          <header className="panel-header">
-            <h3>Mapa por piso</h3>
-            <span>Habitação vs não habitação</span>
-          </header>
-          <div className="building-map">
-            {floorMatrix.map((floor) => (
-              <div key={floor.floor} className="floor-row">
-                <span>Piso {floor.floor}</span>
-                <div>
-                  {Array.from({ length: floor.total }).map((_, index) => {
-                    const isResidential = index < floor.residential;
-                    return (
-                      <i
-                        key={`${floor.floor}-${index}`}
-                        className={isResidential ? "slot residential" : "slot mixed"}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-        </article>
-      </div>
-
-      <article className="panel">
-        <header className="panel-header">
-          <h3>Checklist de onboarding</h3>
-          <span>
-            {onboardingCompletion}/{onboardingChecklist.length} concluídos
-          </span>
-        </header>
-        <div className="onboarding-progress" role="presentation">
-          <i style={{ width: `${(onboardingCompletion / Math.max(onboardingChecklist.length, 1)) * 100}%` }} />
-        </div>
-        <ul className="onboarding-list">
-          {onboardingChecklist.map((item) => (
-            <li key={item.id} className={item.done ? "done" : ""}>
-              <div>
-                <p>{item.label}</p>
-                <small>{item.detail}</small>
-              </div>
-              <div className="timeline-side">
-                <StatusPill label={item.done ? "Concluído" : "Em falta"} tone={item.done ? "success" : "warning"} />
-                <button type="button" className="mini-btn" onClick={item.action}>
-                  {item.done ? "Ver" : item.cta}
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </article>
-
-      <article className="panel">
-        <header className="panel-header">
-          <h3>Atividade recente</h3>
-          <div className="inline-actions">
-            <button type="button" className="mini-btn" onClick={() => onOpenAction("issues")}>
-              + Ocorrência
-            </button>
-            <button type="button" className="mini-btn" onClick={() => onOpenAction("finance")}>
-              + Encargo
-            </button>
-            <button type="button" className="mini-btn" onClick={() => onOpenAction("fractions")}>
-              + Fração
-            </button>
-          </div>
-        </header>
-        {activityLog.length === 0 ? (
-          <p className="empty-note">
-            Ainda sem registos manuais nesta sessão. Usa os botões acima para criar uma fração, encargo ou ocorrência.
-          </p>
-        ) : (
-          <ul className="activity-list">
-            {activityLog.slice(0, 6).map((item) => (
-              <li key={item.id}>
-                <div>
-                  <p>{item.title}</p>
-                  <small>{item.detail}</small>
-                </div>
-                <div className="timeline-side">
-                  <small>{formatDate(item.createdAt)}</small>
-                  <StatusPill label={cleanLabel(item.tone)} tone={item.tone} />
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </article>
-    </div>
-  );
-}
-
-function FractionsScreen({
-  fractions,
-  ownerByFraction,
-  balances,
-  fractionFilter,
-  setFractionFilter,
-  fractionFloorFilter,
-  setFractionFloorFilter,
-  floorOptions,
-  fractionDebtFilter,
-  setFractionDebtFilter,
-  fractionQuery,
-  setFractionQuery,
-  typeSummary,
-  selectedFraction,
-  selectedFractionCharges,
-  selectedFractionPaymentsTotal,
-  onSelectFraction,
-  onOpenAction,
-}) {
-  const typePills = [
-    { key: "all", label: "Todas", count: Object.values(typeSummary).reduce((sum, value) => sum + value, 0) },
-    { key: "habitacao", label: "Habitação", count: typeSummary.habitacao || 0 },
-    { key: "loja", label: "Loja", count: typeSummary.loja || 0 },
-    { key: "estacionamento", label: "Estacionamento", count: typeSummary.estacionamento || 0 },
-    { key: "arrecadacao", label: "Arrecadação", count: typeSummary.arrecadacao || 0 },
-  ];
-
-  return (
-    <div className="stack-lg">
-      <article className="panel">
-        <header className="panel-header split-header">
-          <h3>Pesquisa e filtros</h3>
-          <div className="inline-actions stretch-right">
-            <button type="button" className="mini-btn" onClick={() => onOpenAction("fractions")}>
-              + Nova fração
-            </button>
-            <div className="search-wrap compact">
-              <input
-                type="search"
-                value={fractionQuery}
-                onChange={(event) => setFractionQuery(event.target.value)}
-                placeholder="Filtrar por fração ou titular"
-              />
-            </div>
-          </div>
-        </header>
-
-        <div className="pill-group">
-          {typePills.map((pill) => (
-            <button
-              key={pill.key}
-              type="button"
-              className={pill.key === fractionFilter ? "filter-pill active" : "filter-pill"}
-              onClick={() => setFractionFilter(pill.key)}
-            >
-              {pill.label}
-              <span>{pill.count}</span>
-            </button>
-          ))}
-          <select
-            className="filter-select"
-            value={fractionFloorFilter}
-            onChange={(event) => setFractionFloorFilter(event.target.value)}
-            aria-label="Filtrar por piso"
-          >
-            <option value="all">Todos os pisos</option>
-            {floorOptions.map((floor) => (
-              <option key={floor} value={floor}>
-                Piso {floor}
-              </option>
-            ))}
-          </select>
-          <select
-            className="filter-select"
-            value={fractionDebtFilter}
-            onChange={(event) => setFractionDebtFilter(event.target.value)}
-            aria-label="Filtrar por saldo"
-          >
-            <option value="all">Com e sem dívida</option>
-            <option value="in_debt">Apenas com dívida</option>
-            <option value="regular">Apenas regularizadas</option>
-          </select>
-        </div>
-      </article>
-
-      <div className="fractions-layout">
-        <article className="panel">
-          <header className="panel-header">
-            <h3>Mapa de frações</h3>
-            <span>{fractions.length} resultados</span>
-          </header>
-
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Fração</th>
-                  <th>Piso</th>
-                  <th>Tipo</th>
-                  <th>Titologia</th>
-                  <th>Titular principal</th>
-                  <th>Quota mensal</th>
-                  <th>Saldo</th>
-                </tr>
-              </thead>
-              <tbody>
-                {fractions.map((fraction) => {
-                  const balance = balances[fraction.id]?.balance || 0;
-                  return (
-                    <tr
-                      key={fraction.id}
-                      className={selectedFraction?.id === fraction.id ? "row-selected" : ""}
-                      onClick={() => onSelectFraction(fraction.id)}
-                    >
-                      <td>{fraction.code}</td>
-                      <td>{fraction.floorNumber}</td>
-                      <td>{cleanLabel(fraction.type)}</td>
-                      <td>{fraction.typology}</td>
-                      <td>{ownerByFraction[fraction.id] || "Sem titular"}</td>
-                      <td>{formatCurrency(fraction.monthlyFee)}</td>
-                      <td>
-                        <StatusPill
-                          label={balance > 0 ? formatCurrency(balance) : "Sem dívida"}
-                          tone={balance > 0 ? "warning" : "success"}
-                        />
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </article>
-
-        <article className="panel fraction-detail-panel">
-          {!selectedFraction ? (
-            <p className="empty-note">Seleciona uma fração para ver detalhe.</p>
-          ) : (
-            <>
-              <header className="panel-header">
-                <h3>Detalhe da fração</h3>
-                <StatusPill
-                  label={formatCurrency(balances[selectedFraction.id]?.balance || 0)}
-                  tone={(balances[selectedFraction.id]?.balance || 0) > 0 ? "warning" : "success"}
-                />
-              </header>
-
-              <div className="issue-meta-grid">
-                <span>
-                  Fração
-                  <strong>{selectedFraction.code}</strong>
-                </span>
-                <span>
-                  Piso
-                  <strong>{selectedFraction.floorNumber}</strong>
-                </span>
-                <span>
-                  Tipo
-                  <strong>{cleanLabel(selectedFraction.type)}</strong>
-                </span>
-                <span>
-                  Tipologia
-                  <strong>{selectedFraction.typology}</strong>
-                </span>
-                <span>
-                  Titular principal
-                  <strong>{ownerByFraction[selectedFraction.id] || "Sem titular"}</strong>
-                </span>
-                <span>
-                  Área / Permilagem
-                  <strong>
-                    {selectedFraction.privateAreaM2} m2 | {selectedFraction.permillage}
-                  </strong>
-                </span>
-                <span>
-                  Quota mensal
-                  <strong>{formatCurrency(selectedFraction.monthlyFee)}</strong>
-                </span>
-                <span>
-                  Pago acumulado
-                  <strong>{formatCurrency(selectedFractionPaymentsTotal)}</strong>
-                </span>
-              </div>
-
-              <div className="issue-costs">
-                <h4>Últimos encargos</h4>
-                <ul className="issue-timeline">
-                  {selectedFractionCharges.slice(0, 6).map((charge) => (
-                    <li key={charge.id}>
-                      <div>
-                        <p>{charge.period}</p>
-                        <small>
-                          {formatCurrency(charge.amount)} | Em falta {formatCurrency(charge.missing)}
-                        </small>
-                      </div>
-                      <div className="timeline-side">
-                        <small>{formatDate(charge.dueDate)}</small>
-                        <StatusPill label={cleanLabel(charge.status)} tone={statusTone(charge.status)} />
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </>
-          )}
-        </article>
-      </div>
-    </div>
-  );
-}
-
-function FinanceScreen({
-  finance,
-  fractions,
-  financeRows,
-  financePeriods,
-  financeStatusFilter,
-  setFinanceStatusFilter,
-  financePeriodFilter,
-  setFinancePeriodFilter,
-  selectedFinanceCharge,
-  selectedFinanceChargePayments,
-  onSelectCharge,
-  onOpenAction,
-}) {
-  const byMonth = Object.entries(finance.monthly).sort(([a], [b]) => (a < b ? -1 : 1));
-  const maxMonthly = Math.max(
-    ...byMonth.map(([, values]) => Math.max(values.emitted, values.collected)),
-    1
-  );
-
-  const fractionCodeById = Object.fromEntries(fractions.map((fraction) => [fraction.id, fraction.code]));
-
-  return (
-    <div className="stack-lg">
-      <div className="kpi-grid finance-kpi-grid">
-        <article className="kpi-card tone-accent">
-          <p>Emitido (período)</p>
-          <strong>{formatCurrency(finance.emitted)}</strong>
-          <span>Quotas e encargos totais</span>
-        </article>
-        <article className="kpi-card tone-success">
-          <p>Cobrado</p>
-          <strong>{formatCurrency(finance.collected)}</strong>
-          <span>Pagamentos registados</span>
-        </article>
-        <article className="kpi-card tone-danger">
-          <p>Em atraso</p>
-          <strong>{formatCurrency(finance.overdue)}</strong>
-          <span>Quotas vencidas</span>
-        </article>
-        <article className="kpi-card tone-warning">
-          <p>Saldo em aberto</p>
-          <strong>{formatCurrency(finance.openBalance)}</strong>
-          <span>Inclui parcial e vencido</span>
-        </article>
-      </div>
-
-      <div className="split-grid">
-        <article className="panel">
-          <header className="panel-header">
-            <h3>Cobrança mensal</h3>
-            <span>Emitido vs recebido</span>
-          </header>
-
-          <div className="bar-chart">
-            {byMonth.map(([month, values]) => (
-              <div key={month} className="bar-row">
-                <label>{month}</label>
-                <div className="bar-track">
-                  <div className="bar bar-emitted" style={{ width: `${(values.emitted / maxMonthly) * 100}%` }} />
-                </div>
-                <div className="bar-track">
-                  <div className="bar bar-collected" style={{ width: `${(values.collected / maxMonthly) * 100}%` }} />
-                </div>
-                <small>
-                  {formatCurrency(values.collected)} / {formatCurrency(values.emitted)}
-                </small>
-              </div>
-            ))}
-          </div>
-        </article>
-
-        <article className="panel">
-          <header className="panel-header">
-            <h3>Distribuição por método</h3>
-            <span>Pagamentos recebidos</span>
-          </header>
-          <ul className="simple-list">
-            {Object.entries(finance.byMethod)
-              .sort(([, a], [, b]) => b - a)
-              .map(([method, total]) => (
-                <li key={method}>
-                  <span>{cleanLabel(method)}</span>
-                  <strong>{formatCurrency(total)}</strong>
-                </li>
-              ))}
-          </ul>
-        </article>
-      </div>
-
-      <div className="finance-layout">
-        <article className="panel">
-          <header className="panel-header">
-            <h3>Encargos pendentes</h3>
-            <div className="inline-actions">
-              <span>{financeRows.length} linhas</span>
-              <button type="button" className="mini-btn" onClick={() => onOpenAction("finance")}>
-                + Novo encargo
-              </button>
-            </div>
-          </header>
-
-          <div className="pill-group">
-            <select
-              className="filter-select"
-              value={financeStatusFilter}
-              onChange={(event) => setFinanceStatusFilter(event.target.value)}
-              aria-label="Filtrar por estado financeiro"
-            >
-              <option value="all">Todos os estados</option>
-              <option value="overdue">Em atraso</option>
-              <option value="open">Em aberto</option>
-              <option value="partially_paid">Parcial</option>
-            </select>
-            <select
-              className="filter-select"
-              value={financePeriodFilter}
-              onChange={(event) => setFinancePeriodFilter(event.target.value)}
-              aria-label="Filtrar por período"
-            >
-              <option value="all">Todos os períodos</option>
-              {financePeriods.map((period) => (
-                <option key={period} value={period}>
-                  {period}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Fração</th>
-                  <th>Período</th>
-                  <th>Vencimento</th>
-                  <th>Valor</th>
-                  <th>Em falta</th>
-                  <th>Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {financeRows.slice(0, 18).map((charge) => (
-                  <tr
-                    key={charge.id}
-                    className={selectedFinanceCharge?.id === charge.id ? "row-selected" : ""}
-                    onClick={() => onSelectCharge(charge.id)}
-                  >
-                    <td>{fractionCodeById[charge.fractionId]}</td>
-                    <td>{charge.period}</td>
-                    <td>{formatDate(charge.dueDate)}</td>
-                    <td>{formatCurrency(charge.amount)}</td>
-                    <td>{formatCurrency(charge.missing)}</td>
-                    <td>
-                      <StatusPill label={cleanLabel(charge.status)} tone={statusTone(charge.status)} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </article>
-
-        <article className="panel finance-detail-panel">
-          {!selectedFinanceCharge ? (
-            <p className="empty-note">Seleciona um encargo para ver detalhe.</p>
-          ) : (
-            <>
-              <header className="panel-header">
-                <h3>Detalhe do encargo</h3>
-                <StatusPill label={cleanLabel(selectedFinanceCharge.status)} tone={statusTone(selectedFinanceCharge.status)} />
-              </header>
-
-              <div className="issue-meta-grid">
-                <span>
-                  Fração
-                  <strong>{fractionCodeById[selectedFinanceCharge.fractionId] || selectedFinanceCharge.fractionId}</strong>
-                </span>
-                <span>
-                  Período
-                  <strong>{selectedFinanceCharge.period}</strong>
-                </span>
-                <span>
-                  Vencimento
-                  <strong>{formatDate(selectedFinanceCharge.dueDate)}</strong>
-                </span>
-                <span>
-                  Valor
-                  <strong>{formatCurrency(selectedFinanceCharge.amount)}</strong>
-                </span>
-                <span>
-                  Pago
-                  <strong>{formatCurrency(selectedFinanceCharge.amount - selectedFinanceCharge.missing)}</strong>
-                </span>
-                <span>
-                  Em falta
-                  <strong>{formatCurrency(selectedFinanceCharge.missing)}</strong>
-                </span>
-              </div>
-
-              <div className="issue-costs">
-                <h4>Pagamentos associados</h4>
-                {selectedFinanceChargePayments.length === 0 ? (
-                  <p>Sem pagamentos registados para este encargo.</p>
-                ) : (
-                  <ul className="issue-timeline">
-                    {selectedFinanceChargePayments.map((payment) => (
-                      <li key={payment.id}>
-                        <div>
-                          <p>{formatCurrency(payment.amount)}</p>
-                          <small>{cleanLabel(payment.method)} | Ref. {payment.reference}</small>
-                        </div>
-                        <div className="timeline-side">
-                          <small>{formatDate(payment.paidAt)}</small>
-                          <StatusPill label="Pago" tone="success" />
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </>
-          )}
-        </article>
-      </div>
-    </div>
-  );
-}
-
-function IssuesScreen({
-  issuesByStatus,
-  peopleById,
-  onOpenAction,
-  selectedIssue,
-  selectedIssueTimeline,
-  selectedIssueAttachments,
-  selectedIssueWorkOrder,
-  selectedIssueNextStatus,
-  onSelectIssue,
-  onAdvanceIssueStatus,
-  fractionCodeById,
-}) {
-  return (
-    <div className="stack-lg">
-      <div className="issues-layout">
-        <article className="panel">
-          <header className="panel-header">
-            <h3>Painel Kanban de manutenção</h3>
-            <div className="inline-actions">
-              <span>Fluxo operacional em tempo real</span>
-              <button type="button" className="mini-btn" onClick={() => onOpenAction("issues")}>
-                + Nova ocorrencia
-              </button>
-            </div>
-          </header>
-
-          <div className="kanban-grid">
-            {ISSUE_COLUMNS.map((column) => (
-              <div key={column.key} className="kanban-column">
-                <div className="kanban-head">
-                  <h4>{column.label}</h4>
-                  <span>{issuesByStatus[column.key].length}</span>
-                </div>
-
-                <div className="kanban-cards">
-                  {issuesByStatus[column.key].map((issue) => (
-                    <article
-                      key={issue.id}
-                      className={selectedIssue?.id === issue.id ? "kanban-card selected" : "kanban-card"}
-                      onClick={() => onSelectIssue(issue.id)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter" || event.key === " ") {
-                          event.preventDefault();
-                          onSelectIssue(issue.id);
-                        }
-                      }}
-                    >
-                      <header>
-                        <StatusPill label={PRIORITY_LABEL[issue.priority]} tone={statusTone(issue.priority)} />
-                        <small>{cleanLabel(issue.category)}</small>
-                      </header>
-                      <p>{issue.title}</p>
-                      <footer>
-                        <span>{issue.fractionId ? fractionCodeById[issue.fractionId] || issue.fractionId : "Area comum"}</span>
-                        <small>
-                          {issue.assignedSupplierPersonId
-                            ? peopleById[issue.assignedSupplierPersonId]?.fullName || "Fornecedor"
-                            : "Sem atribuição"}
-                        </small>
-                      </footer>
-                    </article>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </article>
-
-        <article className="panel issue-detail-panel">
-          {!selectedIssue ? (
-          <p className="empty-note">Seleciona uma ocorrência para ver detalhes.</p>
-          ) : (
-            <>
-              <header className="panel-header">
-                <h3>Detalhe da ocorrencia</h3>
-                <StatusPill label={ISSUE_STATUS_LABEL[selectedIssue.status] || cleanLabel(selectedIssue.status)} tone={statusTone(selectedIssue.status)} />
-              </header>
-
-              <div className="issue-head">
-                <strong>{selectedIssue.title}</strong>
-                <p>{selectedIssue.description}</p>
-              </div>
-
-              <div className="issue-meta-grid">
-                <span>
-                  Fração
-                  <strong>{selectedIssue.fractionId ? fractionCodeById[selectedIssue.fractionId] || selectedIssue.fractionId : "Area comum"}</strong>
-                </span>
-                <span>
-                  Categoria
-                  <strong>{cleanLabel(selectedIssue.category)}</strong>
-                </span>
-                <span>
-                  Prioridade
-                  <strong>{PRIORITY_LABEL[selectedIssue.priority]}</strong>
-                </span>
-                <span>
-                  Fornecedor
-                  <strong>
-                    {selectedIssue.assignedSupplierPersonId
-                      ? peopleById[selectedIssue.assignedSupplierPersonId]?.fullName || "Fornecedor"
-                      : "Sem atribuição"}
-                  </strong>
-                </span>
-              </div>
-
-              <div className="issue-costs">
-                <h4>Custo estimado/final</h4>
-                <p>
-                  {selectedIssueWorkOrder
-                    ? `${formatCurrency(selectedIssueWorkOrder.estimatedCost || 0)} / ${formatCurrency(
-                        selectedIssueWorkOrder.finalCost || selectedIssueWorkOrder.estimatedCost || 0
-                      )}`
-                    : "Sem ordem de trabalho associada"}
-                </p>
-              </div>
-
-              <div className="issue-costs">
-                <h4>Anexos</h4>
-                <ul className="attachment-list">
-                  {selectedIssueAttachments.map((attachment) => (
-                    <li key={attachment}>
-                      <code>{attachment}</code>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="issue-costs">
-                <h4>Timeline</h4>
-                <ul className="issue-timeline">
-                  {selectedIssueTimeline.map((entry) => (
-                    <li key={entry.id}>
-                      <div>
-                        <p>{entry.label}</p>
-                        <small>{entry.detail}</small>
-                      </div>
-                      <div className="timeline-side">
-                        <small>{formatDate(entry.when)}</small>
-                        <StatusPill label={cleanLabel(entry.tone)} tone={entry.tone} />
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="inline-actions">
-                <button type="button" className="mini-btn" onClick={() => onOpenAction("issues")}>
-                  + Nova ocorrencia
-                </button>
-                <button
-                  type="button"
-                  className="primary-btn"
-                  onClick={() => onAdvanceIssueStatus(selectedIssue.id)}
-                  disabled={!selectedIssueNextStatus}
-                >
-                  {selectedIssueNextStatus
-                    ? `Mover para ${ISSUE_STATUS_LABEL[selectedIssueNextStatus]}`
-                    : "Estado final"}
-                </button>
-              </div>
-            </>
-          )}
-        </article>
-      </div>
-    </div>
-  );
-}
-
-function AssembliesScreen({ assemblies, onOpenAction }) {
-  return (
-    <div className="stack-lg">
-      <div className="split-grid">
-        <article className="panel">
-          <header className="panel-header">
-            <h3>Agenda de assembleias</h3>
-            <div className="inline-actions">
-              <span>Planeamento 2026</span>
-              <button type="button" className="mini-btn" onClick={() => onOpenAction("assemblies")}>
-                + Nova assembleia
-              </button>
-            </div>
-          </header>
-          <ul className="timeline-list">
-            {assemblies.map((assembly) => (
-              <li key={assembly.id}>
-                <div>
-                  <p>{assembly.meetingType === "ordinary" ? "Assembleia ordinária" : "Assembleia extraordinária"}</p>
-                  <small>{formatDate(assembly.scheduledAt)}</small>
-                </div>
-                <div className="timeline-side">
-                  <strong>{assembly.voteItems.length} pontos</strong>
-                  <StatusPill label="Planeada" tone="neutral" />
-                </div>
-              </li>
-            ))}
-          </ul>
-        </article>
-
-        <article className="panel">
-          <header className="panel-header">
-            <h3>Estado de templates legais</h3>
-            <span>Prontos para gerar PDF</span>
-          </header>
-          <ul className="check-list">
-            {TEMPLATE_CHECKLIST.map((item) => (
-              <li key={item.id}>
-                <span>{item.label}</span>
-                <StatusPill label={item.status === "ready" ? "Pronto" : "Em falta"} tone="success" />
-              </li>
-            ))}
-          </ul>
-        </article>
-      </div>
-
-      <article className="panel">
-        <header className="panel-header">
-        <h3>Resumo de votações previstas</h3>
-          <span>Com base no seed de demo</span>
-        </header>
-
-        <div className="vote-grid">
-          {assemblies.flatMap((assembly) =>
-            assembly.voteItems.map((item) => (
-              <article key={item.id} className="vote-card">
-                <h4>{item.description}</h4>
-                <p>{cleanLabel(item.votingRule)}</p>
-                <div>
-                  <span>A favor: {item.summary.for}</span>
-                  <span>Contra: {item.summary.against}</span>
-                  <span>Abstenção: {item.summary.abstention}</span>
-                </div>
-              </article>
-            ))
-          )}
-        </div>
-      </article>
-    </div>
-  );
-}
-
-function PortalScreen({
-  selectedFraction,
-  fractions,
-  ownerByFraction,
-  balances,
-  portalChargeRows,
-  portalPayments,
-  portalOpenIssues,
-  portalVisibleDocuments,
-  portalNextCharge,
-  portalCollectedYear,
-  onSelectFraction,
-  onOpenAction,
-  onExport,
-}) {
-  return (
-    <div className="stack-lg">
-      <article className="panel">
-        <header className="panel-header split-header">
-        <h3>Conta corrente do condómino</h3>
-          <div className="inline-actions stretch-right">
-            <select
-              className="filter-select"
-              value={selectedFraction?.id || ""}
-              onChange={(event) => onSelectFraction(event.target.value)}
-              aria-label="Selecionar fração do portal"
-            >
-              {fractions.map((fraction) => (
-                <option key={fraction.id} value={fraction.id}>
-                  {fraction.code} | {ownerByFraction[fraction.id] || "Sem titular"}
-                </option>
-              ))}
-            </select>
-            <button type="button" className="mini-btn" onClick={() => onOpenAction("issues")}>
-            + Abrir ocorrência
-            </button>
-            <button type="button" className="ghost-btn" onClick={onExport}>
-              Exportar extrato
-            </button>
-          </div>
-        </header>
-
-        {selectedFraction ? (
-          <div className="kpi-grid portal-kpi-grid">
-            <article className="kpi-card tone-warning">
-              <p>Saldo atual</p>
-              <strong>{formatCurrency(balances[selectedFraction.id]?.balance || 0)}</strong>
-              <span>{ownerByFraction[selectedFraction.id] || "Sem titular"}</span>
-            </article>
-            <article className="kpi-card tone-accent">
-            <p>Próxima quota</p>
-              <strong>{portalNextCharge ? formatCurrency(portalNextCharge.missing) : formatCurrency(0)}</strong>
-              <span>{portalNextCharge ? formatDate(portalNextCharge.dueDate) : "Sem encargos pendentes"}</span>
-            </article>
-            <article className="kpi-card tone-success">
-            <p>Pagamentos no período</p>
-              <strong>{formatCurrency(portalCollectedYear)}</strong>
-              <span>{portalPayments.length} movimentos registados</span>
-            </article>
-            <article className="kpi-card tone-danger">
-            <p>Ocorrências ativas</p>
-              <strong>{portalOpenIssues.length}</strong>
-              <span>Inclui área comum e fração</span>
-            </article>
-          </div>
-        ) : (
-        <p className="empty-note">Sem fração selecionada.</p>
-        )}
-      </article>
-
-      <div className="split-grid">
-        <article className="panel">
-          <header className="panel-header">
-            <h3>Extrato de encargos</h3>
-            <span>{portalChargeRows.length} movimentos</span>
-          </header>
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                <th>Período</th>
-                  <th>Vencimento</th>
-                  <th>Valor</th>
-                  <th>Pago</th>
-                  <th>Em falta</th>
-                  <th>Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {portalChargeRows.slice(0, 12).map((charge) => (
-                  <tr key={charge.id}>
-                    <td>{charge.period}</td>
-                    <td>{formatDate(charge.dueDate)}</td>
-                    <td>{formatCurrency(charge.amount)}</td>
-                    <td>{formatCurrency(charge.paid)}</td>
-                    <td>{formatCurrency(charge.missing)}</td>
-                    <td>
-                      <StatusPill label={cleanLabel(charge.status)} tone={statusTone(charge.status)} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </article>
-
-        <article className="panel">
-          <header className="panel-header">
-            <h3>Pagamentos recentes</h3>
-            <span>Últimos lançamentos</span>
-          </header>
-          {portalPayments.length === 0 ? (
-            <p className="empty-note">Ainda sem pagamentos registados.</p>
-          ) : (
-            <ul className="timeline-list">
-              {portalPayments.slice(0, 8).map((payment) => (
-                <li key={payment.id}>
-                  <div>
-                    <p>{formatCurrency(payment.amount)}</p>
-                    <small>
-                      {cleanLabel(payment.method)} | Ref. {payment.reference}
-                    </small>
-                  </div>
-                  <div className="timeline-side">
-                    <small>{formatDate(payment.paidAt)}</small>
-                    <StatusPill label="Pago" tone="success" />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </article>
-      </div>
-
-      <div className="split-grid">
-        <article className="panel">
-          <header className="panel-header">
-          <h3>Ocorrências acompanhadas</h3>
-            <span>{portalOpenIssues.length} em curso</span>
-          </header>
-          {portalOpenIssues.length === 0 ? (
-          <p className="empty-note">Sem ocorrências abertas para esta fração.</p>
-          ) : (
-            <ul className="issue-timeline">
-              {portalOpenIssues.slice(0, 6).map((issue) => (
-                <li key={issue.id}>
-                  <div>
-                    <p>{issue.title}</p>
-                    <small>
-                      {cleanLabel(issue.category)} | {PRIORITY_LABEL[issue.priority]}
-                    </small>
-                  </div>
-                  <div className="timeline-side">
-                    <small>{formatDate(issue.openedAt)}</small>
-                    <StatusPill label={ISSUE_STATUS_LABEL[issue.status]} tone={statusTone(issue.status)} />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </article>
-
-        <article className="panel">
-          <header className="panel-header">
-            <h3>Documentos do portal</h3>
-            <span>{portalVisibleDocuments.length} visíveis</span>
-          </header>
-          <ul className="simple-list">
-            {portalVisibleDocuments.slice(0, 8).map((document) => (
-              <li key={document.id}>
-                <span>{document.title}</span>
-                <strong>{cleanLabel(document.visibility)}</strong>
-              </li>
-            ))}
-          </ul>
-        </article>
-      </div>
-    </div>
-  );
-}
-
-function DocumentsScreen({ documents, docQuery, setDocQuery }) {
-  const visibilitySummary = documents.reduce(
-    (acc, document) => {
-      acc[document.visibility] = (acc[document.visibility] || 0) + 1;
-      return acc;
-    },
-    { manager_only: 0, residents: 0, all: 0 }
-  );
-
-  return (
-    <div className="stack-lg">
-      <article className="panel">
-        <header className="panel-header split-header">
-          <h3>Biblioteca documental</h3>
-          <div className="search-wrap">
-            <input
-              type="search"
-              value={docQuery}
-              onChange={(event) => setDocQuery(event.target.value)}
-              placeholder="Pesquisar por categoria, título ou visibilidade"
-            />
-          </div>
-        </header>
-
-        <div className="pill-group">
-          <span className="stat-pill">
-            Manager only <strong>{visibilitySummary.manager_only}</strong>
-          </span>
-          <span className="stat-pill">
-            Residentes <strong>{visibilitySummary.residents}</strong>
-          </span>
-          <span className="stat-pill">
-            Todos <strong>{visibilitySummary.all}</strong>
-          </span>
-        </div>
-      </article>
-
-      <article className="panel">
-        <header className="panel-header">
-          <h3>Documentos carregados</h3>
-          <span>{documents.length} ficheiros visíveis</span>
-        </header>
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-              <th>Título</th>
-                <th>Categoria</th>
-                <th>Data upload</th>
-                <th>Visibilidade</th>
-                <th>Caminho</th>
-              </tr>
-            </thead>
-            <tbody>
-              {documents.map((document) => (
-                <tr key={document.id}>
-                  <td>{document.title}</td>
-                  <td>{cleanLabel(document.category)}</td>
-                  <td>{formatDate(document.uploadedAt)}</td>
-                  <td>
-                    <StatusPill label={cleanLabel(document.visibility)} tone="neutral" />
-                  </td>
-                  <td>
-                    <code>{document.storagePath}</code>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </article>
-    </div>
-  );
-}
-
-function NotificationCenter({ open, notifications, readIds, unreadCount, onClose, onMarkAllRead, onSelectNotification }) {
-  if (!open) {
-    return null;
-  }
-
-  return (
-    <div className="drawer-backdrop notification-layer" role="dialog" aria-modal="true" onClick={onClose}>
-      <aside className="notification-panel" onClick={(event) => event.stopPropagation()}>
-        <header className="panel-header">
-          <div>
-            <h3>Centro de alertas</h3>
-            <span>{unreadCount} por ler</span>
-          </div>
-          <div className="inline-actions">
-            <button type="button" className="mini-btn" onClick={onMarkAllRead}>
-              Marcar tudo lido
-            </button>
-            <button type="button" className="close-btn" onClick={onClose}>
-              Fechar
-            </button>
-          </div>
-        </header>
-        {notifications.length === 0 ? (
-          <p className="empty-note">Sem alertas ativos no momento.</p>
-        ) : (
-          <ul className="notification-list">
-            {notifications.map((notification) => {
-              const isUnread = !readIds.includes(notification.id);
-              return (
-                <li key={notification.id} className={isUnread ? "unread" : ""}>
-                  <button type="button" onClick={() => onSelectNotification(notification)}>
-                    <div>
-                      <p>{notification.title}</p>
-                      <small>{notification.detail}</small>
-                    </div>
-                    <div className="timeline-side">
-                      <small>{formatDate(notification.when)}</small>
-                      <StatusPill label={isUnread ? "Novo" : "Lido"} tone={isUnread ? notification.tone : "neutral"} />
-                    </div>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </aside>
-    </div>
-  );
-}
-
-function CommandPalette({ open, query, actions, onQueryChange, onClose, onSelectAction }) {
-  const inputRef = useRef(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    setActiveIndex(0);
-    window.setTimeout(() => inputRef.current?.focus(), 16);
-  }, [open, query]);
-
-  useEffect(() => {
-    if (!open || actions.length === 0) {
-      return;
-    }
-
-    setActiveIndex((previous) => Math.min(previous, actions.length - 1));
-  }, [actions, open]);
-
-  useEffect(() => {
-    if (!open) {
-      return undefined;
-    }
-
-    const onKeyDown = (event) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        onClose();
-        return;
-      }
-
-      if (event.key === "ArrowDown") {
-        event.preventDefault();
-        setActiveIndex((previous) => (actions.length === 0 ? 0 : (previous + 1) % actions.length));
-        return;
-      }
-
-      if (event.key === "ArrowUp") {
-        event.preventDefault();
-        setActiveIndex((previous) => (actions.length === 0 ? 0 : (previous - 1 + actions.length) % actions.length));
-        return;
-      }
-
-      if (event.key === "Enter") {
-        event.preventDefault();
-        const action = actions[activeIndex];
-        if (action) {
-          onSelectAction(action.id);
-        }
-      }
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, actions, activeIndex, onClose, onSelectAction]);
-
-  if (!open) {
-    return null;
-  }
-
-  return (
-    <div className="drawer-backdrop command-layer" role="dialog" aria-modal="true" onClick={onClose}>
-      <section className="command-panel" onClick={(event) => event.stopPropagation()}>
-        <header className="panel-header">
-        <h3>Comandos rápidos</h3>
-        <span>Navegação com setas e Enter</span>
-        </header>
-        <div className="search-wrap">
-          <input
-            ref={inputRef}
-            type="search"
-            value={query}
-            onChange={(event) => onQueryChange(event.target.value)}
-            placeholder="Procurar módulo, ação ou utilitário"
-          />
-        </div>
-        <ul className="command-list">
-          {actions.map((action, index) => (
-            <li key={action.id}>
-              <button
-                type="button"
-                className={index === activeIndex ? "active" : ""}
-                onMouseEnter={() => setActiveIndex(index)}
-                onClick={() => onSelectAction(action.id)}
-              >
-                <strong>{action.label}</strong>
-                <small>{action.detail}</small>
-              </button>
-            </li>
-          ))}
-        </ul>
-        {actions.length === 0 ? <p className="empty-note">Sem resultados para este termo.</p> : null}
-      </section>
-    </div>
-  );
-}
-
-function QuickActionDrawer({ open, actionType, allowedActionTypes, onActionTypeChange, onClose, onSubmit, fractions }) {
-  const [formError, setFormError] = useState("");
-  const [fractionForm, setFractionForm] = useState({
-    code: "",
-    floorNumber: "1",
-    type: "habitacao",
-    typology: "T2",
-    monthlyFee: "65",
-    privateAreaM2: "82",
-    permillage: "32",
-    ownerName: "",
-    ownerEmail: "",
-    ownerPhone: "",
-    ownerTaxNumber: "",
-  });
-  const [chargeForm, setChargeForm] = useState({
-    fractionId: fractions[0]?.id || "",
-    kind: "quota",
-    period: "2026-03",
-    dueDate: "2026-03-08",
-    amount: "60",
-  });
-  const [issueForm, setIssueForm] = useState({
-    title: "",
-    category: "infiltracao",
-    priority: "medium",
-    fractionId: "common",
-    description: "",
-  });
-  const [assemblyForm, setAssemblyForm] = useState({
-    meetingType: "ordinary",
-    scheduledAt: "2026-03-25T20:30",
-    location: "Sala comum do condomínio",
-  });
-
-  const orderedFractions = useMemo(() => {
-    return [...fractions].sort((a, b) =>
-      a.floorNumber === b.floorNumber ? a.code.localeCompare(b.code) : a.floorNumber - b.floorNumber
-    );
-  }, [fractions]);
-
-  useEffect(() => {
-    if (!open || allowedActionTypes.length === 0) {
-      return;
-    }
-
-    if (!allowedActionTypes.some((item) => item.id === actionType)) {
-      onActionTypeChange(allowedActionTypes[0].id);
-    }
-  }, [open, actionType, allowedActionTypes, onActionTypeChange]);
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    setFormError("");
-    if (!chargeForm.fractionId && orderedFractions[0]?.id) {
-      setChargeForm((previous) => ({ ...previous, fractionId: orderedFractions[0].id }));
-    }
-  }, [open, orderedFractions, chargeForm.fractionId]);
-
-  useEffect(() => {
-    if (!open) {
-      return undefined;
-    }
-
-    const onEscape = (event) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-
-    window.addEventListener("keydown", onEscape);
-    return () => window.removeEventListener("keydown", onEscape);
-  }, [open, onClose]);
-
-  if (!open) {
-    return null;
-  }
-
-  const submitCurrentForm = (event) => {
-    event.preventDefault();
-
-    try {
-      if (actionType === "fractions") {
-        onSubmit({ type: actionType, values: fractionForm });
-      }
-
-      if (actionType === "finance") {
-        onSubmit({ type: actionType, values: chargeForm });
-      }
-
-      if (actionType === "issues") {
-        onSubmit({ type: actionType, values: issueForm });
-      }
-
-      if (actionType === "assemblies") {
-        onSubmit({ type: actionType, values: assemblyForm });
-      }
-    } catch (error) {
-setFormError(error instanceof Error ? error.message : "Não foi possível guardar esta ação.");
-    }
-  };
-
-  return (
-    <div className="drawer-backdrop" role="dialog" aria-modal="true" onClick={onClose}>
-      <aside className="quick-drawer" onClick={(event) => event.stopPropagation()}>
-        <header className="drawer-header">
-          <div>
-          <p className="eyebrow">Ações rápidas</p>
-          <h3>Registar nova ação operacional</h3>
-          </div>
-          <button type="button" className="close-btn" onClick={onClose} aria-label="Fechar painel">
-            Fechar
-          </button>
-        </header>
-
-        <div className="type-switch">
-          {allowedActionTypes.map((typeOption) => (
-            <button
-              key={typeOption.id}
-              type="button"
-              className={typeOption.id === actionType ? "switch-pill active" : "switch-pill"}
-              onClick={() => {
-                setFormError("");
-                onActionTypeChange(typeOption.id);
-              }}
-            >
-              {typeOption.label}
-            </button>
-          ))}
-        </div>
-
-        {allowedActionTypes.length === 0 ? (
-        <p className="form-error">Este perfil não tem permissões para criar novos registos.</p>
-        ) : null}
-
-        <form className="drawer-form" onSubmit={submitCurrentForm}>
-          {actionType === "fractions" && (
-            <div className="field-grid two-cols">
-              <label className="field">
-              <span>Código da fração</span>
-                <input
-                  required
-                  value={fractionForm.code}
-                  onChange={(event) => setFractionForm((previous) => ({ ...previous, code: event.target.value }))}
-                  placeholder="Ex: 11A"
-                />
-              </label>
-              <label className="field">
-                <span>Piso</span>
-                <input
-                  required
-                  type="number"
-                  value={fractionForm.floorNumber}
-                  onChange={(event) =>
-                    setFractionForm((previous) => ({ ...previous, floorNumber: event.target.value }))
-                  }
-                />
-              </label>
-              <label className="field">
-                <span>Tipo</span>
-                <select
-                  value={fractionForm.type}
-                  onChange={(event) => setFractionForm((previous) => ({ ...previous, type: event.target.value }))}
-                >
-                <option value="habitacao">Habitação</option>
-                  <option value="loja">Loja</option>
-                  <option value="estacionamento">Estacionamento</option>
-                  <option value="arrecadacao">Arrecadação</option>
-                </select>
-              </label>
-              <label className="field">
-                <span>Tipologia</span>
-                <input
-                  value={fractionForm.typology}
-                  onChange={(event) =>
-                    setFractionForm((previous) => ({ ...previous, typology: event.target.value }))
-                  }
-                  placeholder="Ex: T2"
-                />
-              </label>
-              <label className="field">
-                <span>Quota mensal (EUR)</span>
-                <input
-                  required
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={fractionForm.monthlyFee}
-                  onChange={(event) =>
-                    setFractionForm((previous) => ({ ...previous, monthlyFee: event.target.value }))
-                  }
-                />
-              </label>
-              <label className="field">
-              <span>Área privativa (m2)</span>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  value={fractionForm.privateAreaM2}
-                  onChange={(event) =>
-                    setFractionForm((previous) => ({ ...previous, privateAreaM2: event.target.value }))
-                  }
-                />
-              </label>
-              <label className="field">
-                <span>Permilagem</span>
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  value={fractionForm.permillage}
-                  onChange={(event) =>
-                    setFractionForm((previous) => ({ ...previous, permillage: event.target.value }))
-                  }
-                />
-              </label>
-              <label className="field">
-                <span>Titular principal</span>
-                <input
-                  value={fractionForm.ownerName}
-                  onChange={(event) =>
-                    setFractionForm((previous) => ({ ...previous, ownerName: event.target.value }))
-                  }
-                  placeholder="Nome do proprietário"
-                />
-              </label>
-              <label className="field">
-                <span>Email titular</span>
-                <input
-                  type="email"
-                  value={fractionForm.ownerEmail}
-                  onChange={(event) =>
-                    setFractionForm((previous) => ({ ...previous, ownerEmail: event.target.value }))
-                  }
-                  placeholder="owner@example.pt"
-                />
-              </label>
-              <label className="field">
-                <span>Telemóvel titular</span>
-                <input
-                  value={fractionForm.ownerPhone}
-                  onChange={(event) =>
-                    setFractionForm((previous) => ({ ...previous, ownerPhone: event.target.value }))
-                  }
-                  placeholder="+3519..."
-                />
-              </label>
-              <label className="field">
-                <span>NIF titular</span>
-                <input
-                  value={fractionForm.ownerTaxNumber}
-                  onChange={(event) =>
-                    setFractionForm((previous) => ({ ...previous, ownerTaxNumber: event.target.value }))
-                  }
-                  placeholder="9XXXXXXXX"
-                />
-              </label>
-            </div>
-          )}
-
-          {actionType === "finance" && (
-            <div className="field-grid">
-              <label className="field">
-              <span>Fração</span>
-                <select
-                  required
-                  value={chargeForm.fractionId}
-                  onChange={(event) => setChargeForm((previous) => ({ ...previous, fractionId: event.target.value }))}
-                >
-                  {orderedFractions.map((fraction) => (
-                    <option key={fraction.id} value={fraction.id}>
-                      {fraction.code} - Piso {fraction.floorNumber}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="field">
-                <span>Tipo de encargo</span>
-                <select
-                  value={chargeForm.kind}
-                  onChange={(event) => setChargeForm((previous) => ({ ...previous, kind: event.target.value }))}
-                >
-                  <option value="quota">Quota</option>
-                  <option value="reserve_fund">Fundo de reserva</option>
-                  <option value="adjustment">Acerto</option>
-                  <option value="penalty">Penalização</option>
-                </select>
-              </label>
-              <label className="field">
-              <span>Período</span>
-                <input
-                  required
-                  type="month"
-                  value={chargeForm.period}
-                  onChange={(event) => setChargeForm((previous) => ({ ...previous, period: event.target.value }))}
-                />
-              </label>
-              <label className="field">
-                <span>Data de vencimento</span>
-                <input
-                  required
-                  type="date"
-                  value={chargeForm.dueDate}
-                  onChange={(event) => setChargeForm((previous) => ({ ...previous, dueDate: event.target.value }))}
-                />
-              </label>
-              <label className="field">
-                <span>Valor (EUR)</span>
-                <input
-                  required
-                  type="number"
-                  min="0.01"
-                  step="0.01"
-                  value={chargeForm.amount}
-                  onChange={(event) => setChargeForm((previous) => ({ ...previous, amount: event.target.value }))}
-                />
-              </label>
-            </div>
-          )}
-
-          {actionType === "issues" && (
-            <div className="field-grid">
-              <label className="field">
-              <span>Título</span>
-                <input
-                  required
-                  value={issueForm.title}
-                  onChange={(event) => setIssueForm((previous) => ({ ...previous, title: event.target.value }))}
-                  placeholder="Ex: Infiltração na cobertura"
-                />
-              </label>
-              <label className="field">
-                <span>Categoria</span>
-                <select
-                  value={issueForm.category}
-                  onChange={(event) => setIssueForm((previous) => ({ ...previous, category: event.target.value }))}
-                >
-                  {seedData.catalogs.issueCategories.map((category) => (
-                    <option key={category} value={category}>
-                      {cleanLabel(category)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="field">
-              <span>Prioridade</span>
-                <select
-                  value={issueForm.priority}
-                  onChange={(event) => setIssueForm((previous) => ({ ...previous, priority: event.target.value }))}
-                >
-                  <option value="low">Baixa</option>
-                  <option value="medium">Media</option>
-                  <option value="high">Alta</option>
-                  <option value="critical">Crítica</option>
-                </select>
-              </label>
-              <label className="field">
-              <span>Fração</span>
-                <select
-                  value={issueForm.fractionId}
-                  onChange={(event) => setIssueForm((previous) => ({ ...previous, fractionId: event.target.value }))}
-                >
-                <option value="common">Área comum</option>
-                  {orderedFractions.map((fraction) => (
-                    <option key={fraction.id} value={fraction.id}>
-                      {fraction.code}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="field full-row">
-              <span>Descrição</span>
-                <textarea
-                  rows={4}
-                  value={issueForm.description}
-                  onChange={(event) =>
-                    setIssueForm((previous) => ({ ...previous, description: event.target.value }))
-                  }
-                  placeholder="Detalhes iniciais para triagem."
-                />
-              </label>
-            </div>
-          )}
-
-          {actionType === "assemblies" && (
-            <div className="field-grid">
-              <label className="field">
-                <span>Tipo</span>
-                <select
-                  value={assemblyForm.meetingType}
-                  onChange={(event) =>
-                    setAssemblyForm((previous) => ({ ...previous, meetingType: event.target.value }))
-                  }
-                >
-                <option value="ordinary">Ordinária</option>
-                <option value="extraordinary">Extraordinária</option>
-                </select>
-              </label>
-              <label className="field">
-                <span>Data e hora</span>
-                <input
-                  required
-                  type="datetime-local"
-                  value={assemblyForm.scheduledAt}
-                  onChange={(event) =>
-                    setAssemblyForm((previous) => ({ ...previous, scheduledAt: event.target.value }))
-                  }
-                />
-              </label>
-              <label className="field full-row">
-                <span>Local</span>
-                <input
-                  value={assemblyForm.location}
-                  onChange={(event) => setAssemblyForm((previous) => ({ ...previous, location: event.target.value }))}
-                />
-              </label>
-            </div>
-          )}
-
-          {formError ? <p className="form-error">{formError}</p> : null}
-
-          <footer className="drawer-actions">
-            <button type="button" className="ghost-btn" onClick={onClose}>
-              Cancelar
-            </button>
-            <button type="submit" className="primary-btn" disabled={allowedActionTypes.length === 0}>
-Guardar ação
-            </button>
-          </footer>
-        </form>
-      </aside>
-    </div>
-  );
-}
-
-function ComplianceScreen({ auditEntries, auditQuery, setAuditQuery, auditDomain, setAuditDomain }) {
-  return (
-    <div className="stack-lg">
-      <div className="split-grid">
-        <article className="panel">
-          <header className="panel-header">
-            <h3>Checklist RGPD operacional</h3>
-            <span>Prioridade de lançamento</span>
-          </header>
-          <ul className="check-list">
-            {COMPLIANCE_TASKS.map((task) => (
-              <li key={task.title}>
-                <div>
-                  <p>{task.title}</p>
-                  <small>{task.owner}</small>
-                </div>
-                <div className="timeline-side">
-                  <small>{formatDate(task.dueDate)}</small>
-                  <StatusPill label={task.status} tone={statusTone(task.status)} />
-                </div>
-              </li>
-            ))}
-          </ul>
-        </article>
-
-        <article className="panel">
-          <header className="panel-header">
-          <h3>Templates jurídicos</h3>
-          <span>Pré-validados para edição</span>
-          </header>
-          <ul className="simple-list">
-            <li>
-            <span>Política de privacidade</span>
-              <strong>v0.1</strong>
-            </li>
-            <li>
-            <span>Termos de utilização</span>
-              <strong>v0.1</strong>
-            </li>
-            <li>
-              <span>DPA subcontratante</span>
-              <strong>v0.1</strong>
-            </li>
-            <li>
-              <span>Registo de incidente</span>
-              <strong>v0.1</strong>
-            </li>
-            <li>
-              <span>Resposta ao titular</span>
-              <strong>v0.1</strong>
-            </li>
-          </ul>
-        </article>
-      </div>
-
-      <article className="panel">
-        <header className="panel-header">
-          <h3>Trilho de auditoria operacional</h3>
-          <span>{auditEntries.length} eventos filtrados</span>
-        </header>
-        <div className="audit-toolbar">
-          <select
-            className="filter-select"
-            value={auditDomain}
-            onChange={(event) => setAuditDomain(event.target.value)}
-aria-label="Filtrar domínio de auditoria"
-          >
-          <option value="all">Todos os domínios</option>
-            <option value="financeiro">Financeiro</option>
-            <option value="operacional">Operacional</option>
-            <option value="governance">Governance</option>
-            <option value="cadastros">Cadastros</option>
-            <option value="compliance">Compliance</option>
-            <option value="sistema">Sistema</option>
-          </select>
-          <div className="search-wrap compact">
-            <input
-              type="search"
-              value={auditQuery}
-              onChange={(event) => setAuditQuery(event.target.value)}
-              placeholder="Pesquisar por ação, detalhe ou ator"
-            />
-          </div>
-        </div>
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Ator</th>
-                <th>Domínio</th>
-                <th>Ação</th>
-                <th>Detalhe</th>
-              </tr>
-            </thead>
-            <tbody>
-              {auditEntries.slice(0, 40).map((entry) => (
-                <tr key={entry.id}>
-                  <td>{formatDate(entry.when)}</td>
-                  <td>{entry.actor}</td>
-                  <td>
-                    <StatusPill label={cleanLabel(entry.domain)} tone={entry.tone} />
-                  </td>
-                  <td>{entry.action}</td>
-                  <td>{entry.detail}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </article>
-
-      <article className="panel">
-        <header className="panel-header">
-          <h3>Trilho de auditoria recomendado para V1</h3>
-          <span>Campos mínimos</span>
-        </header>
-        <div className="audit-grid">
-          <article>
-            <h4>Financeiro</h4>
-            <p>
-            Criação/edição de encargos, alteração de valores, conciliação manual e anulações de pagamentos devem ser
-              auditados com before/after.
-            </p>
-          </article>
-          <article>
-            <h4>Governance</h4>
-            <p>
-            Convocatórias, alterações de ordem de trabalhos, votações e atas publicadas exigem registo de ator,
-            timestamp e justificação.
-            </p>
-          </article>
-          <article>
-            <h4>Dados pessoais</h4>
-            <p>
-            Operações de exportação, apagamento e retificação de dados devem ter trilho completo para resposta a
-              pedidos do titular.
-            </p>
-          </article>
-        </div>
-      </article>
-    </div>
-  );
-}
-
-function StatusPill({ label, tone = "neutral" }) {
-  return <span className={`status-pill ${tone}`}>{label}</span>;
 }
 
 export default App;

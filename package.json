@@ -1,24 +1,60 @@
 {
-  "name": "travelbuddies-landing",
+  "name": "condoos",
   "private": true,
   "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "api": "node backend/server.js",
+    "api:dev": "node --watch backend/server.js",
+    "db:seed": "node backend/scripts/seed-db.js",
+    "db:reset": "node backend/scripts/seed-db.js --reset",
+    "db:migrate": "node -e \"import k from './backend/knexfile.js'; import K from 'knex'; const knex=K(k[process.env.NODE_ENV||'development']); await knex.migrate.latest().then(r=>{console.log('Migrated:',r[1].length,'files');knex.destroy()})\"",
+    "db:migrate:rollback": "node -e \"import k from './backend/knexfile.js'; import K from 'knex'; const knex=K(k[process.env.NODE_ENV||'development']); await knex.migrate.rollback().then(r=>{console.log('Rolled back:',r[1].length,'files');knex.destroy()})\"",
+    "test": "NODE_ENV=test ENABLE_DEMO_USERS=true node --test backend/tests/**/*.test.js",
+    "test:api": "NODE_ENV=test ENABLE_DEMO_USERS=true node --test backend/tests/api.integration.test.js",
+    "test:ui": "playwright test",
+    "test:ui:headed": "playwright test --headed",
+    "test:ui:debug": "playwright test --debug",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:unit:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.90.21",
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^12.6.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
     "framer-motion": "^11.18.0",
+    "jsonwebtoken": "^9.0.2",
+    "knex": "^3.1.0",
+    "lucide-react": "^0.577.0",
+    "nodemailer": "^8.0.1",
+    "pdfkit": "^0.17.2",
+    "pg": "^8.18.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-hook-form": "^7.53.2"
+    "react-hook-form": "^7.53.2",
+    "react-router-dom": "^7.13.1"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.1",
+    "@axe-core/playwright": "^4.11.1",
+    "@playwright/test": "^1.58.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@vitejs/plugin-react": "^5.1.4",
     "autoprefixer": "^10.4.20",
+    "jsdom": "^28.1.0",
     "postcss": "^8.4.41",
+    "supertest": "^7.1.1",
     "tailwindcss": "^3.4.10",
-    "vite": "^5.4.8"
+    "vite": "^7.3.1",
+    "vitest": "^4.0.18"
   }
 }
