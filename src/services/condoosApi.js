@@ -1,5 +1,7 @@
-// Em produção (Vercel), resolve para "" (mesma origem). Em dev, aponta para o backend local.
-const DEFAULT_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? "http://127.0.0.1:4100" : "");
+// VITE_API_BASE_URL controla o endpoint da API.
+// Em dev: configurar no .env.development.local ou usar proxy do Vite.
+// Em produção (Vercel): não definir — resolve para "" (mesma origem).
+const DEFAULT_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 const AUTH_STORAGE_KEY = "condoos_auth_v1";
 
 function toErrorMessage(status, payload) {
