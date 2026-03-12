@@ -5,7 +5,7 @@ import cors from "cors";
 import express from "express";
 import { logger } from "./logger.js";
 import { authenticateRequest, resolveTenantScope } from "./auth.js";
-import { API_HOST, API_PORT, CORS_ORIGINS } from "./config.js";
+import { API_HOST, API_PORT, CORS_ORIGINS, IS_PRODUCTION } from "./config.js";
 import { initializeKnex } from "./db-knex.js";
 import { ensureDirectory, DOCUMENT_STORAGE_DIR, RECEIPT_STORAGE_DIR } from "./helpers.js";
 
@@ -51,12 +51,22 @@ export async function createServer() {
   await initializeKnex({ migrate: true, seed: true });
   const app = express();
   app.disable("x-powered-by");
-  ensureDirectory(DOCUMENT_STORAGE_DIR);
-  ensureDirectory(RECEIPT_STORAGE_DIR);
+  if (!IS_PRODUCTION) {
+    ensureDirectory(DOCUMENT_STORAGE_DIR);
+    ensureDirectory(RECEIPT_STORAGE_DIR);
+  }
 
   // ── Global middleware ──────────────────────────────────────────────────
   app.use(cors({ ...buildCorsOptions(), credentials: true }));
   app.use(cookieParser());
+  // In Vercel serverless, the body is already parsed by the runtime.
+  // Express's json() would fail trying to re-read the consumed stream.
+  if (process.env.VERCEL) {
+    app.use((req, _res, next) => {
+      req._body = true;
+      next();
+    });
+  }
   app.use(express.json({ limit: "1mb" }));
   app.use((_req, res, next) => {
     res.setHeader("X-Content-Type-Options", "nosniff");

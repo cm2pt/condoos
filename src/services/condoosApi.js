@@ -1,4 +1,4 @@
-const DEFAULT_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:4100";
+const DEFAULT_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? "http://127.0.0.1:4100" : "");
 const AUTH_STORAGE_KEY = "condoos_auth_v1";
 
 function toErrorMessage(status, payload) {

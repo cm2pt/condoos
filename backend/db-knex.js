@@ -1,7 +1,7 @@
 import Knex from "knex";
 import knexConfig from "./knexfile.js";
 
-const env = process.env.NODE_ENV || "development";
+const env = process.env.DATABASE_URL ? "production" : (process.env.NODE_ENV || "development");
 const config = knexConfig[env] || knexConfig.development;
 
 let instance = null;

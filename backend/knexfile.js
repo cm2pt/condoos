@@ -36,15 +36,17 @@ const config = {
 
   production: {
     client: "pg",
-    connection: {
-      host: process.env.PGHOST || "127.0.0.1",
-      port: Number(process.env.PGPORT) || 5432,
-      database: process.env.PGDATABASE || "condoos",
-      user: process.env.PGUSER || "condoos",
-      password: process.env.PGPASSWORD || "",
-      ssl: process.env.PGSSLMODE === "require" ? { rejectUnauthorized: false } : false,
-    },
-    pool: { min: 2, max: 10 },
+    connection: process.env.DATABASE_URL
+      ? { connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } }
+      : {
+          host: process.env.PGHOST || "127.0.0.1",
+          port: Number(process.env.PGPORT) || 5432,
+          database: process.env.PGDATABASE || "condoos",
+          user: process.env.PGUSER || "condoos",
+          password: process.env.PGPASSWORD || "",
+          ssl: process.env.PGSSLMODE === "require" ? { rejectUnauthorized: false } : false,
+        },
+    pool: { min: 0, max: 5 },
     migrations: commonMigrations,
     seeds: commonSeeds,
   },
