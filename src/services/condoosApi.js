@@ -1,4 +1,9 @@
-const DEFAULT_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? "http://127.0.0.1:4100" : "");
+function resolveApiBaseUrl() {
+  if (import.meta.env.VITE_API_BASE_URL) return import.meta.env.VITE_API_BASE_URL;
+  if (import.meta.env.DEV) return "http://127.0.0.1:4100";
+  return "";
+}
+const DEFAULT_API_BASE_URL = resolveApiBaseUrl();
 const AUTH_STORAGE_KEY = "condoos_auth_v1";
 
 function toErrorMessage(status, payload) {
