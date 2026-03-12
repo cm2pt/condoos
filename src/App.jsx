@@ -159,6 +159,7 @@ function buildDemoCredentials() {
 }
 
 const DEMO_PROFILE_CREDENTIALS = buildDemoCredentials();
+// VITE_ENABLE_DEMO_LOGIN controlado via env vars do Vercel em produção
 const DEMO_LOGIN_ENABLED = toEnvBool(import.meta.env.VITE_ENABLE_DEMO_LOGIN, import.meta.env.DEV);
 const DEMO_PROFILES_AVAILABLE = PROFILE_OPTIONS.filter((profile) => {
   const credentials = DEMO_PROFILE_CREDENTIALS[profile.id];
