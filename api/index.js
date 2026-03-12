@@ -11,8 +11,9 @@ async function getApp() {
 
 export default async function handler(req, res) {
   // Debug endpoint to inspect what Vercel sends
-  if (req.url === "/api/debug-body") {
+  if (req.url.includes("debug-body")) {
     return res.status(200).json({
+      url: req.url,
       bodyType: typeof req.body,
       isBuffer: Buffer.isBuffer(req.body),
       bodyIsNull: req.body === null,
