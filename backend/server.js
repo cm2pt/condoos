@@ -59,17 +59,7 @@ export async function createServer() {
   // ── Global middleware ──────────────────────────────────────────────────
   app.use(cors({ ...buildCorsOptions(), credentials: true }));
   app.use(cookieParser());
-  // Custom JSON body parser that handles Vercel serverless pre-parsed bodies.
-  // Vercel's Node.js runtime may pre-parse the body as a JS object while the
-  // stream is still open, causing express.json() to re-parse and potentially
-  // fail. This middleware detects pre-parsed bodies and skips express.json().
-  app.use((req, _res, next) => {
-    if (req.body && typeof req.body === "object" && !Buffer.isBuffer(req.body)) {
-      req._body = true;
-      return next();
-    }
-    return express.json({ limit: "1mb" })(req, _res, next);
-  });
+  app.use(express.json({ limit: "1mb" }));
   app.use((_req, res, next) => {
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("X-Frame-Options", "DENY");
