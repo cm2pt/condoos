@@ -10,21 +10,31 @@ async function getApp() {
 }
 
 export default async function handler(req, res) {
-  // Vercel's Node.js runtime pre-reads the request body from the stream,
-  // making it unavailable for Express's body-parser. The body is available
-  // as req.body (Buffer or string). We parse it into JSON and mark it as
-  // already processed so express.json() doesn't hang on the empty stream.
-  if (req.body !== undefined && req.body !== null) {
-    if (Buffer.isBuffer(req.body) || typeof req.body === "string") {
-      try {
-        const raw = Buffer.isBuffer(req.body) ? req.body.toString("utf8") : req.body;
-        req.body = raw ? JSON.parse(raw) : {};
-      } catch {
-        req.body = {};
-      }
+  // Vercel pre-reads the request body stream. Without this workaround,
+  // express.json() would try to read the already-consumed stream and
+  // either hang (timeout) or fail (400 empty body).
+  //
+  // Strategy: always mark body as processed. If Vercel provided a body,
+  // ensure it's a parsed JS object. If not, default to empty object for
+  // methods that typically have a body.
+  const hasBody = req.body !== undefined && req.body !== null;
+
+  if (hasBody) {
+    if (Buffer.isBuffer(req.body)) {
+      const raw = req.body.toString("utf8").trim();
+      req.body = raw ? JSON.parse(raw) : {};
+    } else if (typeof req.body === "string") {
+      const trimmed = req.body.trim();
+      req.body = trimmed ? JSON.parse(trimmed) : {};
     }
-    req._body = true;
+    // else: already an object — Vercel may have parsed it
+  } else if (["POST", "PUT", "PATCH"].includes(req.method)) {
+    req.body = {};
   }
+
+  // Tell Express the body is already available — skip stream reading
+  req._body = true;
+
   const expressApp = await getApp();
   return expressApp(req, res);
 }
