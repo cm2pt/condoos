@@ -59,14 +59,6 @@ export async function createServer() {
   // ── Global middleware ──────────────────────────────────────────────────
   app.use(cors({ ...buildCorsOptions(), credentials: true }));
   app.use(cookieParser());
-  // In Vercel serverless, the body is already parsed by the runtime.
-  // Express's json() would fail trying to re-read the consumed stream.
-  if (process.env.VERCEL) {
-    app.use((req, _res, next) => {
-      req._body = true;
-      next();
-    });
-  }
   app.use(express.json({ limit: "1mb" }));
   app.use((_req, res, next) => {
     res.setHeader("X-Content-Type-Options", "nosniff");
