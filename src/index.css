@@ -1,6 +1,97 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme {
+  --color-brand-deep: #0f4c47;
+  --color-brand-mid: #1a6b62;
+  --color-brand-sand: #f5ede0;
+  --color-brand-highlight: #d4a24c;
+
+  --color-surface: #ffffff;
+  --color-surface-alt: #f0ede8;
+  --color-surface-sunken: #f2efea;
+
+  --color-ink: #1a1e1f;
+  --color-muted: #636971;
+
+  --color-teal-50: #eef7f5;
+  --color-teal-100: #d4ebe7;
+  --color-teal-200: #a8d6cf;
+  --color-teal-300: #6fbfb3;
+  --color-teal-400: #3da898;
+  --color-teal-500: #1a6b62;
+  --color-teal-700: #0f4c47;
+  --color-teal-800: #0a3a36;
+
+  --color-amber-50: #fdf8ef;
+  --color-amber-100: #faecd0;
+  --color-amber-200: #f2d69b;
+  --color-amber-400: #d4a24c;
+  --color-amber-500: #c6882f;
+
+  --color-neutral-50: #faf9f7;
+  --color-neutral-100: #f6f4f0;
+  --color-neutral-150: #f0ede8;
+  --color-neutral-200: #e8e4de;
+  --color-neutral-250: #e0ddd7;
+  --color-neutral-300: #d4d0c9;
+  --color-neutral-400: #b5b0a8;
+  --color-neutral-500: #8e887f;
+
+  --font-sans: Outfit, Avenir Next, Segoe UI, sans-serif;
+  --font-serif: Instrument Serif, Georgia, serif;
+
+  --text-xs: 0.694rem;
+  --text-sm: 0.833rem;
+  --text-base: 1rem;
+  --text-md: 1.2rem;
+  --text-lg: 1.44rem;
+  --text-xl: 1.728rem;
+  --text-2xl: 2.074rem;
+  --text-3xl: 2.488rem;
+
+  --shadow-sm:
+    0 1px 2px rgba(15, 76, 71, 0.04), 0 1px 3px rgba(15, 76, 71, 0.06);
+  --shadow-md:
+    0 4px 12px rgba(15, 76, 71, 0.06), 0 2px 4px rgba(15, 76, 71, 0.04);
+  --shadow-lg:
+    0 8px 28px rgba(15, 76, 71, 0.08), 0 4px 10px rgba(15, 76, 71, 0.04);
+  --shadow-xl:
+    0 16px 48px rgba(15, 76, 71, 0.1), 0 8px 18px rgba(15, 76, 71, 0.06);
+  --shadow-2xl:
+    0 24px 64px rgba(15, 76, 71, 0.12), 0 12px 24px rgba(15, 76, 71, 0.08);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-7: 32px;
+  --spacing-8: 40px;
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
 
 /* ─────────────────────────────────────────────────
    CONDOOS — "Lisbon Atelier" Design System
