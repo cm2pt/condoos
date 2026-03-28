@@ -180,7 +180,7 @@ export function RuntimeProvider({ children }) {
     ]
   );
 
-  return <RuntimeContext.Provider value={value}>{children}</RuntimeContext.Provider>;
+  return <RuntimeContext value={value}>{children}</RuntimeContext>;
 }
 
 export function useRuntime() {
