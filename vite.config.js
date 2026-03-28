@@ -4,13 +4,15 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   build: {
-    rollupOptions: {
+    rolldownOptions: {
       output: {
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-query': ['@tanstack/react-query'],
-          'vendor-motion': ['framer-motion'],
-          'vendor-icons': ['lucide-react'],
+        codeSplitting: {
+          groups: [
+            { name: 'vendor-react', test: /node_modules[\\/]react/, priority: 20 },
+            { name: 'vendor-query', test: /node_modules[\\/]@tanstack[\\/]react-query/, priority: 15 },
+            { name: 'vendor-motion', test: /node_modules[\\/]framer-motion/, priority: 15 },
+            { name: 'vendor-icons', test: /node_modules[\\/]lucide-react/, priority: 15 },
+          ],
         },
       },
     },
