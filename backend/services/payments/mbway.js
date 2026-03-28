@@ -4,14 +4,15 @@
  *
  * ifthenpay docs: https://ifthenpay.com/docs
  */
+import { logger } from "../../logger.js";
+import { IFTHENPAY_MBWAY_KEY } from "../../config.js";
 
 const IFTHENPAY_API_URL = process.env.IFTHENPAY_MBWAY_API_URL || "https://api.ifthenpay.com/spg/payment/mbway";
-const IFTHENPAY_MBWAY_KEY = process.env.IFTHENPAY_MBWAY_KEY || "";
 
 /**
  * Send an MB Way push payment request.
  * @param {{ chargeId: string, amount: number, phone: string, orderId?: string }} params
- * @returns {Promise<{ requestId: string, phone: string, amount: string, status: string }>}
+ * @returns {Promise<{ provider: string, requestId: string, phone: string, amount: string, status: string, errorMessage: string|null }>}
  */
 export async function sendMbWayPayment({ chargeId, amount, phone, orderId }) {
   const normalizedPhone = normalizePortuguesePhone(phone);
@@ -20,35 +21,41 @@ export async function sendMbWayPayment({ chargeId, amount, phone, orderId }) {
     return generateMockMbWay({ chargeId, amount, phone: normalizedPhone });
   }
 
-  const body = {
-    mbWayKey: IFTHENPAY_MBWAY_KEY,
-    orderId: orderId || chargeId,
-    amount: Number(amount).toFixed(2),
-    mobileNumber: normalizedPhone,
-    description: `Condoos - Encargo ${chargeId}`,
-  };
+  try {
+    const body = {
+      mbWayKey: IFTHENPAY_MBWAY_KEY,
+      orderId: orderId || chargeId,
+      amount: Number(amount).toFixed(2),
+      mobileNumber: normalizedPhone,
+      description: `Condoos - Encargo ${chargeId}`,
+    };
 
-  const response = await fetch(IFTHENPAY_API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+    const response = await fetch(IFTHENPAY_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
 
-  if (!response.ok) {
-    const text = await response.text().catch(() => "");
-    throw new Error(`ifthenpay MB Way API error: ${response.status} ${text}`);
+    if (!response.ok) {
+      const text = await response.text().catch(() => "");
+      logger.error("ifthenpay_mbway_api_error", { status: response.status, body: text, chargeId });
+      throw new Error(`ifthenpay MB Way API error: ${response.status} ${text}`);
+    }
+
+    const data = await response.json();
+
+    return {
+      provider: "ifthenpay",
+      requestId: data.RequestId || null,
+      phone: normalizedPhone,
+      amount: Number(amount).toFixed(2),
+      status: data.Status === "000" ? "pending" : "error",
+      errorMessage: data.Status !== "000" ? (data.Message || "Erro MB Way") : null,
+    };
+  } catch (err) {
+    logger.error("ifthenpay_mbway_error", { error: err.message, chargeId });
+    throw err;
   }
-
-  const data = await response.json();
-
-  return {
-    provider: "ifthenpay",
-    requestId: data.RequestId || null,
-    phone: normalizedPhone,
-    amount: Number(amount).toFixed(2),
-    status: data.Status === "000" ? "pending" : "error",
-    errorMessage: data.Status !== "000" ? (data.Message || "Erro MB Way") : null,
-  };
 }
 
 /**

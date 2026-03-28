@@ -13,7 +13,7 @@ export default defineConfig({
   },
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 2 : undefined,
+  workers: 1,
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
     baseURL: `http://127.0.0.1:${WEB_PORT}`,
@@ -26,7 +26,7 @@ export default defineConfig({
   webServer: [
     {
       command:
-        `NODE_ENV=test CONDOOS_DB_FILE=${TEST_DB_FILE} npm run db:reset && ` +
+        `rm -f ${TEST_DB_FILE} ${TEST_DB_FILE}-shm ${TEST_DB_FILE}-wal && ` +
         `NODE_ENV=test CONDOOS_DB_FILE=${TEST_DB_FILE} API_HOST=127.0.0.1 API_PORT=${API_PORT} ` +
         `CORS_ORIGINS=http://127.0.0.1:${WEB_PORT},http://localhost:${WEB_PORT} npm run api`,
       url: `http://127.0.0.1:${API_PORT}/health`,

@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { csvEscape, buildCsv, buildDocumentDownloadName } from "./csv.js";
+import { describe, it, expect, vi } from "vitest";
+import { csvEscape, buildCsv, buildDocumentDownloadName, downloadBlob, downloadCsv } from "./csv.js";
 
 describe("csvEscape", () => {
   it("wraps value in double quotes", () => {
@@ -46,5 +46,56 @@ describe("buildDocumentDownloadName", () => {
 
   it("strips accents and special characters", () => {
     expect(buildDocumentDownloadName("Ação & Decisão")).toBe("acao-decisao.txt");
+  });
+});
+
+describe("downloadBlob", () => {
+  it("creates a link, clicks it, and revokes the URL", () => {
+    const clickSpy = vi.fn();
+    const createElementSpy = vi.spyOn(document, "createElement").mockReturnValue({
+      set href(v) { this._href = v; },
+      get href() { return this._href; },
+      set download(v) { this._download = v; },
+      get download() { return this._download; },
+      click: clickSpy,
+    });
+    const appendSpy = vi.spyOn(document.body, "appendChild").mockImplementation(() => {});
+    const removeSpy = vi.spyOn(document.body, "removeChild").mockImplementation(() => {});
+    const revokeUrl = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    const createUrl = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:test");
+
+    downloadBlob("test.csv", new Blob(["data"]));
+
+    expect(createElementSpy).toHaveBeenCalledWith("a");
+    expect(clickSpy).toHaveBeenCalled();
+    expect(appendSpy).toHaveBeenCalled();
+    expect(removeSpy).toHaveBeenCalled();
+    expect(revokeUrl).toHaveBeenCalledWith("blob:test");
+
+    createElementSpy.mockRestore();
+    appendSpy.mockRestore();
+    removeSpy.mockRestore();
+    revokeUrl.mockRestore();
+    createUrl.mockRestore();
+  });
+});
+
+describe("downloadCsv", () => {
+  it("delegates to downloadBlob with a CSV blob", () => {
+    const clickSpy = vi.fn();
+    vi.spyOn(document, "createElement").mockReturnValue({
+      set href(v) { this._href = v; },
+      set download(v) { this._download = v; },
+      click: clickSpy,
+    });
+    vi.spyOn(document.body, "appendChild").mockImplementation(() => {});
+    vi.spyOn(document.body, "removeChild").mockImplementation(() => {});
+    vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:csv");
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+
+    downloadCsv("export.csv", "a;b\n1;2\n");
+    expect(clickSpy).toHaveBeenCalled();
+
+    vi.restoreAllMocks();
   });
 });

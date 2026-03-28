@@ -5,9 +5,9 @@
 import crypto from "node:crypto";
 import { getKnex } from "../../db-knex.js";
 import { recordAuditLog } from "../../audit.js";
+import { logger } from "../../logger.js";
 import { recalculateChargeStatus } from "../charge-status.js";
-
-const IFTHENPAY_ANTI_PHISHING_KEY = process.env.IFTHENPAY_ANTI_PHISHING_KEY || "";
+import { IFTHENPAY_ANTI_PHISHING_KEY } from "../../config.js";
 
 /**
  * Verify ifthenpay webhook signature.

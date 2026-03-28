@@ -31,610 +31,67 @@ import AssembliesPage from "./pages/AssembliesPage.jsx";
 import PortalPage from "./pages/PortalPage.jsx";
 import DocumentsPage from "./pages/DocumentsPage.jsx";
 import CompliancePage from "./pages/CompliancePage.jsx";
+import ReportsPage from "./pages/ReportsPage.jsx";
 import NotificationCenter from "./features/notifications/NotificationCenter.jsx";
 import CommandPalette from "./features/command-palette/CommandPalette.jsx";
 import QuickActionDrawer from "./features/quick-actions/QuickActionDrawer.jsx";
 import AnimateSection from "./components/shared/AnimateSection.jsx";
 import Icon from "./components/shared/Icon.jsx";
-
-const MODULES = [
-  { id: "dashboard", label: "Painel", mobile: "Painel", icon: "LayoutDashboard" },
-  { id: "fractions", label: "Frações", mobile: "Frações", icon: "Building2" },
-  { id: "finance", label: "Financeiro", mobile: "Financeiro", icon: "Wallet" },
-  { id: "issues", label: "Ocorrências", mobile: "Ocorrências", icon: "Wrench" },
-  { id: "assemblies", label: "Assembleias", mobile: "Assembleias", icon: "Vote" },
-  { id: "portal", label: "Portal condómino", mobile: "Portal", icon: "Users" },
-  { id: "documents", label: "Documentos", mobile: "Docs", icon: "FolderOpen" },
-  { id: "compliance", label: "Compliance", mobile: "RGPD", icon: "ShieldCheck" },
-];
-
-const QUICK_ACTION_TYPES = [
-  { id: "fractions", label: "Fração" },
-  { id: "finance", label: "Encargo" },
-  { id: "issues", label: "Ocorrência" },
-  { id: "assemblies", label: "Assembleia" },
-];
-
-const HEADER_ACTION_LABEL = {
-  dashboard: "Nova ação",
-  fractions: "Nova fração",
-  finance: "Novo encargo",
-  issues: "Nova ocorrência",
-  assemblies: "Nova assembleia",
-  portal: "Nova ação",
-  documents: "Nova ação",
-  compliance: "Nova ação",
-};
-
-const PROFILE_OPTIONS = [
-  { id: "manager", label: "Gestão" },
-  { id: "accounting", label: "Contabilidade" },
-  { id: "operations", label: "Operações" },
-  { id: "resident", label: "Condómino" },
-];
-
-const PROFILE_CAPABILITIES = {
-  manager: {
-    modules: ["dashboard", "fractions", "finance", "issues", "assemblies", "portal", "documents", "compliance"],
-    quickActions: ["fractions", "finance", "issues", "assemblies"],
-  },
-  accounting: {
-    modules: ["dashboard", "fractions", "finance", "portal", "documents", "compliance"],
-    quickActions: ["fractions", "finance"],
-  },
-  operations: {
-    modules: ["dashboard", "fractions", "finance", "issues", "assemblies", "portal", "documents", "compliance"],
-    quickActions: ["fractions", "issues", "assemblies"],
-  },
-  resident: {
-    modules: ["dashboard", "finance", "issues", "portal", "documents"],
-    quickActions: ["issues"],
-  },
-};
-
-const STORAGE_KEY = "condoos_runtime_v1";
-const DEV_DEMO_PROFILE_CREDENTIALS = {
-  manager: {
-    email: "gestao.demo@condoos.pt",
-    password: "Condoos!Gestao2026",
-  },
-  accounting: {
-    email: "contabilidade.demo@condoos.pt",
-    password: "Condoos!Contabilidade2026",
-  },
-  operations: {
-    email: "operacoes.demo@condoos.pt",
-    password: "Condoos!Operacoes2026",
-  },
-  resident: {
-    email: "condomino.demo@condoos.pt",
-    password: "Condoos!Condomino2026",
-  },
-};
-
-function toEnvText(value) {
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function toEnvBool(value, fallback = false) {
-  const normalized = toEnvText(value).toLowerCase();
-  if (!normalized) {
-    return fallback;
-  }
-
-  if (["1", "true", "yes", "on"].includes(normalized)) {
-    return true;
-  }
-
-  if (["0", "false", "no", "off"].includes(normalized)) {
-    return false;
-  }
-
-  return fallback;
-}
-
-function buildDemoCredentials() {
-  if (import.meta.env.DEV) {
-    return DEV_DEMO_PROFILE_CREDENTIALS;
-  }
-
-  return {
-    manager: {
-      email: toEnvText(import.meta.env.VITE_DEMO_MANAGER_EMAIL),
-      password: toEnvText(import.meta.env.VITE_DEMO_MANAGER_PASSWORD),
-    },
-    accounting: {
-      email: toEnvText(import.meta.env.VITE_DEMO_ACCOUNTING_EMAIL),
-      password: toEnvText(import.meta.env.VITE_DEMO_ACCOUNTING_PASSWORD),
-    },
-    operations: {
-      email: toEnvText(import.meta.env.VITE_DEMO_OPERATIONS_EMAIL),
-      password: toEnvText(import.meta.env.VITE_DEMO_OPERATIONS_PASSWORD),
-    },
-    resident: {
-      email: toEnvText(import.meta.env.VITE_DEMO_RESIDENT_EMAIL),
-      password: toEnvText(import.meta.env.VITE_DEMO_RESIDENT_PASSWORD),
-    },
-  };
-}
-
-const DEMO_PROFILE_CREDENTIALS = buildDemoCredentials();
-// VITE_ENABLE_DEMO_LOGIN controlado via env vars do Vercel em produção
-const DEMO_LOGIN_ENABLED = toEnvBool(import.meta.env.VITE_ENABLE_DEMO_LOGIN, import.meta.env.DEV);
-const DEMO_PROFILES_AVAILABLE = PROFILE_OPTIONS.filter((profile) => {
-  const credentials = DEMO_PROFILE_CREDENTIALS[profile.id];
-  return Boolean(credentials?.email && credentials?.password);
-});
-
-const DEMO_PROFILE_COPY = {
-  manager: "Visão completa da gestão diária do condomínio.",
-  accounting: "Acompanhamento de quotas, cobranças e pagamentos.",
-  operations: "Abertura e acompanhamento de ocorrências operacionais.",
-  resident: "Experiência do condómino no portal da sua fração.",
-};
-const BRAND_SYMBOL_SRC = "/brand/condoo-symbol.svg";
-const BRAND_WORDMARK_SRC = "/brand/condoo-wordmark.svg";
-
-const ISSUE_COLUMNS = [
-  { key: "new", label: "Novo" },
-  { key: "triage", label: "Triagem" },
-  { key: "in_progress", label: "Em curso" },
-  { key: "waiting_supplier", label: "Fornecedor" },
-  { key: "resolved", label: "Resolvido" },
-  { key: "closed", label: "Fechado" },
-];
-
-const PRIORITY_LABEL = {
-  low: "Baixa",
-  medium: "Média",
-  high: "Alta",
-  critical: "Crítica",
-};
-
-const ISSUE_STATUS_LABEL = {
-  new: "Novo",
-  triage: "Triagem",
-  in_progress: "Em curso",
-  waiting_supplier: "Fornecedor",
-  resolved: "Resolvido",
-  closed: "Fechado",
-};
-
-const ISSUE_STATUS_FLOW = ["new", "triage", "in_progress", "waiting_supplier", "resolved", "closed"];
-
-const TEMPLATE_CHECKLIST = [
-  { id: "convocatoria", label: "Convocatória de assembleia", status: "ready" },
-  { id: "ata", label: "Ata de assembleia", status: "ready" },
-  { id: "procuracao", label: "Procuração", status: "ready" },
-  { id: "divida", label: "Notificação de quota em atraso", status: "ready" },
-  { id: "privacidade", label: "Política de privacidade", status: "ready" },
-  { id: "dpa", label: "Acordo DPA", status: "ready" },
-  { id: "incidente", label: "Registo de incidente RGPD", status: "ready" },
-  { id: "plano-pagamento", label: "Plano de pagamento de dívida", status: "ready" },
-];
-
-const COMPLIANCE_TASKS = [
-  {
-    title: "Mapear base legal por tipo de tratamento",
-    owner: "Gestão",
-    dueDate: "2026-02-20",
-    status: "Em execução",
-  },
-  {
-    title: "Publicar política de retenção por módulo",
-    owner: "Produto",
-    dueDate: "2026-02-24",
-    status: "Em revisão",
-  },
-  {
-    title: "Fluxo de resposta a direitos do titular",
-    owner: "Suporte",
-    dueDate: "2026-02-28",
-    status: "Pronto",
-  },
-  {
-    title: "Checklist de notificação de incidente",
-    owner: "Segurança",
-    dueDate: "2026-03-02",
-    status: "Pronto",
-  },
-];
-
-const numberFormatter = new Intl.NumberFormat("pt-PT");
-const currencyFormatter = new Intl.NumberFormat("pt-PT", {
-  style: "currency",
-  currency: "EUR",
-  maximumFractionDigits: 2,
-});
-const dateFormatter = new Intl.DateTimeFormat("pt-PT", {
-  dateStyle: "medium",
-});
-
-const LABEL_OVERRIDES = {
-  manager: "Gestão",
-  accounting: "Contabilidade",
-  operations: "Operações",
-  resident: "Condómino",
-  active: "Ativo",
-  inactive: "Inativo",
-  open: "Em aberto",
-  partially_paid: "Parcialmente pago",
-  paid: "Pago",
-  overdue: "Em atraso",
-  new: "Novo",
-  triage: "Triagem",
-  in_progress: "Em curso",
-  waiting_supplier: "A aguardar fornecedor",
-  resolved: "Resolvido",
-  closed: "Fechado",
-  manager_only: "Gestão",
-  residents: "Condóminos",
-  all: "Todos",
-  agenda: "Agendado",
-  reserve_fund: "Fundo de reserva",
-  adjustment: "Acerto",
-  penalty: "Penalização",
-  bank_transfer: "Transferência bancária",
-  direct_debit: "Débito direto",
-  credit_card: "Cartão de crédito",
-  debit_card: "Cartão de débito",
-  card: "Cartão",
-  cash: "Numerário",
-  mbway: "MB WAY",
-  governance: "Governação",
-  compliance: "Conformidade",
-  rgpd: "RGPD",
-  ready: "Pronto",
-};
-
-function normalizeKey(value) {
-  return String(value || "")
-    .trim()
-    .toLowerCase()
-    .replaceAll("-", "_")
-    .replace(/\s+/g, "_");
-}
-
-function formatCurrency(value) {
-  return currencyFormatter.format(Number(value || 0));
-}
-
-function formatDate(dateLike) {
-  if (!dateLike) {
-    return "-";
-  }
-
-  return dateFormatter.format(new Date(dateLike));
-}
-
-function statusTone(status) {
-  const normalized = normalizeKey(status);
-
-  if (["paid", "resolved", "closed", "pronto", "ready", "active", "ativo"].includes(normalized)) {
-    return "success";
-  }
-
-  if (["overdue", "critical", "crítica", "critica", "em_atraso"].includes(normalized)) {
-    return "danger";
-  }
-
-  if (
-    [
-      "partially_paid",
-      "in_progress",
-      "em_execução",
-      "em_execucao",
-      "triage",
-      "open",
-      "new",
-      "waiting_supplier",
-      "agenda",
-      "review",
-      "em_revisão",
-      "em_revisao",
-    ].includes(normalized)
-  ) {
-    return "warning";
-  }
-
-  return "neutral";
-}
-
-function cleanLabel(value) {
-  const normalizedValue = normalizeKey(value);
-  if (LABEL_OVERRIDES[normalizedValue]) {
-    return LABEL_OVERRIDES[normalizedValue];
-  }
-
-  const tokenOverrides = {
-    habitacao: "Habitação",
-    arrecadacao: "Arrecadação",
-    infiltracao: "Infiltração",
-    iluminacao: "Iluminação",
-    canalizacao: "Canalização",
-    media: "Média",
-    critica: "Crítica",
-    ordinaria: "Ordinária",
-    extraordinaria: "Extraordinária",
-    abstencao: "Abstenção",
-  };
-
-  return normalizedValue
-    .replaceAll("_", " ")
-    .split(" ")
-    .filter(Boolean)
-    .map((token) => tokenOverrides[token.toLowerCase()] || token.replace(/^\w/, (char) => char.toUpperCase()))
-    .join(" ");
-}
-
-function buildPeopleById(people) {
-  return Object.fromEntries(people.map((person) => [person.id, person]));
-}
-
-function buildPrimaryOwnerByFraction(data, peopleById) {
-  const ownerMap = {};
-
-  data.fractionParties
-    .filter((item) => item.relationship === "owner" && item.isPrimary)
-    .forEach((item) => {
-      ownerMap[item.fractionId] = peopleById[item.personId]?.fullName ?? "Sem titular";
-    });
-
-  return ownerMap;
-}
-
-function buildFinanceBreakdown(data) {
-  const chargeById = Object.fromEntries(data.charges.map((charge) => [charge.id, charge]));
-
-  const summary = {
-    emitted: data.charges.reduce((sum, charge) => sum + charge.amount, 0),
-    collected: data.payments.reduce((sum, payment) => sum + payment.amount, 0),
-    overdue: data.charges
-      .filter((charge) => charge.status === "overdue")
-      .reduce((sum, charge) => sum + charge.amount, 0),
-    openBalance: 0,
-    byMethod: {},
-    monthly: {},
-    openCharges: [],
-  };
-
-  for (const charge of data.charges) {
-    const paidForCharge = data.payments
-      .filter((payment) => payment.chargeId === charge.id)
-      .reduce((sum, payment) => sum + payment.amount, 0);
-
-    const missing = Math.max(charge.amount - paidForCharge, 0);
-    summary.openBalance += missing;
-
-    if (missing > 0.009) {
-      summary.openCharges.push({
-        ...charge,
-        missing,
-      });
-    }
-
-    const monthEntry = summary.monthly[charge.period] || { emitted: 0, collected: 0 };
-    monthEntry.emitted += charge.amount;
-    summary.monthly[charge.period] = monthEntry;
-  }
-
-  for (const payment of data.payments) {
-    summary.byMethod[payment.method] = (summary.byMethod[payment.method] || 0) + payment.amount;
-
-    const charge = chargeById[payment.chargeId];
-    if (charge) {
-      const monthEntry = summary.monthly[charge.period] || { emitted: 0, collected: 0 };
-      monthEntry.collected += payment.amount;
-      summary.monthly[charge.period] = monthEntry;
-    }
-  }
-
-  summary.openCharges.sort((a, b) => {
-    if (a.status === b.status) {
-      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
-    }
-
-    if (a.status === "overdue") {
-      return -1;
-    }
-
-    if (b.status === "overdue") {
-      return 1;
-    }
-
-    return 0;
-  });
-
-  return summary;
-}
-
-function buildFractionBalances(data) {
-  const totals = {};
-
-  for (const charge of data.charges) {
-    totals[charge.fractionId] = totals[charge.fractionId] || { emitted: 0, paid: 0 };
-    totals[charge.fractionId].emitted += charge.amount;
-  }
-
-  for (const payment of data.payments) {
-    totals[payment.fractionId] = totals[payment.fractionId] || { emitted: 0, paid: 0 };
-    totals[payment.fractionId].paid += payment.amount;
-  }
-
-  return Object.fromEntries(
-    Object.entries(totals).map(([fractionId, values]) => [
-      fractionId,
-      {
-        emitted: values.emitted,
-        paid: values.paid,
-        balance: Math.max(values.emitted - values.paid, 0),
-      },
-    ])
-  );
-}
-
-function buildFloorMatrix(fractions) {
-  const byFloor = fractions.reduce((acc, fraction) => {
-    if (!acc[fraction.floorNumber]) {
-      acc[fraction.floorNumber] = {
-        floor: fraction.floorNumber,
-        total: 0,
-        residential: 0,
-        nonResidential: 0,
-      };
-    }
-
-    acc[fraction.floorNumber].total += 1;
-    if (fraction.type === "habitacao") {
-      acc[fraction.floorNumber].residential += 1;
-    } else {
-      acc[fraction.floorNumber].nonResidential += 1;
-    }
-
-    return acc;
-  }, {});
-
-  return Object.values(byFloor).sort((a, b) => b.floor - a.floor);
-}
-
-function metricCards(data, finance) {
-  const collectionRate = finance.emitted > 0 ? (finance.collected / finance.emitted) * 100 : 0;
-
-  return [
-    {
-      label: "Taxa de cobrança",
-      value: `${collectionRate.toFixed(1)}%`,
-      detail: `${formatCurrency(finance.collected)} recebidos`,
-      tone: "accent",
-    },
-    {
-      label: "Saldo em aberto",
-      value: formatCurrency(finance.openBalance),
-      detail: `${finance.openCharges.length} encargos pendentes`,
-      tone: "warning",
-    },
-    {
-      label: "Ocorrências abertas",
-      value: numberFormatter.format(
-        data.issues.filter((issue) => ["new", "triage", "in_progress", "waiting_supplier"].includes(issue.status)).length
-      ),
-      detail: `${data.issues.filter((issue) => issue.priority === "critical").length} críticas`,
-      tone: "danger",
-    },
-    {
-      label: "SLA médio",
-      value: `${data.kpisSnapshot.avgResolutionHours}h`,
-      detail: "Resolução média",
-      tone: "neutral",
-    },
-  ];
-}
-
-function getModuleTitle(moduleId) {
-  const titles = {
-    dashboard: "Painel de controlo",
-    fractions: "Frações e titulares",
-    finance: "Tesouraria e cobrança",
-    issues: "Ocorrências e manutenção",
-    assemblies: "Assembleias e votações",
-    portal: "Portal do condómino",
-    documents: "Repositório documental",
-    compliance: "RGPD e compliance",
-  };
-
-  return titles[moduleId];
-}
-
-function getProfileCapability(profileId, capabilityMap = PROFILE_CAPABILITIES) {
-  return capabilityMap[profileId] || PROFILE_CAPABILITIES[profileId] || PROFILE_CAPABILITIES.manager;
-}
-
-function normalizeCapabilityForProfile(capability, profileId) {
-  const fallback = getProfileCapability(profileId, PROFILE_CAPABILITIES);
-  const allowedModuleIds = new Set(MODULES.map((module) => module.id));
-  const allowedQuickActionIds = new Set(QUICK_ACTION_TYPES.map((item) => item.id));
-  const hasCapabilityModules = Array.isArray(capability?.modules);
-  const hasCapabilityQuickActions = Array.isArray(capability?.quickActions);
-
-  const modules = hasCapabilityModules
-    ? capability.modules.filter((moduleId) => typeof moduleId === "string" && allowedModuleIds.has(moduleId))
-    : fallback.modules;
-
-  const quickActions = hasCapabilityQuickActions
-    ? capability.quickActions.filter((actionId) => typeof actionId === "string" && allowedQuickActionIds.has(actionId))
-    : fallback.quickActions;
-
-  const sanitizedModules = [...new Set(modules)];
-  const sanitizedQuickActions = [...new Set(quickActions)];
-
-  return {
-    modules: hasCapabilityModules ? sanitizedModules : fallback.modules,
-    quickActions: hasCapabilityQuickActions ? sanitizedQuickActions : fallback.quickActions,
-  };
-}
-
-function getDocumentVisibilityScope(profileId) {
-  const visibilityByProfile = {
-    manager: ["manager_only", "residents", "all"],
-    accounting: ["residents", "all"],
-    operations: ["residents", "all"],
-    resident: ["residents", "all"],
-  };
-
-  return visibilityByProfile[profileId] || [];
-}
-
-function canProfileReadDocument(profileId, documentVisibility) {
-  const allowedVisibilities = getDocumentVisibilityScope(profileId);
-  return allowedVisibilities.includes(documentVisibility);
-}
-
-function getExportPresetKeys(moduleId, profileId) {
-  const presets = {
-    manager: {
-      dashboard: ["section", "item", "value", "detail"],
-      fractions: ["fracao", "piso", "tipo", "tipologia", "titular", "quota", "saldo"],
-      finance: ["fracao", "periodo", "vencimento", "valor", "emFalta", "estado"],
-      issues: ["id", "titulo", "categoria", "prioridade", "estado", "fracao", "fornecedor"],
-      assemblies: ["id", "tipo", "data", "local", "pontos"],
-      portal: ["fracao", "titular", "periodo", "vencimento", "valor", "pago", "emFalta", "estado"],
-      documents: ["titulo", "categoria", "visibilidade", "upload", "caminho"],
-      compliance: ["tipo", "item", "estado", "responsavel"],
-    },
-    accounting: {
-      dashboard: ["section", "item", "value"],
-      fractions: ["fracao", "titular", "quota", "saldo"],
-      finance: ["fracao", "periodo", "vencimento", "valor", "emFalta", "estado"],
-      portal: ["fracao", "titular", "periodo", "vencimento", "valor", "pago", "emFalta", "estado"],
-      issues: ["id", "titulo", "estado", "fracao"],
-      assemblies: ["id", "tipo", "data"],
-      documents: ["titulo", "categoria", "upload"],
-      compliance: ["tipo", "item", "estado"],
-    },
-    operations: {
-      dashboard: ["section", "item", "detail"],
-      fractions: ["fracao", "piso", "tipo", "titular"],
-      finance: ["fracao", "periodo", "estado"],
-      issues: ["id", "titulo", "categoria", "prioridade", "estado", "fornecedor"],
-      assemblies: ["id", "tipo", "data", "local"],
-      portal: ["fracao", "titular", "periodo", "vencimento", "estado"],
-      documents: ["titulo", "categoria", "visibilidade"],
-      compliance: ["tipo", "item", "estado", "responsavel"],
-    },
-    resident: {
-      dashboard: ["section", "item", "value"],
-      fractions: ["fracao", "titular"],
-      finance: ["fracao", "periodo", "vencimento", "valor", "emFalta", "estado"],
-      issues: ["id", "titulo", "categoria", "prioridade", "estado"],
-      assemblies: ["id", "tipo", "data"],
-      portal: ["fracao", "periodo", "vencimento", "valor", "estado"],
-      documents: ["titulo", "categoria", "upload"],
-      compliance: ["tipo", "item", "estado"],
-    },
-  };
-
-  return presets[profileId]?.[moduleId] || presets.manager[moduleId];
-}
+import TenantSelector from "./components/shared/TenantSelector.jsx";
+import {
+  MODULES,
+  QUICK_ACTION_TYPES,
+  HEADER_ACTION_LABEL,
+  PROFILE_OPTIONS,
+  PROFILE_CAPABILITIES,
+  STORAGE_KEY,
+  TENANT_STORAGE_KEY,
+  BRAND_SYMBOL_SRC,
+  BRAND_WORDMARK_SRC,
+  ISSUE_COLUMNS,
+  PRIORITY_LABEL,
+  ISSUE_STATUS_LABEL,
+  TEMPLATE_CHECKLIST,
+  COMPLIANCE_TASKS,
+} from "./lib/constants.js";
+import {
+  normalizeKey,
+  formatCurrency,
+  formatDate,
+  statusTone,
+  cleanLabel,
+  getModuleTitle,
+  getProfileCapability,
+  normalizeCapabilityForProfile,
+  canProfileReadDocument,
+  getExportPresetKeys,
+} from "./lib/formatters.js";
+import {
+  buildPeopleById,
+  buildPrimaryOwnerByFraction,
+  buildFinanceBreakdown,
+  buildFractionBalances,
+  buildFloorMatrix,
+  metricCards,
+} from "./lib/finance.js";
+import {
+  buildCsv,
+  downloadBlob,
+  downloadCsv,
+  buildDocumentDownloadName,
+} from "./lib/csv.js";
+import {
+  nextIssueStatus,
+  buildIssueTimeline,
+  buildIssueAttachments,
+} from "./lib/issueHelpers.js";
+import {
+  DEMO_PROFILE_CREDENTIALS,
+  DEMO_LOGIN_ENABLED,
+  DEMO_PROFILES_AVAILABLE,
+} from "./config/profiles.js";
+import { useNotifications } from "./features/notifications/useNotifications.js";
+import { useCommandActions } from "./features/command-palette/commands.js";
 
 function getPersistedRuntime(baseData) {
   if (typeof window === "undefined") {
@@ -673,139 +130,6 @@ function getPersistedRuntime(baseData) {
   }
 }
 
-function csvEscape(value) {
-  const normalized = value == null ? "" : String(value);
-  return `"${normalized.replaceAll('"', '""')}"`;
-}
-
-function buildCsv(columns, rows) {
-  const head = columns.map((column) => csvEscape(column.label)).join(";");
-  const body = rows
-    .map((row) => columns.map((column) => csvEscape(row[column.key])).join(";"))
-    .join("\n");
-  return `${head}\n${body}\n`;
-}
-
-function downloadBlob(filename, blob) {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  const link = document.createElement("a");
-  const url = URL.createObjectURL(blob);
-
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-}
-
-function downloadCsv(filename, csvText) {
-  downloadBlob(filename, new Blob([csvText], { type: "text/csv;charset=utf-8;" }));
-}
-
-function buildDocumentDownloadName(title) {
-  const normalized = String(title || "documento")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-
-  return `${normalized || "documento"}.txt`;
-}
-
-function nextIssueStatus(currentStatus) {
-  const index = ISSUE_STATUS_FLOW.indexOf(currentStatus);
-  if (index === -1 || index === ISSUE_STATUS_FLOW.length - 1) {
-    return null;
-  }
-
-  return ISSUE_STATUS_FLOW[index + 1];
-}
-
-function buildIssueTimeline(issue, workOrder) {
-  if (!issue) {
-    return [];
-  }
-
-  const timeline = [
-    {
-      id: `${issue.id}-opened`,
-      label: "Ocorrência criada",
-      when: issue.openedAt,
-      detail: `${cleanLabel(issue.category)} | ${PRIORITY_LABEL[issue.priority]}`,
-      tone: statusTone(issue.priority),
-    },
-  ];
-
-  if (issue.status !== "new") {
-    timeline.push({
-      id: `${issue.id}-triage`,
-      label: "Triagem iniciada",
-      when: issue.openedAt,
-      detail: "Ocorrência analisada pela gestão.",
-      tone: "neutral",
-    });
-  }
-
-  if (workOrder?.requestedAt) {
-    timeline.push({
-      id: `${issue.id}-wo-request`,
-      label: "Ordem de trabalho emitida",
-      when: workOrder.requestedAt,
-      detail: `Estimativa ${formatCurrency(workOrder.estimatedCost)}`,
-      tone: "warning",
-    });
-  }
-
-  if (workOrder?.scheduledAt) {
-    timeline.push({
-      id: `${issue.id}-wo-scheduled`,
-      label: "Intervenção agendada",
-      when: workOrder.scheduledAt,
-      detail: "Fornecedor notificado e janela reservada.",
-      tone: "neutral",
-    });
-  }
-
-  if (workOrder?.completedAt) {
-    timeline.push({
-      id: `${issue.id}-wo-completed`,
-      label: "Intervenção concluída",
-      when: workOrder.completedAt,
-      detail: `Custo final ${formatCurrency(workOrder.finalCost || 0)}`,
-      tone: "success",
-    });
-  }
-
-  if (issue.closedAt) {
-    timeline.push({
-      id: `${issue.id}-closed`,
-      label: issue.status === "closed" ? "Ocorrência fechada" : "Ocorrência resolvida",
-      when: issue.closedAt,
-      detail: "Registo encerrado no sistema.",
-      tone: "success",
-    });
-  }
-
-  return timeline.sort((a, b) => new Date(a.when).getTime() - new Date(b.when).getTime());
-}
-
-function buildIssueAttachments(issue) {
-  if (!issue) {
-    return [];
-  }
-
-  const idSuffix = issue.id.split("-").slice(-1)[0];
-  return [
-    `foto_${issue.category}_${idSuffix}.jpg`,
-    `relatorio_${issue.category}_${idSuffix}.pdf`,
-  ];
-}
-
 function moduleFromPath(pathname) {
   const segment = (pathname || "/").replace(/^\//, "").split("/")[0];
   return MODULES.some((m) => m.id === segment) ? segment : null;
@@ -835,6 +159,13 @@ function App() {
   const [apiLastSyncAt, setApiLastSyncAt] = useState("");
   const [apiAuditEntries, setApiAuditEntries] = useState([]);
   const isServerMode = Boolean(apiSession?.token && apiSession?.tenantId);
+  const [selectedTenantId, setSelectedTenantId] = useState(() => {
+    try {
+      const stored = localStorage.getItem(TENANT_STORAGE_KEY);
+      if (stored) return stored;
+    } catch { /* ignorar */ }
+    return apiSession?.tenantId || "";
+  });
 
   const activeModule = moduleFromPath(routePath) || "dashboard";
   const setActiveModule = useCallback((mod) => {
@@ -984,7 +315,14 @@ function App() {
         });
 
         const me = await fetchMySession(session);
-        const tenantId = session.tenantId || me.tenant?.id || me.tenants?.[0]?.id;
+        let tenantId = session.tenantId || me.tenant?.id || me.tenants?.[0]?.id;
+        // Respeitar preferencia guardada se o utilizador tem acesso
+        try {
+          const storedTenant = localStorage.getItem(TENANT_STORAGE_KEY);
+          if (storedTenant && (me.tenants || []).some((t) => t.id === storedTenant)) {
+            tenantId = storedTenant;
+          }
+        } catch { /* ignorar */ }
         const hydratedSession = {
           ...session,
           tenantId,
@@ -996,6 +334,8 @@ function App() {
 
         persistAuthSession(hydratedSession);
         setApiSession(hydratedSession);
+        setSelectedTenantId(tenantId);
+        try { localStorage.setItem(TENANT_STORAGE_KEY, tenantId); } catch { /* ignorar */ }
         setActiveProfile(hydratedSession.user?.role || "manager");
         setApiLoginForm({
           email: hydratedSession.user?.email || email,
@@ -1065,6 +405,28 @@ function App() {
     if (didSync) {
       setToastMessage("Dados sincronizados a partir da API.");
     }
+  }, [apiSession, syncRuntimeFromApi]);
+
+  const handleTenantChange = useCallback(async (newTenantId) => {
+    if (!apiSession || newTenantId === apiSession.tenantId) {
+      return;
+    }
+
+    const tenant = apiSession.tenants?.find((t) => t.id === newTenantId);
+    const updatedSession = {
+      ...apiSession,
+      tenantId: newTenantId,
+      tenantName: tenant?.name || "",
+    };
+
+    persistAuthSession(updatedSession);
+    setApiSession(updatedSession);
+    setSelectedTenantId(newTenantId);
+    try {
+      localStorage.setItem(TENANT_STORAGE_KEY, newTenantId);
+    } catch { /* ignorar */ }
+    setToastMessage(`Condominio alterado para ${tenant?.name || newTenantId}.`);
+    await syncRuntimeFromApi(updatedSession);
   }, [apiSession, syncRuntimeFromApi]);
 
   const handleDocumentDownload = useCallback(
@@ -1580,81 +942,14 @@ function App() {
     [onboardingChecklist]
   );
 
-  const notifications = useMemo(() => {
-    const canSeeModule = (moduleId) => profileCapability.modules.includes(moduleId);
-    const now = Date.now();
-    const in30Days = now + 30 * 24 * 60 * 60 * 1000;
-
-    const overdueChargeAlerts = finance.openCharges
-      .filter((charge) => charge.status === "overdue")
-      .slice(0, 5)
-      .map((charge) => ({
-        id: `notif-charge-${charge.id}`,
-        title: `Quota em atraso (${fractionCodeById[charge.fractionId] || charge.fractionId})`,
-        detail: `${formatCurrency(charge.missing)} | Venceu em ${formatDate(charge.dueDate)}`,
-        when: charge.dueDate,
-        tone: "danger",
-        module: "finance",
-        targetId: charge.id,
-        targetType: "charge",
-        priorityScore: 4,
-      }));
-
-    const criticalIssueAlerts = issuesData
-      .filter((issue) => issue.priority === "critical" && !["resolved", "closed"].includes(issue.status))
-      .slice(0, 5)
-      .map((issue) => ({
-        id: `notif-issue-${issue.id}`,
-        title: `Ocorrência crítica: ${issue.title}`,
-        detail: `${ISSUE_STATUS_LABEL[issue.status]} | ${issue.fractionId ? fractionCodeById[issue.fractionId] : "Área comum"}`,
-        when: issue.openedAt,
-        tone: "warning",
-        module: "issues",
-        targetId: issue.id,
-        targetType: "issue",
-        priorityScore: 3,
-      }));
-
-    const assemblyAlerts = assembliesData
-      .filter((assembly) => {
-        const time = new Date(assembly.scheduledAt).getTime();
-        return time >= now && time <= in30Days;
-      })
-      .slice(0, 4)
-      .map((assembly) => ({
-        id: `notif-assembly-${assembly.id}`,
-        title: `Assembleia ${assembly.meetingType === "ordinary" ? "ordinária" : "extraordinária"} próxima`,
-        detail: `${formatDate(assembly.scheduledAt)} | ${assembly.location}`,
-        when: assembly.scheduledAt,
-        tone: "neutral",
-        module: "assemblies",
-        targetId: assembly.id,
-        targetType: "assembly",
-        priorityScore: 2,
-      }));
-
-    const activityAlerts = activityLog.slice(0, 5).map((item) => ({
-      id: `notif-activity-${item.id}`,
-      title: item.title,
-      detail: item.detail,
-      when: item.createdAt,
-      tone: item.tone || "neutral",
-      module: "dashboard",
-      targetId: "",
-      targetType: "activity",
-      priorityScore: 1,
-    }));
-
-    return [...overdueChargeAlerts, ...criticalIssueAlerts, ...assemblyAlerts, ...activityAlerts]
-      .filter((notification) => canSeeModule(notification.module))
-      .sort((a, b) => {
-        if (a.priorityScore !== b.priorityScore) {
-          return b.priorityScore - a.priorityScore;
-        }
-        return new Date(b.when).getTime() - new Date(a.when).getTime();
-      })
-      .slice(0, 12);
-  }, [finance.openCharges, issuesData, assembliesData, activityLog, fractionCodeById, profileCapability]);
+  const notifications = useNotifications({
+    openCharges: finance.openCharges,
+    issues: issuesData,
+    assemblies: assembliesData,
+    activityLog,
+    fractionCodeById,
+    profileCapability,
+  });
 
   const unreadNotifications = useMemo(
     () => notifications.filter((notification) => !notificationReadIds.includes(notification.id)),
@@ -2533,64 +1828,7 @@ function App() {
     ]);
   };
 
-  const commandActions = useMemo(() => {
-    const moduleActions = availableModules.map((module) => ({
-      id: `cmd-module-${module.id}`,
-      label: `Abrir ${module.label}`,
-      detail: `Navegar para o módulo ${module.label}`,
-      search: `${module.label} módulo navegar`,
-      onSelect: () => navigateToContext({ module: module.id }),
-    }));
-
-    const quickCreateActions = availableQuickActionTypes.map((typeOption) => ({
-      id: `cmd-create-${typeOption.id}`,
-      label: `Criar ${typeOption.label.toLowerCase()}`,
-      detail: "Abre o painel de registo rápido",
-      search: `${typeOption.label} criar novo rápido`,
-      onSelect: () => openQuickActionType(typeOption.id),
-    }));
-
-    const utilityActions = [
-      {
-        id: "cmd-export",
-        label: "Exportar CSV do módulo atual",
-        detail: `Preset ${activeProfileLabel}`,
-        search: "csv exportar excel",
-        onSelect: handleExportCsv,
-      },
-      {
-        id: "cmd-notifications",
-        label: "Abrir centro de alertas",
-        detail: `${unreadNotifications.length} alertas por ler`,
-        search: "alertas notificações inbox",
-        onSelect: () => {
-          setIsCommandPaletteOpen(false);
-          setIsNotificationsOpen(true);
-        },
-      },
-      {
-        id: "cmd-clear-search",
-        label: "Limpar pesquisa global",
-        detail: "Remove termo de pesquisa e fecha resultados",
-        search: "limpar pesquisa global",
-        onSelect: () => {
-          setGlobalQuery("");
-          setIsCommandPaletteOpen(false);
-        },
-      },
-    ];
-
-    const term = commandQuery.trim().toLowerCase();
-    const allActions = [...moduleActions, ...quickCreateActions, ...utilityActions];
-
-    if (!term) {
-      return allActions.slice(0, 12);
-    }
-
-    return allActions
-      .filter((action) => `${action.label} ${action.detail} ${action.search}`.toLowerCase().includes(term))
-      .slice(0, 12);
-  }, [
+  const commandActions = useCommandActions({
     availableModules,
     availableQuickActionTypes,
     activeProfileLabel,
@@ -2598,8 +1836,11 @@ function App() {
     navigateToContext,
     openQuickActionType,
     handleExportCsv,
-    unreadNotifications.length,
-  ]);
+    unreadCount: unreadNotifications.length,
+    setIsCommandPaletteOpen,
+    setIsNotificationsOpen,
+    setGlobalQuery,
+  });
 
   const handleExecuteCommandAction = (actionId) => {
     const action = commandActions.find((item) => item.id === actionId);
@@ -2945,6 +2186,12 @@ function App() {
             </div>
           </div>
 
+          <TenantSelector
+            tenants={apiSession?.tenants}
+            selectedTenantId={selectedTenantId || apiSession?.tenantId}
+            onTenantChange={handleTenantChange}
+          />
+
           <p className="sidebar-section-label">Módulos</p>
 
           <nav className="module-nav" aria-label="Módulos principais">
@@ -3137,6 +2384,13 @@ function App() {
               onOpenAction={openQuickActionType}
               onRegisterPayment={handleRegisterPayment}
               onDownloadReceipt={handleDownloadPaymentReceipt}
+            />
+          )}
+
+          {activeModule === "reports" && (
+            <ReportsPage
+              session={apiSession}
+              fractions={fractionsData}
             />
           )}
 

@@ -2,6 +2,7 @@ export const MODULES = [
   { id: "dashboard", label: "Painel", mobile: "Painel", icon: "LayoutDashboard" },
   { id: "fractions", label: "Frações", mobile: "Frações", icon: "Building2" },
   { id: "finance", label: "Financeiro", mobile: "Financeiro", icon: "Wallet" },
+  { id: "reports", label: "Relatórios", mobile: "Relatórios", icon: "BarChart3" },
   { id: "issues", label: "Ocorrências", mobile: "Ocorrências", icon: "Wrench" },
   { id: "assemblies", label: "Assembleias", mobile: "Assembleias", icon: "Vote" },
   { id: "portal", label: "Portal condómino", mobile: "Portal", icon: "Users" },
@@ -20,6 +21,7 @@ export const HEADER_ACTION_LABEL = {
   dashboard: "Nova ação",
   fractions: "Nova fração",
   finance: "Novo encargo",
+  reports: "Nova ação",
   issues: "Nova ocorrência",
   assemblies: "Nova assembleia",
   portal: "Nova ação",
@@ -36,11 +38,11 @@ export const PROFILE_OPTIONS = [
 
 export const PROFILE_CAPABILITIES = {
   manager: {
-    modules: ["dashboard", "fractions", "finance", "issues", "assemblies", "portal", "documents", "compliance"],
+    modules: ["dashboard", "fractions", "finance", "reports", "issues", "assemblies", "portal", "documents", "compliance"],
     quickActions: ["fractions", "finance", "issues", "assemblies"],
   },
   accounting: {
-    modules: ["dashboard", "fractions", "finance", "portal", "documents", "compliance"],
+    modules: ["dashboard", "fractions", "finance", "reports", "portal", "documents", "compliance"],
     quickActions: ["fractions", "finance"],
   },
   operations: {
@@ -54,6 +56,7 @@ export const PROFILE_CAPABILITIES = {
 };
 
 export const STORAGE_KEY = "condoos_runtime_v1";
+export const TENANT_STORAGE_KEY = "condoos_selected_tenant";
 
 export const DEV_DEMO_PROFILE_CREDENTIALS = {
   manager: {

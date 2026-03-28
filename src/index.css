@@ -638,6 +638,41 @@ textarea {
   font-size: 0.7rem;
 }
 
+/* Tenant selector */
+.tenant-selector {
+  margin-top: 8px;
+}
+
+.tenant-selector-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.tenant-selector-select {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--teal-100);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.78rem;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.tenant-selector-select:focus {
+  border-color: var(--brand);
+}
+
 /* Section label */
 .sidebar-section-label {
   margin: 22px 0 6px 2px;
@@ -3098,5 +3133,258 @@ body::before {
 
   .kanban-card p {
     font-size: 0.8rem;
+  }
+
+  /* Panel headers wrap on mobile */
+  .panel-header {
+    flex-wrap: wrap;
+  }
+
+  .split-header .inline-actions.stretch-right {
+    width: 100%;
+  }
+
+  .pill-group {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+  }
+
+  .pill-group .filter-pill,
+  .pill-group .stat-pill,
+  .pill-group .filter-select {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}
+
+/* ── Mobile: 600px and below ── */
+
+@media (max-width: 600px) {
+  /* 1. Tables: horizontally scrollable on mobile */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table-wrap table {
+    min-width: 580px;
+  }
+
+  /* 2. KPI grids: single column */
+  .kpi-grid,
+  .finance-kpi-grid,
+  .portal-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .kpi-card {
+    padding: 16px 18px;
+  }
+
+  /* 3. Detail panels: stack vertically (reinforce for small screens) */
+  .fractions-layout,
+  .finance-layout,
+  .issues-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .issue-detail-panel,
+  .fraction-detail-panel,
+  .finance-detail-panel {
+    position: static;
+  }
+
+  /* 4. Form dialogs: full width on mobile */
+  .quick-drawer {
+    width: 100%;
+    padding: 14px 12px;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    max-width: 100%;
+    font-size: 16px; /* Prevent iOS zoom on focus */
+  }
+
+  .field-grid.two-cols {
+    grid-template-columns: 1fr;
+  }
+
+  .drawer-form {
+    gap: 12px;
+  }
+
+  .drawer-actions {
+    flex-wrap: wrap;
+  }
+
+  .drawer-actions .primary-btn,
+  .drawer-actions .ghost-btn {
+    flex: 1;
+    min-width: 0;
+    justify-content: center;
+  }
+
+  /* 5. Touch targets: 44px minimum on touch devices */
+  .mini-btn {
+    min-height: 44px;
+    padding: 10px 16px;
+  }
+
+  .sidebar-btn,
+  .module-btn {
+    min-height: 44px;
+  }
+
+  .mobile-nav-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .ghost-btn,
+  .primary-btn {
+    min-height: 44px;
+  }
+
+  .filter-pill,
+  .filter-select,
+  .switch-pill {
+    min-height: 44px;
+  }
+
+  .close-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  tbody tr {
+    min-height: 44px;
+  }
+
+  /* 6. Kanban board: horizontal scroll-snap */
+  .kanban-grid {
+    grid-template-columns: repeat(6, minmax(260px, 1fr));
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 10px;
+    padding-bottom: 6px;
+  }
+
+  .kanban-column {
+    scroll-snap-align: start;
+    min-height: 300px;
+  }
+
+  /* 7. Charts: bar charts scale down */
+  .bar-row {
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  .bar-row .bar-track:nth-child(3) {
+    grid-column: 2;
+  }
+
+  .bar-row small {
+    grid-column: 1 / -1;
+    text-align: left;
+    font-size: 0.65rem;
+  }
+
+  .bar-row label {
+    font-size: 0.62rem;
+  }
+
+  /* Pie chart / simple-list scales in split-grid */
+  .split-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* 8. Dashboard calendar / building map: wrap on mobile */
+  .floor-row {
+    grid-template-columns: 50px 1fr;
+    gap: 6px;
+  }
+
+  .floor-row span {
+    font-size: 0.72rem;
+  }
+
+  .slot {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Vote grid single column */
+  .vote-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Audit grid single column */
+  .audit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Timeline items wrap for small screens */
+  .timeline-list li,
+  .activity-list li,
+  .onboarding-list li,
+  .issue-timeline li {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .timeline-side {
+    justify-items: start;
+    flex-direction: row;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+
+  /* Workspace: tighter padding */
+  .workspace {
+    padding: 14px 10px 84px;
+  }
+
+  .workspace-header h2 {
+    font-size: 1.3rem;
+  }
+
+  /* Search wraps full width */
+  .search-wrap {
+    min-width: 100%;
+  }
+
+  /* Notification / command panels full width */
+  .notification-panel,
+  .command-panel {
+    width: 100%;
+    border-radius: var(--radius-md);
+  }
+
+  /* Panel padding reduce */
+  .panel {
+    padding: var(--space-3);
+  }
+
+  .panel-header {
+    padding-bottom: var(--space-3);
+    margin-bottom: var(--space-3);
+    gap: 8px;
+  }
+
+  .panel-header h3 {
+    font-size: var(--text-base);
+  }
+
+  /* Issue meta grid single column */
+  .issue-meta-grid {
+    grid-template-columns: 1fr;
   }
 }

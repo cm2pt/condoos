@@ -52,6 +52,23 @@ export const ENABLE_DEMO_USERS = asBoolean(process.env.ENABLE_DEMO_USERS, !IS_PR
 export const BOOTSTRAP_ADMIN_EMAIL = String(process.env.BOOTSTRAP_ADMIN_EMAIL || "").trim().toLowerCase();
 export const BOOTSTRAP_ADMIN_PASSWORD = String(process.env.BOOTSTRAP_ADMIN_PASSWORD || "");
 
+// ── ifthenpay (pagamentos) ──
+export const IFTHENPAY_API_KEY = process.env.IFTHENPAY_API_KEY || "";
+export const IFTHENPAY_MULTIBANCO_ENTITY = process.env.IFTHENPAY_MULTIBANCO_ENTITY || "";
+export const IFTHENPAY_MULTIBANCO_SUBENTITY = process.env.IFTHENPAY_MULTIBANCO_SUBENTITY || "";
+export const IFTHENPAY_MBWAY_KEY = process.env.IFTHENPAY_MBWAY_KEY || "";
+export const IFTHENPAY_ANTI_PHISHING_KEY = process.env.IFTHENPAY_ANTI_PHISHING_KEY || "";
+export const IFTHENPAY_SANDBOX = asBoolean(process.env.IFTHENPAY_SANDBOX, !IS_PRODUCTION);
+export const IFTHENPAY_CALLBACK_URL = process.env.IFTHENPAY_CALLBACK_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/api/integrations/webhooks/ifthenpay` : null);
+
+// ── Email / SMTP ──
+export const SMTP_HOST = process.env.SMTP_HOST || "";
+export const SMTP_PORT = asNumber(process.env.SMTP_PORT, 587);
+export const SMTP_USER = process.env.SMTP_USER || "";
+export const SMTP_PASS = process.env.SMTP_PASS || "";
+export const SMTP_FROM = process.env.SMTP_FROM || "noreply@condoos.pt";
+
 if (IS_PRODUCTION && !ENABLE_DEMO_USERS && (!BOOTSTRAP_ADMIN_EMAIL || !BOOTSTRAP_ADMIN_PASSWORD)) {
   throw new Error(
     "Produção sem utilizadores demo requer BOOTSTRAP_ADMIN_EMAIL e BOOTSTRAP_ADMIN_PASSWORD para criar conta inicial."

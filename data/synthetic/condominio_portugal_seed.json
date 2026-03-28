@@ -2649,7 +2649,9 @@
         {
           "id": "vote-item-001",
           "itemNumber": 1,
-          "description": "Aprovação de contas de 2025",
+          "question": "Aprovação das contas do exercício de 2025",
+          "description": "Aprovação das contas do exercício de 2025",
+          "type": "ordinary",
           "votingRule": "simple_majority",
           "summary": {
             "for": 680,
@@ -2660,7 +2662,9 @@
         {
           "id": "vote-item-002",
           "itemNumber": 2,
-          "description": "Aprovação do orçamento de 2026",
+          "question": "Orçamento para obras de fachada",
+          "description": "Orçamento para obras de fachada",
+          "type": "extraordinary",
           "votingRule": "simple_majority",
           "summary": {
             "for": 640,
@@ -2671,7 +2675,9 @@
         {
           "id": "vote-item-003",
           "itemNumber": 3,
-          "description": "Substituicao de videoporteiro",
+          "question": "Eleição da nova administração",
+          "description": "Eleição da nova administração",
+          "type": "ordinary",
           "votingRule": "permillage_majority",
           "summary": {
             "for": 720,
@@ -2693,7 +2699,9 @@
         {
           "id": "vote-item-004",
           "itemNumber": 1,
+          "question": "Obra de impermeabilização da cobertura",
           "description": "Obra de impermeabilização da cobertura",
+          "type": "extraordinary",
           "votingRule": "permillage_majority",
           "summary": {
             "for": 760,
@@ -2714,5 +2722,15 @@
     "issuesOpen": 10,
     "issuesClosed": 6,
     "avgResolutionHours": 42
+  },
+  "secondCondominium": {
+    "id": "condo-pt-002",
+    "name": "Residências do Parque",
+    "taxNumber": "509876543",
+    "address": "Av. da Liberdade, 100",
+    "postalCode": "1250-140",
+    "city": "Lisboa",
+    "country": "PT",
+    "managementType": "professional"
   }
 }

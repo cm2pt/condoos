@@ -19,10 +19,14 @@ import fractionsRouter from "./routes/fractions.js";
 import peopleRouter from "./routes/people.js";
 import documentsRouter from "./routes/documents.js";
 import financeRouter from "./routes/finance.js";
-import integrationsRouter from "./routes/integrations.js";
+import integrationsRouter, { webhookRouter as integrationsWebhookRouter } from "./routes/integrations.js";
 import issuesRouter from "./routes/issues.js";
 import assembliesRouter from "./routes/assemblies.js";
+import votingRouter from "./routes/voting.js";
+import reportsRouter from "./routes/reports.js";
 import auditRouter from "./routes/audit.js";
+import notificationsRouter from "./routes/notifications.js";
+import templatesRouter from "./routes/templates.js";
 
 // ── CORS ─────────────────────────────────────────────────────────────────
 
@@ -87,6 +91,7 @@ export async function createServer() {
   // ── Public routes (no auth) ────────────────────────────────────────────
   app.use(healthRouter);
   registerPublicAuthRoutes(app);
+  app.use("/api", integrationsWebhookRouter);
 
   // ── Authenticated API routes ───────────────────────────────────────────
   const api = express.Router();
@@ -100,10 +105,14 @@ export async function createServer() {
   api.use(documentsRouter);
   api.use(peopleRouter);
   api.use(financeRouter);
+  api.use(reportsRouter);
   api.use(integrationsRouter);
   api.use(issuesRouter);
   api.use(assembliesRouter);
+  api.use(votingRouter);
   api.use(auditRouter);
+  api.use(notificationsRouter);
+  api.use(templatesRouter);
 
   app.use("/api", api);
 

@@ -48,7 +48,7 @@ test.describe("Branding and login UX", () => {
     await expect(sidebarWordmark).toBeVisible();
     await expect(sidebarWordmark).toHaveAttribute("src", BRAND_ASSETS.wordmark);
 
-    await expect(page.getByText(/Lisboa/)).toBeVisible();
+    await expect(page.locator(".workspace-header").getByText(/Lisboa/)).toBeVisible();
 
     const brandIcon = page.locator(".workspace-brand-icon");
     await expect(brandIcon).toBeVisible();
@@ -63,7 +63,7 @@ test.describe("Branding and login UX", () => {
     expect(faviconHref).toContain("condoo-symbol.svg");
 
     // Sidebar icon-enriched module navigation
-    await expect(page.locator(".sidebar .module-nav .module-btn")).toHaveCount(8);
+    await expect(page.locator(".sidebar .module-nav .module-btn")).toHaveCount(9);
     await expect(page.locator(".sidebar .module-btn .icon").first()).toBeVisible();
 
     // Sidebar section label

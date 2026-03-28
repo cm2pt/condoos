@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { formatCurrency, formatDate, cleanLabel, statusTone } from "../lib/formatters.js";
 import StatusPill from "../components/shared/StatusPill.jsx";
 import Icon from "../components/shared/Icon.jsx";
@@ -32,7 +33,39 @@ export default function FinancePage({
   onOpenAction,
   onRegisterPayment,
   onDownloadReceipt,
+  onBulkReminders,
+  onBulkReferences,
 }) {
+  const [bulkLoading, setBulkLoading] = useState(null);
+
+  async function handleBulkReminders() {
+    if (!onBulkReminders) return;
+    if (!window.confirm("Enviar lembretes de pagamento para todos os encargos em atraso ou a vencer?")) return;
+    setBulkLoading("reminders");
+    try {
+      const result = await onBulkReminders();
+      window.alert(`${result.sent} lembrete${result.sent !== 1 ? "s" : ""} enviado${result.sent !== 1 ? "s" : ""} de ${result.total} total.`);
+    } catch {
+      window.alert("Erro ao enviar lembretes de pagamento.");
+    } finally {
+      setBulkLoading(null);
+    }
+  }
+
+  async function handleBulkReferences() {
+    if (!onBulkReferences) return;
+    if (!window.confirm("Gerar referencias Multibanco para todos os encargos em aberto sem referencia?")) return;
+    setBulkLoading("references");
+    try {
+      const result = await onBulkReferences();
+      window.alert(`${result.generated} referencia${result.generated !== 1 ? "s" : ""} gerada${result.generated !== 1 ? "s" : ""}, ${result.skipped} ignorada${result.skipped !== 1 ? "s" : ""}.`);
+    } catch {
+      window.alert("Erro ao gerar referencias Multibanco.");
+    } finally {
+      setBulkLoading(null);
+    }
+  }
+
   const byMonth = Object.entries(finance.monthly).sort(([a], [b]) => (a < b ? -1 : 1));
   const maxMonthly = Math.max(
     ...byMonth.map(([, values]) => Math.max(values.emitted, values.collected)),
@@ -57,6 +90,27 @@ export default function FinancePage({
             <span className="kpi-pulse" aria-hidden="true" />
           </article>
         ))}
+      </div>
+
+      <div className="bulk-actions-bar" style={{ display: "flex", gap: "0.5rem" }}>
+        <button
+          type="button"
+          className="mini-btn"
+          disabled={bulkLoading !== null || !onBulkReminders}
+          onClick={handleBulkReminders}
+        >
+          <Icon name="Mail" size={14} />
+          {bulkLoading === "reminders" ? "A enviar..." : "Enviar lembretes de pagamento"}
+        </button>
+        <button
+          type="button"
+          className="mini-btn"
+          disabled={bulkLoading !== null || !onBulkReferences}
+          onClick={handleBulkReferences}
+        >
+          <Icon name="Hash" size={14} />
+          {bulkLoading === "references" ? "A gerar..." : "Gerar referencias Multibanco"}
+        </button>
       </div>
 
       <div className="split-grid">

@@ -39,3 +39,10 @@ export function getTransporter() {
 export function getFromAddress() {
   return SMTP_FROM;
 }
+
+/**
+ * Returns true when SMTP is configured (i.e. not using dev console fallback).
+ */
+export function isEmailConfigured() {
+  return !!SMTP_HOST;
+}

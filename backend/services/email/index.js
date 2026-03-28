@@ -17,7 +17,7 @@ export async function sendNotification({ tenantId, template, recipientEmail, rec
   const logId = `email-${crypto.randomUUID()}`;
   const now = new Date().toISOString();
 
-  const { subject, html } = renderTemplate(template, { ...data, recipientName });
+  const { subject, html } = await renderTemplate(template, { ...data, recipientName }, tenantId);
 
   await knex("email_log").insert({
     id: logId,

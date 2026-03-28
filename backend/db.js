@@ -264,6 +264,19 @@ function createSchema(db) {
       UNIQUE (assembly_id, person_id)
     );
 
+    CREATE TABLE IF NOT EXISTS assembly_votes (
+      id TEXT PRIMARY KEY,
+      tenant_id TEXT NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+      assembly_id TEXT NOT NULL REFERENCES assemblies(id) ON DELETE CASCADE,
+      vote_item_index INTEGER NOT NULL,
+      user_id TEXT NOT NULL REFERENCES app_users(id) ON DELETE CASCADE,
+      fraction_id TEXT NOT NULL REFERENCES fractions(id) ON DELETE CASCADE,
+      vote TEXT NOT NULL CHECK (vote IN ('favor', 'contra', 'abstencao')),
+      permillage_weight REAL NOT NULL,
+      cast_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE (assembly_id, vote_item_index, fraction_id)
+    );
+
     CREATE TABLE IF NOT EXISTS auth_refresh_tokens (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL REFERENCES app_users(id) ON DELETE CASCADE,
@@ -322,6 +335,7 @@ function createSchema(db) {
       ON bank_transactions(tenant_id, status, booked_at DESC);
     CREATE INDEX IF NOT EXISTS idx_assemblies_tenant_id ON assemblies(tenant_id);
     CREATE INDEX IF NOT EXISTS idx_assembly_attendees_assembly_id ON assembly_attendees(assembly_id);
+    CREATE INDEX IF NOT EXISTS idx_assembly_votes_assembly_item ON assembly_votes(assembly_id, vote_item_index);
     CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON auth_refresh_tokens(user_id);
     CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_user_id ON auth_password_reset_tokens(user_id);
     CREATE INDEX IF NOT EXISTS idx_integration_events_tenant_id ON integration_events(tenant_id);
@@ -352,6 +366,7 @@ function clearSeededData(db) {
     DELETE FROM integration_events;
     DELETE FROM auth_password_reset_tokens;
     DELETE FROM auth_refresh_tokens;
+    DELETE FROM assembly_votes;
     DELETE FROM assembly_attendees;
     DELETE FROM assemblies;
     DELETE FROM document_versions;
@@ -565,6 +580,13 @@ function seedFromSyntheticDataset(db) {
       :id, :tenant_id, :fraction_id, :created_by_person_id, :assigned_supplier_person_id, :category, :priority, :status, :title, :description, :opened_at, :closed_at, :created_at, :updated_at
     )
   `);
+  const insertAssembly = db.prepare(`
+    INSERT INTO assemblies (
+      id, tenant_id, meeting_type, scheduled_at, location, call_notice_sent_at, minutes_document_id, status, vote_items_json, created_at, updated_at
+    ) VALUES (
+      :id, :tenant_id, :meeting_type, :scheduled_at, :location, :call_notice_sent_at, :minutes_document_id, :status, :vote_items_json, :created_at, :updated_at
+    )
+  `);
   const insertDocument = db.prepare(`
     INSERT INTO documents (
       id, tenant_id, category, title, visibility, uploaded_by_person_id, uploaded_at, storage_path, created_at, updated_at
@@ -691,6 +713,22 @@ function seedFromSyntheticDataset(db) {
       ":uploaded_by_person_id": document.uploadedByPersonId || null,
       ":uploaded_at": document.uploadedAt,
       ":storage_path": document.storagePath,
+      ":created_at": nowIso,
+      ":updated_at": nowIso,
+    });
+  }
+
+  for (const assembly of seed.assemblies || []) {
+    insertAssembly.run({
+      ":id": assembly.id,
+      ":tenant_id": tenantId,
+      ":meeting_type": assembly.meetingType,
+      ":scheduled_at": assembly.scheduledAt,
+      ":location": assembly.location,
+      ":call_notice_sent_at": assembly.callNoticeSentAt || null,
+      ":minutes_document_id": assembly.minutesDocumentId || null,
+      ":status": assembly.status || "scheduled",
+      ":vote_items_json": assembly.voteItems ? JSON.stringify(assembly.voteItems) : null,
       ":created_at": nowIso,
       ":updated_at": nowIso,
     });

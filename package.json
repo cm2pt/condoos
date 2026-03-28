@@ -20,7 +20,8 @@
     "test:ui:debug": "playwright test --debug",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
-    "test:unit:coverage": "vitest run --coverage"
+    "test:unit:coverage": "vitest run --coverage",
+    "prepare": "husky"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.21",
@@ -49,7 +50,9 @@
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@vitejs/plugin-react": "^5.1.4",
+    "@vitest/coverage-v8": "^4.1.2",
     "autoprefixer": "^10.4.20",
+    "husky": "^9.1.7",
     "jsdom": "^28.1.0",
     "postcss": "^8.4.41",
     "supertest": "^7.1.1",

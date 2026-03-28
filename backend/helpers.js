@@ -21,7 +21,7 @@ export const DOCUMENT_VISIBILITY_SCOPE = {
   operations: ["residents", "all"],
   resident: ["residents", "all"],
 };
-export const ASSEMBLY_STATUS_VALUES = ["scheduled", "convened", "in_progress", "completed", "cancelled"];
+export const ASSEMBLY_STATUS_VALUES = ["scheduled", "convened", "voting", "in_progress", "held", "completed", "cancelled"];
 
 export function toNumber(value, fallback = 0) {
   const parsed = Number(value);

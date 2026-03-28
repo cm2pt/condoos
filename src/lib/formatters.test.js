@@ -7,8 +7,10 @@ import {
   cleanLabel,
   getModuleTitle,
   getProfileCapability,
+  normalizeCapabilityForProfile,
   getDocumentVisibilityScope,
   canProfileReadDocument,
+  getExportPresetKeys,
   toEnvText,
   toEnvBool,
 } from "./formatters.js";
@@ -130,6 +132,51 @@ describe("getProfileCapability", () => {
   it("falls back to manager for unknown profiles", () => {
     const cap = getProfileCapability("nonexistent");
     expect(cap.modules).toContain("dashboard");
+  });
+});
+
+describe("normalizeCapabilityForProfile", () => {
+  it("filters out invalid module ids", () => {
+    const cap = normalizeCapabilityForProfile(
+      { modules: ["dashboard", "nonexistent"], quickActions: [] },
+      "manager"
+    );
+    expect(cap.modules).toContain("dashboard");
+    expect(cap.modules).not.toContain("nonexistent");
+  });
+
+  it("falls back to profile defaults when modules missing", () => {
+    const cap = normalizeCapabilityForProfile({}, "resident");
+    const fallback = getProfileCapability("resident");
+    expect(cap.modules).toEqual(fallback.modules);
+  });
+
+  it("deduplicates module entries", () => {
+    const cap = normalizeCapabilityForProfile(
+      { modules: ["dashboard", "dashboard"], quickActions: ["fractions"] },
+      "manager"
+    );
+    expect(cap.modules.filter((m) => m === "dashboard")).toHaveLength(1);
+  });
+});
+
+describe("getExportPresetKeys", () => {
+  it("returns keys for manager dashboard", () => {
+    const keys = getExportPresetKeys("dashboard", "manager");
+    expect(keys).toContain("section");
+    expect(keys).toContain("value");
+  });
+
+  it("returns keys for resident finance", () => {
+    const keys = getExportPresetKeys("finance", "resident");
+    expect(keys).toContain("fracao");
+    expect(keys).toContain("estado");
+  });
+
+  it("falls back to manager for unknown profile", () => {
+    const keys = getExportPresetKeys("dashboard", "unknown");
+    const managerKeys = getExportPresetKeys("dashboard", "manager");
+    expect(keys).toEqual(managerKeys);
   });
 });
 

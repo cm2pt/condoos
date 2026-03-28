@@ -3,8 +3,12 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+const defaultDbFile = process.env.CONDOOS_DB_FILE
+  ? path.resolve(process.env.CONDOOS_DB_FILE)
+  : path.join(__dirname, "data", "condoos.sqlite");
+
 const sqliteConnection = {
-  filename: path.join(__dirname, "data", "condoos.sqlite"),
+  filename: defaultDbFile,
 };
 
 const commonMigrations = {
@@ -27,7 +31,7 @@ const config = {
 
   test: {
     client: "better-sqlite3",
-    connection: { filename: path.join(__dirname, "data", "condoos.test.sqlite") },
+    connection: { filename: process.env.CONDOOS_DB_FILE ? path.resolve(process.env.CONDOOS_DB_FILE) : path.join(__dirname, "data", "condoos.test.sqlite") },
     useNullAsDefault: true,
     migrations: commonMigrations,
     seeds: commonSeeds,

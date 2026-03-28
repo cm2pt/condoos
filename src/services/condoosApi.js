@@ -566,6 +566,44 @@ export async function uploadDocumentVersionApi(session, documentId, values) {
   return response.item;
 }
 
+export async function fetchAnnualSummary(session, year) {
+  return request(`/api/reports/annual-summary?year=${encodeURIComponent(year)}`, {
+    token: session.token,
+    tenantId: session.tenantId,
+  });
+}
+
+export async function fetchOwnerStatement(session, fractionId, year) {
+  return request(`/api/reports/owner-statement?fractionId=${encodeURIComponent(fractionId)}&year=${encodeURIComponent(year)}`, {
+    token: session.token,
+    tenantId: session.tenantId,
+  });
+}
+
+export async function downloadAnnualSummaryCsv(session, year) {
+  return requestBinary(`/api/reports/annual-summary/export?year=${encodeURIComponent(year)}&format=csv`, {
+    token: session.token,
+    tenantId: session.tenantId,
+    fallbackFilename: `resumo-anual-${year}.csv`,
+  });
+}
+
+export async function downloadOwnerStatementCsv(session, fractionId, year) {
+  return requestBinary(`/api/reports/owner-statement/export?fractionId=${encodeURIComponent(fractionId)}&year=${encodeURIComponent(year)}&format=csv`, {
+    token: session.token,
+    tenantId: session.tenantId,
+    fallbackFilename: `extrato-${year}.csv`,
+  });
+}
+
+export async function downloadOwnerStatementPdf(session, fractionId, year) {
+  return requestBinary(`/api/reports/owner-statement/export?fractionId=${encodeURIComponent(fractionId)}&year=${encodeURIComponent(year)}&format=pdf`, {
+    token: session.token,
+    tenantId: session.tenantId,
+    fallbackFilename: `extrato-${year}.pdf`,
+  });
+}
+
 export async function downloadPaymentReceiptApi(session, paymentId) {
   return requestBinary(`/api/finance/payments/${paymentId}/receipt`, {
     token: session.token,

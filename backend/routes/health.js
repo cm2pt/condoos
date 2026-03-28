@@ -1,6 +1,7 @@
 import express from "express";
 import { getKnex } from "../db-knex.js";
 import { logger } from "../logger.js";
+import { getTransporter, isEmailConfigured } from "../services/email/transporter.js";
 import { verifyWebhookSignature, handleMultibancoCallback, handleMbWayCallback } from "../services/payments/webhook-handler.js";
 
 const router = express.Router();
@@ -21,6 +22,21 @@ router.get("/health/ready", async (_req, res) => {
     return res.status(503).json({ status: "degraded", checks, now: new Date().toISOString() });
   }
   res.json({ status: "ok", checks, now: new Date().toISOString() });
+});
+
+router.get("/health/email", async (_req, res) => {
+  const configured = isEmailConfigured();
+  if (!configured) {
+    return res.json({ configured: false, verified: false });
+  }
+  try {
+    const transporter = getTransporter();
+    await transporter.verify();
+    res.json({ configured: true, verified: true });
+  } catch (err) {
+    logger.error("Health check: SMTP verification failed", { error: err.message });
+    res.json({ configured: true, verified: false });
+  }
 });
 
 // ── Payment webhooks (public, no auth) ──

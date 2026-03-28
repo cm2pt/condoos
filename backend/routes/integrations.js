@@ -3,10 +3,12 @@ import crypto from "node:crypto";
 import { authorize } from "../auth.js";
 import { getKnex } from "../db-knex.js";
 import { recordAuditLog } from "../audit.js";
+import { logger } from "../logger.js";
 import { normalizeEmail } from "../helpers.js";
 import { generateMultibancoReference } from "../services/payments/multibanco.js";
 import { sendMbWayPayment } from "../services/payments/mbway.js";
 import { generateSepaDirectDebitXml } from "../services/payments/sepa.js";
+import { verifyWebhookSignature, handleMultibancoCallback, handleMbWayCallback } from "../services/payments/webhook-handler.js";
 import { sendNotification, sendPaymentReminders } from "../services/email/index.js";
 
 const router = express.Router();
@@ -14,113 +16,123 @@ const router = express.Router();
 // ── Payment integration routes ──
 
 router.post("/integrations/payments/mb-reference", authorize("finance", "create"), async (req, res) => {
-  const knex = getKnex();
-  const tenantId = req.tenant.id;
-  const chargeId = String(req.body?.chargeId || "").trim();
-  if (!chargeId) {
-    return res.status(400).json({ error: "chargeId e obrigatorio." });
+  try {
+    const knex = getKnex();
+    const tenantId = req.tenant.id;
+    const chargeId = String(req.body?.chargeId || "").trim();
+    if (!chargeId) {
+      return res.status(400).json({ error: "chargeId e obrigatorio." });
+    }
+
+    const charge = await knex("charges")
+      .where({ id: chargeId, tenant_id: tenantId })
+      .select("id", "amount", "due_date as dueDate")
+      .first();
+    if (!charge) {
+      return res.status(404).json({ error: "Encargo nao encontrado." });
+    }
+
+    const existing = await knex("payment_references")
+      .where({ charge_id: chargeId, method: "multibanco", status: "pending" })
+      .first();
+    if (existing) {
+      return res.json({ item: { id: existing.id, provider: existing.provider, entity: existing.entity, reference: existing.reference, amount: existing.amount, dueDate: charge.dueDate, chargeId, status: existing.status } });
+    }
+
+    const result = await generateMultibancoReference({ chargeId, amount: charge.amount, dueDate: charge.dueDate });
+    const now = new Date().toISOString();
+    const refId = `pref-${crypto.randomUUID()}`;
+    const expiresAt = charge.dueDate || new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10);
+
+    await knex("payment_references").insert({
+      id: refId,
+      tenant_id: tenantId,
+      charge_id: chargeId,
+      provider: result.provider,
+      method: "multibanco",
+      entity: result.entity,
+      reference: result.reference,
+      amount: result.amount,
+      status: "pending",
+      provider_transaction_id: result.requestId,
+      expires_at: expiresAt,
+      created_by_user_id: req.user.id,
+      created_at: now,
+      updated_at: now,
+    });
+
+    await recordAuditLog({
+      tenantId,
+      actorUserId: req.user.id,
+      action: "integration.payments.mb_reference.create",
+      entityType: "payment_reference",
+      entityId: refId,
+      metadata: { entity: result.entity, reference: result.reference, amount: result.amount, provider: result.provider },
+    });
+
+    return res.status(201).json({ item: { id: refId, ...result, dueDate: charge.dueDate, chargeId, status: "pending" } });
+  } catch (err) {
+    logger.error("mb_reference_create_error", { error: err.message, chargeId: req.body?.chargeId });
+    return res.status(502).json({ error: "Erro ao gerar referencia Multibanco." });
   }
-
-  const charge = await knex("charges")
-    .where({ id: chargeId, tenant_id: tenantId })
-    .select("id", "amount", "due_date as dueDate")
-    .first();
-  if (!charge) {
-    return res.status(404).json({ error: "Encargo nao encontrado." });
-  }
-
-  const existing = await knex("payment_references")
-    .where({ charge_id: chargeId, method: "multibanco", status: "pending" })
-    .first();
-  if (existing) {
-    return res.json({ item: { id: existing.id, provider: existing.provider, entity: existing.entity, reference: existing.reference, amount: existing.amount, dueDate: charge.dueDate, chargeId, status: existing.status } });
-  }
-
-  const result = await generateMultibancoReference({ chargeId, amount: charge.amount, dueDate: charge.dueDate });
-  const now = new Date().toISOString();
-  const refId = `pref-${crypto.randomUUID()}`;
-  const expiresAt = charge.dueDate || new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10);
-
-  await knex("payment_references").insert({
-    id: refId,
-    tenant_id: tenantId,
-    charge_id: chargeId,
-    provider: result.provider,
-    method: "multibanco",
-    entity: result.entity,
-    reference: result.reference,
-    amount: result.amount,
-    status: "pending",
-    provider_transaction_id: result.requestId,
-    expires_at: expiresAt,
-    created_by_user_id: req.user.id,
-    created_at: now,
-    updated_at: now,
-  });
-
-  await recordAuditLog({
-    tenantId,
-    actorUserId: req.user.id,
-    action: "integration.payments.mb_reference.create",
-    entityType: "payment_reference",
-    entityId: refId,
-    metadata: { entity: result.entity, reference: result.reference, amount: result.amount, provider: result.provider },
-  });
-
-  return res.status(201).json({ item: { id: refId, ...result, dueDate: charge.dueDate, chargeId, status: "pending" } });
 });
 
 router.post("/integrations/payments/mbway", authorize("finance", "create"), async (req, res) => {
-  const knex = getKnex();
-  const tenantId = req.tenant.id;
-  const chargeId = String(req.body?.chargeId || "").trim();
-  const phone = String(req.body?.phone || "").trim();
-  if (!chargeId || !phone) {
-    return res.status(400).json({ error: "chargeId e phone sao obrigatorios." });
+  try {
+    const knex = getKnex();
+    const tenantId = req.tenant.id;
+    const chargeId = String(req.body?.chargeId || "").trim();
+    const phone = String(req.body?.phone || "").trim();
+    if (!chargeId || !phone) {
+      return res.status(400).json({ error: "chargeId e phone sao obrigatorios." });
+    }
+
+    const charge = await knex("charges")
+      .where({ id: chargeId, tenant_id: tenantId })
+      .select("id", "amount")
+      .first();
+    if (!charge) {
+      return res.status(404).json({ error: "Encargo nao encontrado." });
+    }
+
+    const result = await sendMbWayPayment({ chargeId, amount: charge.amount, phone });
+    if (result.status === "error") {
+      return res.status(502).json({ error: result.errorMessage || "Erro ao enviar pedido MB Way." });
+    }
+
+    const now = new Date().toISOString();
+    const refId = `pref-${crypto.randomUUID()}`;
+
+    await knex("payment_references").insert({
+      id: refId,
+      tenant_id: tenantId,
+      charge_id: chargeId,
+      provider: result.provider,
+      method: "mbway",
+      phone: result.phone,
+      amount: result.amount,
+      status: "pending",
+      provider_transaction_id: result.requestId,
+      expires_at: new Date(Date.now() + 5 * 60_000).toISOString(),
+      created_by_user_id: req.user.id,
+      created_at: now,
+      updated_at: now,
+    });
+
+    await recordAuditLog({
+      tenantId,
+      actorUserId: req.user.id,
+      action: "integration.payments.mbway.create",
+      entityType: "payment_reference",
+      entityId: refId,
+      metadata: { phone: result.phone, amount: result.amount, provider: result.provider },
+    });
+
+    return res.status(201).json({ item: { id: refId, ...result, chargeId, status: "pending" } });
+  } catch (err) {
+    logger.error("mbway_create_error", { error: err.message, chargeId: req.body?.chargeId });
+    return res.status(502).json({ error: "Erro ao enviar pedido MB Way." });
   }
-
-  const charge = await knex("charges")
-    .where({ id: chargeId, tenant_id: tenantId })
-    .select("id", "amount")
-    .first();
-  if (!charge) {
-    return res.status(404).json({ error: "Encargo nao encontrado." });
-  }
-
-  const result = await sendMbWayPayment({ chargeId, amount: charge.amount, phone });
-  if (result.status === "error") {
-    return res.status(502).json({ error: result.errorMessage || "Erro ao enviar pedido MB Way." });
-  }
-
-  const now = new Date().toISOString();
-  const refId = `pref-${crypto.randomUUID()}`;
-
-  await knex("payment_references").insert({
-    id: refId,
-    tenant_id: tenantId,
-    charge_id: chargeId,
-    provider: result.provider,
-    method: "mbway",
-    phone: result.phone,
-    amount: result.amount,
-    status: "pending",
-    provider_transaction_id: result.requestId,
-    expires_at: new Date(Date.now() + 5 * 60_000).toISOString(),
-    created_by_user_id: req.user.id,
-    created_at: now,
-    updated_at: now,
-  });
-
-  await recordAuditLog({
-    tenantId,
-    actorUserId: req.user.id,
-    action: "integration.payments.mbway.create",
-    entityType: "payment_reference",
-    entityId: refId,
-    metadata: { phone: result.phone, amount: result.amount, provider: result.provider },
-  });
-
-  return res.status(201).json({ item: { id: refId, ...result, chargeId, status: "pending" } });
 });
 
 router.post("/integrations/payments/sepa-xml", authorize("finance", "create"), async (req, res) => {
@@ -217,6 +229,99 @@ router.get("/integrations/payments/references", authorize("finance", "read"), as
 
   const items = await q;
   return res.json({ items });
+});
+
+// ── Bulk operation routes ──
+
+router.post("/integrations/bulk/payment-reminders", authorize("finance", "create"), async (req, res) => {
+  try {
+    const tenantId = req.tenant.id;
+    const daysBeforeDue = Number(req.body?.daysBeforeDue) || 7;
+
+    const result = await sendPaymentReminders({ tenantId, daysBeforeDue });
+
+    await recordAuditLog({
+      tenantId,
+      actorUserId: req.user.id,
+      action: "integration.bulk.payment_reminders.send",
+      entityType: "email_log",
+      metadata: { daysBeforeDue, ...result },
+    });
+
+    return res.json({ sent: result.sentCount, total: result.totalCount, errors: [] });
+  } catch (err) {
+    logger.error("bulk_payment_reminders_error", { error: err.message });
+    return res.status(500).json({ error: "Erro ao enviar lembretes de pagamento.", sent: 0, total: 0, errors: [err.message] });
+  }
+});
+
+router.post("/integrations/bulk/mb-references", authorize("finance", "create"), async (req, res) => {
+  try {
+    const knex = getKnex();
+    const tenantId = req.tenant.id;
+
+    const openCharges = await knex("charges")
+      .where("tenant_id", tenantId)
+      .whereIn("status", ["open", "overdue"])
+      .select("id", "amount", "due_date as dueDate");
+
+    const chargeIds = openCharges.map((c) => c.id);
+    const existingRefs = chargeIds.length > 0
+      ? await knex("payment_references")
+          .whereIn("charge_id", chargeIds)
+          .where("method", "multibanco")
+          .where("status", "pending")
+          .select("charge_id")
+      : [];
+    const existingSet = new Set(existingRefs.map((r) => r.charge_id));
+
+    const toGenerate = openCharges.filter((c) => !existingSet.has(c.id));
+    let generated = 0;
+    const errors = [];
+
+    for (const charge of toGenerate) {
+      try {
+        const result = await generateMultibancoReference({ chargeId: charge.id, amount: charge.amount, dueDate: charge.dueDate });
+        const now = new Date().toISOString();
+        const refId = `pref-${crypto.randomUUID()}`;
+        const expiresAt = charge.dueDate || new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10);
+
+        await knex("payment_references").insert({
+          id: refId,
+          tenant_id: tenantId,
+          charge_id: charge.id,
+          provider: result.provider,
+          method: "multibanco",
+          entity: result.entity,
+          reference: result.reference,
+          amount: result.amount,
+          status: "pending",
+          provider_transaction_id: result.requestId,
+          expires_at: expiresAt,
+          created_by_user_id: req.user.id,
+          created_at: now,
+          updated_at: now,
+        });
+
+        generated++;
+      } catch (refErr) {
+        errors.push({ chargeId: charge.id, error: refErr.message });
+      }
+    }
+
+    await recordAuditLog({
+      tenantId,
+      actorUserId: req.user.id,
+      action: "integration.bulk.mb_references.generate",
+      entityType: "payment_reference",
+      metadata: { generated, skipped: existingSet.size, errorCount: errors.length },
+    });
+
+    return res.json({ generated, skipped: existingSet.size, errors });
+  } catch (err) {
+    logger.error("bulk_mb_references_error", { error: err.message });
+    return res.status(500).json({ error: "Erro ao gerar referencias Multibanco.", generated: 0, skipped: 0, errors: [err.message] });
+  }
 });
 
 // ── Email notification routes ──
@@ -322,4 +427,80 @@ router.get("/integrations/communications/email-log", authorize("documents", "rea
   return res.json({ items });
 });
 
+// ── Public webhook routes (no auth — validated by anti-phishing key) ──
+
+const webhookRouter = express.Router();
+
+webhookRouter.get("/integrations/webhooks/ifthenpay", async (req, res) => {
+  try {
+    if (!verifyWebhookSignature(req.query)) {
+      logger.warn("ifthenpay_webhook_invalid_key", { ip: req.ip, query: req.query });
+      return res.status(403).json({ error: "Invalid anti-phishing key." });
+    }
+
+    const { entity, reference, amount, requestId, orderId } = req.query;
+
+    // Determine callback type based on query params
+    if (entity && reference) {
+      // Multibanco callback
+      const result = await handleMultibancoCallback({ entity, reference, amount, requestId });
+      logger.info("ifthenpay_webhook_multibanco", { matched: result.matched, entity, reference });
+      return res.status(200).json({ ok: true, ...result });
+    }
+
+    if (requestId || orderId) {
+      // MB Way callback
+      const mbwayRequestId = requestId || orderId;
+      const status = req.query.status || req.query.Status || "000";
+      const result = await handleMbWayCallback({ requestId: mbwayRequestId, amount, status });
+      logger.info("ifthenpay_webhook_mbway", { matched: result.matched, requestId: mbwayRequestId });
+      return res.status(200).json({ ok: true, ...result });
+    }
+
+    logger.warn("ifthenpay_webhook_unknown_format", { query: req.query });
+    return res.status(400).json({ error: "Formato de callback desconhecido." });
+  } catch (err) {
+    logger.error("ifthenpay_webhook_error", { error: err.message, query: req.query });
+    // Always return 200 to ifthenpay to avoid retries on internal errors
+    return res.status(200).json({ ok: false, error: "Internal processing error." });
+  }
+});
+
+webhookRouter.post("/integrations/webhooks/ifthenpay", async (req, res) => {
+  try {
+    const payload = req.body || {};
+    const queryKey = req.query?.key || payload.key;
+
+    if (!verifyWebhookSignature({ key: queryKey })) {
+      logger.warn("ifthenpay_webhook_invalid_key", { ip: req.ip });
+      return res.status(403).json({ error: "Invalid anti-phishing key." });
+    }
+
+    const { Entity, Reference, Amount, RequestId, Status } = payload;
+
+    if (Entity && Reference) {
+      const result = await handleMultibancoCallback({
+        entity: Entity, reference: Reference, amount: Amount, requestId: RequestId,
+      });
+      logger.info("ifthenpay_webhook_multibanco_post", { matched: result.matched });
+      return res.status(200).json({ ok: true, ...result });
+    }
+
+    if (RequestId) {
+      const result = await handleMbWayCallback({
+        requestId: RequestId, amount: Amount, status: Status || "000",
+      });
+      logger.info("ifthenpay_webhook_mbway_post", { matched: result.matched });
+      return res.status(200).json({ ok: true, ...result });
+    }
+
+    logger.warn("ifthenpay_webhook_unknown_format_post", { body: payload });
+    return res.status(400).json({ error: "Formato de callback desconhecido." });
+  } catch (err) {
+    logger.error("ifthenpay_webhook_post_error", { error: err.message });
+    return res.status(200).json({ ok: false, error: "Internal processing error." });
+  }
+});
+
+export { webhookRouter };
 export default router;

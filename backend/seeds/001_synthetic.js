@@ -23,6 +23,9 @@ export async function seed(knex) {
   await knex("integration_events").del();
   await knex("auth_password_reset_tokens").del();
   await knex("auth_refresh_tokens").del();
+  // assembly_votes may not exist yet if migration hasn't run
+  const hasAssemblyVotes = await knex.schema.hasTable("assembly_votes");
+  if (hasAssemblyVotes) await knex("assembly_votes").del();
   await knex("assembly_attendees").del();
   await knex("assemblies").del();
   await knex("document_versions").del();
@@ -108,7 +111,7 @@ export async function seed(knex) {
         relationship: r.relationship,
         start_date: r.startDate,
         end_date: r.endDate || null,
-        is_primary: r.isPrimary ? 1 : 0,
+        is_primary: r.isPrimary,
         created_at: now,
         updated_at: now,
       })),
@@ -200,6 +203,116 @@ export async function seed(knex) {
     );
   }
 
+  // Assemblies
+  if (seed.assemblies?.length) {
+    await knex.batchInsert(
+      "assemblies",
+      seed.assemblies.map((a) => ({
+        id: a.id,
+        tenant_id: tenantId,
+        meeting_type: a.meetingType,
+        scheduled_at: a.scheduledAt,
+        location: a.location,
+        call_notice_sent_at: a.callNoticeSentAt || null,
+        minutes_document_id: a.minutesDocumentId || null,
+        status: a.status || "scheduled",
+        vote_items_json: a.voteItems ? JSON.stringify(a.voteItems) : null,
+        created_at: now,
+        updated_at: now,
+      })),
+      30
+    );
+  }
+
+  // Second tenant
+  if (seed.secondCondominium) {
+    const t2 = seed.secondCondominium;
+    const t2Id = t2.id;
+    await knex("tenants").insert({
+      id: t2Id,
+      name: t2.name,
+      tax_number: t2.taxNumber,
+      address: t2.address,
+      postal_code: t2.postalCode,
+      city: t2.city,
+      country: t2.country,
+      management_type: t2.managementType,
+      created_at: now,
+      updated_at: now,
+    });
+
+    // 5 fractions for second tenant
+    const t2Fractions = [
+      { id: "frac-t2-001", code: "A-R/C", floorNumber: 0, type: "apartment", typology: "T2", privateAreaM2: 75, permillage: 180, monthlyFee: 90, status: "occupied" },
+      { id: "frac-t2-002", code: "A-1D", floorNumber: 1, type: "apartment", typology: "T3", privateAreaM2: 95, permillage: 220, monthlyFee: 110, status: "occupied" },
+      { id: "frac-t2-003", code: "A-1E", floorNumber: 1, type: "apartment", typology: "T1", privateAreaM2: 55, permillage: 140, monthlyFee: 70, status: "occupied" },
+      { id: "frac-t2-004", code: "A-2D", floorNumber: 2, type: "apartment", typology: "T3", privateAreaM2: 95, permillage: 220, monthlyFee: 110, status: "vacant" },
+      { id: "frac-t2-005", code: "A-2E", floorNumber: 2, type: "apartment", typology: "T2", privateAreaM2: 75, permillage: 240, monthlyFee: 120, status: "occupied" },
+    ];
+    await knex.batchInsert(
+      "fractions",
+      t2Fractions.map((f) => ({
+        id: f.id,
+        tenant_id: t2Id,
+        code: f.code,
+        floor_number: f.floorNumber,
+        type: f.type,
+        typology: f.typology,
+        private_area_m2: f.privateAreaM2,
+        permillage: f.permillage,
+        monthly_fee_amount: f.monthlyFee,
+        status: f.status,
+        created_at: now,
+        updated_at: now,
+      })),
+      30
+    );
+
+    // 2 people for second tenant
+    const t2People = [
+      { id: "person-t2-001", fullName: "Ana Ferreira", roleType: "owner", taxNumber: "234567890", email: "ana.ferreira@example.pt", phone: "+351912345678" },
+      { id: "person-t2-002", fullName: "Carlos Mendes", roleType: "tenant", taxNumber: "345678901", email: "carlos.mendes@example.pt", phone: "+351923456789" },
+    ];
+    await knex.batchInsert(
+      "people",
+      t2People.map((p) => ({
+        id: p.id,
+        tenant_id: t2Id,
+        full_name: p.fullName,
+        role_type: p.roleType,
+        tax_number: p.taxNumber,
+        email: p.email,
+        phone: p.phone,
+        created_at: now,
+        updated_at: now,
+      })),
+      30
+    );
+
+    // 3 charges for second tenant
+    const t2Charges = [
+      { id: "charge-t2-001", fractionId: "frac-t2-001", kind: "quota", period: "2026-03", dueDate: "2026-03-31", amount: 90, status: "pending" },
+      { id: "charge-t2-002", fractionId: "frac-t2-002", kind: "quota", period: "2026-03", dueDate: "2026-03-31", amount: 110, status: "paid" },
+      { id: "charge-t2-003", fractionId: "frac-t2-003", kind: "quota", period: "2026-03", dueDate: "2026-03-31", amount: 70, status: "pending" },
+    ];
+    await knex.batchInsert(
+      "charges",
+      t2Charges.map((c) => ({
+        id: c.id,
+        tenant_id: t2Id,
+        fraction_id: c.fractionId,
+        kind: c.kind,
+        period: c.period,
+        due_date: c.dueDate,
+        amount: c.amount,
+        status: c.status,
+        created_at: now,
+        updated_at: now,
+      })),
+      30
+    );
+  }
+
   // Demo users
   if (enableDemo) {
     for (const user of DEMO_USERS) {
@@ -209,7 +322,7 @@ export async function seed(knex) {
         password_hash: bcrypt.hashSync(user.password, 10),
         full_name: user.fullName,
         role: user.role,
-        is_active: 1,
+        is_active: true,
         created_at: now,
         updated_at: now,
       });
@@ -217,6 +330,17 @@ export async function seed(knex) {
         user_id: user.id,
         tenant_id: tenantId,
       });
+    }
+
+    // Link manager and accounting to second tenant
+    if (seed.secondCondominium) {
+      const multiTenantUsers = DEMO_USERS.filter((u) => u.role === "manager" || u.role === "accounting");
+      for (const user of multiTenantUsers) {
+        await knex("user_tenants").insert({
+          user_id: user.id,
+          tenant_id: seed.secondCondominium.id,
+        }).onConflict(["user_id", "tenant_id"]).ignore();
+      }
     }
 
     // Resident fraction scope
@@ -247,7 +371,7 @@ export async function seed(knex) {
         password_hash: bcrypt.hashSync(adminPassword, 10),
         full_name: "Administrador",
         role: "manager",
-        is_active: 1,
+        is_active: true,
         created_at: now,
         updated_at: now,
       });

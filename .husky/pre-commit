@@ -1,0 +1,47 @@
+#!/bin/sh
+
+echo "🔍 Pre-commit: a verificar qualidade do código..."
+
+# 0. Limpeza de artefactos temporários
+echo "▶ Limpeza de artefactos..."
+rm -rf coverage/ test-results/ playwright-report/
+rm -f backend/data/condoos.test.sqlite*
+find . -name ".DS_Store" -not -path "./node_modules/*" -delete 2>/dev/null
+
+# 1. Verificar documentação do projeto
+echo "▶ Verificação de documentação..."
+for doc in CLAUDE.md backend/CLAUDE.md src/CLAUDE.md tests/CLAUDE.md; do
+  if [ ! -f "$doc" ]; then
+    echo "❌ $doc não encontrado. Commit cancelado."
+    exit 1
+  fi
+done
+
+# 2. Backend tests (inclui integração + RBAC)
+echo "▶ Backend tests..."
+rm -f backend/data/condoos.test.sqlite*
+NODE_ENV=test ENABLE_DEMO_USERS=true node --test backend/tests/**/*.test.js || {
+  echo "❌ Backend tests falharam. Commit cancelado."
+  exit 1
+}
+
+# 3. Frontend unit tests com cobertura (threshold 80%)
+echo "▶ Frontend unit tests + coverage..."
+npx vitest run --coverage || {
+  echo "❌ Frontend tests ou cobertura abaixo de 80%. Commit cancelado."
+  exit 1
+}
+
+# 4. Build de produção
+echo "▶ Build de produção..."
+npx vite build || {
+  echo "❌ Build falhou. Commit cancelado."
+  exit 1
+}
+
+# 5. Limpeza pós-verificação
+echo "▶ Limpeza pós-verificação..."
+rm -rf coverage/ test-results/ playwright-report/
+rm -f backend/data/condoos.test.sqlite*
+
+echo "✅ Todas as verificações passaram. Artefactos limpos."

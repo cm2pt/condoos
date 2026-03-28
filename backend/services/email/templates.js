@@ -1,7 +1,9 @@
 /**
  * Email templates for Condoos notifications.
  * Simple string interpolation — no external template engine needed.
+ * Supports custom templates from DB with fallback to hardcoded defaults.
  */
+import { getKnex } from "../../db-knex.js";
 
 const TEMPLATES = {
   "payment-reminder": {
@@ -119,7 +121,115 @@ const TEMPLATES = {
   },
 };
 
-export function renderTemplate(templateName, data) {
+/** All valid template keys (email + legal). */
+export const TEMPLATE_KEYS = [
+  "payment-reminder",
+  "payment-confirmation",
+  "issue-update",
+  "assembly-convocation",
+  "welcome",
+  "privacy-policy",
+  "terms-of-service",
+  "dpa",
+];
+
+/** Human-readable labels for each template key. */
+export const TEMPLATE_LABELS = {
+  "payment-reminder": "Lembrete de pagamento",
+  "payment-confirmation": "Confirmacao de pagamento",
+  "issue-update": "Atualizacao de ocorrencia",
+  "assembly-convocation": "Convocatoria de assembleia",
+  "welcome": "Boas-vindas",
+  "privacy-policy": "Politica de privacidade",
+  "terms-of-service": "Termos de utilizacao",
+  "dpa": "DPA subcontratante",
+};
+
+/** Default type for each template key. */
+export const TEMPLATE_TYPES = {
+  "payment-reminder": "email",
+  "payment-confirmation": "email",
+  "issue-update": "email",
+  "assembly-convocation": "email",
+  "welcome": "email",
+  "privacy-policy": "legal",
+  "terms-of-service": "legal",
+  "dpa": "legal",
+};
+
+/**
+ * Get custom template from DB if available, fallback to hardcoded default.
+ * @param {string} tenantId
+ * @param {string} templateKey
+ * @param {object|null} db - Knex instance or transaction
+ * @returns {Promise<{ subject: string|null, body: string, isCustom: boolean, templateType: string }>}
+ */
+export async function getTemplate(tenantId, templateKey, db = null) {
+  const knex = db || getKnex();
+
+  const custom = await knex("custom_templates")
+    .where({ tenant_id: tenantId, template_key: templateKey, is_active: 1 })
+    .first();
+
+  if (custom) {
+    return {
+      subject: custom.subject_template || null,
+      body: custom.body_template,
+      isCustom: true,
+      templateType: custom.template_type,
+    };
+  }
+
+  // Fallback to hardcoded default
+  const defaultTpl = TEMPLATES[templateKey];
+  if (defaultTpl) {
+    return {
+      subject: null, // Subject is a function in defaults, handled by renderTemplate
+      body: null,    // Body is a function in defaults, handled by renderTemplate
+      isCustom: false,
+      templateType: TEMPLATE_TYPES[templateKey] || "email",
+    };
+  }
+
+  return null;
+}
+
+/**
+ * Simple variable interpolation for custom templates.
+ * Replaces {{variableName}} with data[variableName].
+ */
+function interpolate(templateStr, data) {
+  if (!templateStr) return "";
+  return templateStr.replace(/\{\{(\w+)\}\}/g, (_, key) => {
+    const value = data[key];
+    return value !== undefined && value !== null ? String(value) : "";
+  });
+}
+
+/**
+ * Render a template (custom or default) with the given data.
+ * @param {string} templateName
+ * @param {object} data
+ * @param {string|null} tenantId - if provided, checks for custom template first
+ * @param {object|null} db - Knex instance or transaction
+ */
+export async function renderTemplate(templateName, data, tenantId = null, db = null) {
+  // Try custom template if tenantId is provided
+  if (tenantId) {
+    const knex = db || getKnex();
+    const custom = await knex("custom_templates")
+      .where({ tenant_id: tenantId, template_key: templateName, is_active: 1 })
+      .first();
+
+    if (custom) {
+      return {
+        subject: custom.subject_template ? interpolate(custom.subject_template, data) : "",
+        html: interpolate(custom.body_template, data),
+      };
+    }
+  }
+
+  // Fallback to hardcoded default
   const template = TEMPLATES[templateName];
   if (!template) {
     throw new Error(`Email template '${templateName}' not found.`);
@@ -131,6 +241,66 @@ export function renderTemplate(templateName, data) {
   };
 }
 
+/**
+ * Render a preview from raw template strings (for the preview endpoint).
+ */
+export function renderPreview(subjectTemplate, bodyTemplate, variables) {
+  return {
+    subject: subjectTemplate ? interpolate(subjectTemplate, variables) : "",
+    html: interpolate(bodyTemplate, variables),
+  };
+}
+
 export function getAvailableTemplates() {
   return Object.keys(TEMPLATES);
+}
+
+/**
+ * Get default template body as HTML string (for display purposes).
+ */
+export function getDefaultTemplateBody(templateKey) {
+  const tpl = TEMPLATES[templateKey];
+  if (!tpl) return null;
+
+  // Render with sample data for display
+  const sampleData = {
+    recipientName: "{{recipientName}}",
+    condominiumName: "{{condominiumName}}",
+    fractionCode: "{{fractionCode}}",
+    chargeKind: "{{chargeKind}}",
+    period: "{{period}}",
+    amount: "{{amount}}",
+    dueDate: "{{dueDate}}",
+    method: "{{method}}",
+    paidAt: "{{paidAt}}",
+    issueTitle: "{{issueTitle}}",
+    newStatus: "{{newStatus}}",
+    comment: "{{comment}}",
+    assemblyTitle: "{{assemblyTitle}}",
+    assemblyDate: "{{assemblyDate}}",
+    assemblyLocation: "{{assemblyLocation}}",
+    agenda: "{{agenda}}",
+    portalUrl: "{{portalUrl}}",
+    multibancoEntity: "",
+    multibancoReference: "",
+  };
+
+  return tpl.html(sampleData);
+}
+
+/**
+ * Get default template subject as a string with placeholders.
+ */
+export function getDefaultTemplateSubject(templateKey) {
+  const tpl = TEMPLATES[templateKey];
+  if (!tpl) return null;
+
+  const sampleData = {
+    period: "{{period}}",
+    amount: "{{amount}}",
+    issueTitle: "{{issueTitle}}",
+    assemblyTitle: "{{assemblyTitle}}",
+  };
+
+  return tpl.subject(sampleData);
 }

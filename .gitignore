@@ -15,3 +15,5 @@ tests/ui/.auth/
 backend/data/*.sqlite
 backend/data/*.sqlite-shm
 backend/data/*.sqlite-wal
+backend/data/storage/documents/
+.vercel/

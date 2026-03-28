@@ -7,7 +7,11 @@ export const ROLE_PERMISSIONS = {
     finance: ["read", "create", "update"],
     issues: ["read", "create", "update", "delete"],
     assemblies: ["read", "create", "update", "delete"],
+    voting: ["read", "create"],
     documents: ["read", "create", "update"],
+    templates: ["read", "create", "update", "delete"],
+    notifications: ["read"],
+    reports: ["read"],
     audit: ["read"],
   },
   accounting: {
@@ -17,7 +21,11 @@ export const ROLE_PERMISSIONS = {
     people: ["read"],
     finance: ["read", "create", "update"],
     issues: ["read"],
+    voting: ["read"],
     documents: ["read", "create", "update"],
+    templates: ["read"],
+    notifications: ["read"],
+    reports: ["read"],
     audit: ["read"],
   },
   operations: {
@@ -28,7 +36,10 @@ export const ROLE_PERMISSIONS = {
     finance: ["read"],
     issues: ["read", "create", "update"],
     assemblies: ["read", "create", "update"],
+    voting: ["read", "create"],
     documents: ["read", "create"],
+    notifications: ["read"],
+    reports: ["read"],
     audit: [],
   },
   resident: {
@@ -38,18 +49,21 @@ export const ROLE_PERMISSIONS = {
     people: ["read"],
     finance: ["read"],
     issues: ["read", "create"],
+    voting: ["read", "create"],
     documents: ["read"],
+    notifications: ["read"],
+    reports: ["read"],
     audit: [],
   },
 };
 
 export const ROLE_UI_CAPABILITIES = {
   manager: {
-    modules: ["dashboard", "fractions", "finance", "issues", "assemblies", "portal", "documents", "compliance"],
+    modules: ["dashboard", "fractions", "finance", "reports", "issues", "assemblies", "portal", "documents", "compliance"],
     quickActions: ["fractions", "finance", "issues", "assemblies"],
   },
   accounting: {
-    modules: ["dashboard", "fractions", "finance", "portal", "documents", "compliance"],
+    modules: ["dashboard", "fractions", "finance", "reports", "portal", "documents", "compliance"],
     quickActions: ["fractions", "finance"],
   },
   operations: {
