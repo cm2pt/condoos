@@ -21,8 +21,9 @@ export async function initializeKnex({ migrate = true, seed = false } = {}) {
   }
 
   if (seed) {
+    const forceReseed = process.env.FORCE_RESEED === "true";
     const count = await knex("tenants").count("id as total").first();
-    if (Number(count?.total || 0) === 0) {
+    if (forceReseed || Number(count?.total || 0) === 0) {
       await knex.seed.run();
     }
   }
