@@ -54,6 +54,7 @@ function resolveRequestId(req) {
 export async function createServer() {
   await initializeKnex({ migrate: true, seed: true });
   const app = express();
+  app.set("trust proxy", 1);
   app.disable("x-powered-by");
   if (!IS_PRODUCTION) {
     ensureDirectory(DOCUMENT_STORAGE_DIR);
