@@ -23,6 +23,53 @@ export const DOCUMENT_VISIBILITY_SCOPE = {
 };
 export const ASSEMBLY_STATUS_VALUES = ["scheduled", "convened", "voting", "in_progress", "held", "completed", "cancelled"];
 
+/* ─── Standardized API Response Helpers ─── */
+
+export function respondOk(res, data = null, meta = {}) {
+  const payload = { ok: true };
+  if (data !== null) payload.data = data;
+  if (Object.keys(meta).length > 0) payload.meta = meta;
+  return res.json(payload);
+}
+
+export function respondCreated(res, data) {
+  return res.status(201).json({ ok: true, data });
+}
+
+export function respondError(res, status, message, details = null) {
+  const payload = { ok: false, error: message };
+  if (details) payload.details = details;
+  return res.status(status).json(payload);
+}
+
+export function respondNotFound(res, entity = "Recurso") {
+  return respondError(res, 404, `${entity} não encontrado(a).`);
+}
+
+export function respondValidationError(res, message, details = null) {
+  return respondError(res, 400, message, details);
+}
+
+/* ─── Request Validation Helpers ─── */
+
+export function validateRequired(body, fields) {
+  const missing = fields.filter((field) => {
+    const value = body[field];
+    return value === undefined || value === null || (typeof value === "string" && value.trim() === "");
+  });
+  if (missing.length > 0) {
+    return { ok: false, error: `Campos obrigatórios em falta: ${missing.join(", ")}`, missing };
+  }
+  return { ok: true };
+}
+
+export function validateEnum(value, allowedValues, fieldName) {
+  if (!allowedValues.includes(value)) {
+    return { ok: false, error: `Valor inválido para ${fieldName}: "${value}". Valores permitidos: ${allowedValues.join(", ")}` };
+  }
+  return { ok: true };
+}
+
 export function toNumber(value, fallback = 0) {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;

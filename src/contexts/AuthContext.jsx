@@ -7,50 +7,16 @@ import {
   persistAuthSession,
   readStoredAuthSession,
 } from "../services/condoosApi.js";
+import { PROFILE_OPTIONS } from "../lib/constants.js";
 import {
-  DEV_DEMO_PROFILE_CREDENTIALS,
-  PROFILE_CAPABILITIES,
-  PROFILE_OPTIONS,
-} from "../lib/constants.js";
-import {
-  cleanLabel,
   getProfileCapability,
   normalizeCapabilityForProfile,
-  toEnvBool,
-  toEnvText,
 } from "../lib/formatters.js";
-
-function buildDemoCredentials() {
-  if (import.meta.env.DEV) {
-    return DEV_DEMO_PROFILE_CREDENTIALS;
-  }
-
-  return {
-    manager: {
-      email: toEnvText(import.meta.env.VITE_DEMO_MANAGER_EMAIL),
-      password: toEnvText(import.meta.env.VITE_DEMO_MANAGER_PASSWORD),
-    },
-    accounting: {
-      email: toEnvText(import.meta.env.VITE_DEMO_ACCOUNTING_EMAIL),
-      password: toEnvText(import.meta.env.VITE_DEMO_ACCOUNTING_PASSWORD),
-    },
-    operations: {
-      email: toEnvText(import.meta.env.VITE_DEMO_OPERATIONS_EMAIL),
-      password: toEnvText(import.meta.env.VITE_DEMO_OPERATIONS_PASSWORD),
-    },
-    resident: {
-      email: toEnvText(import.meta.env.VITE_DEMO_RESIDENT_EMAIL),
-      password: toEnvText(import.meta.env.VITE_DEMO_RESIDENT_PASSWORD),
-    },
-  };
-}
-
-const DEMO_PROFILE_CREDENTIALS = buildDemoCredentials();
-const DEMO_LOGIN_ENABLED = toEnvBool(import.meta.env.VITE_ENABLE_DEMO_LOGIN, import.meta.env.DEV);
-const DEMO_PROFILES_AVAILABLE = PROFILE_OPTIONS.filter((profile) => {
-  const credentials = DEMO_PROFILE_CREDENTIALS[profile.id];
-  return Boolean(credentials?.email && credentials?.password);
-});
+import {
+  DEMO_PROFILE_CREDENTIALS,
+  DEMO_LOGIN_ENABLED,
+  DEMO_PROFILES_AVAILABLE,
+} from "../config/profiles.js";
 
 const AuthContext = createContext(null);
 
@@ -200,7 +166,7 @@ export function AuthProvider({ children }) {
     ]
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return <AuthContext value={value}>{children}</AuthContext>;
 }
 
 export function useAuth() {

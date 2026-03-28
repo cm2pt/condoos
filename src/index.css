@@ -3479,3 +3479,72 @@ body::before {
     grid-template-columns: 1fr;
   }
 }
+
+/* ─────────────────────────────────────────────────
+   PAGE LOADER — Suspense fallback
+   ───────────────────────────────────────────────── */
+
+.page-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 300px;
+  color: var(--color-muted);
+}
+
+.page-loader-spinner {
+  animation: spin 1s linear infinite;
+}
+
+.page-loader-text {
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─────────────────────────────────────────────────
+   ERROR BOUNDARY — Fallback UI
+   ───────────────────────────────────────────────── */
+
+.error-boundary-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 300px;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.error-boundary-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--color-amber-50);
+  color: var(--color-amber-500);
+}
+
+.error-boundary-title {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: 400;
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.error-boundary-message {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  max-width: 400px;
+  margin: 0;
+  line-height: 1.5;
+}

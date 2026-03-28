@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import seedData from "../data/synthetic/condominio_portugal_seed.json";
@@ -22,19 +22,22 @@ import {
   uploadDocumentVersionApi,
 } from "./services/condoosApi.js";
 
-import LoginPage from "./pages/LoginPage.jsx";
-import DashboardPage from "./pages/DashboardPage.jsx";
-import FractionsPage from "./pages/FractionsPage.jsx";
-import FinancePage from "./pages/FinancePage.jsx";
-import IssuesPage from "./pages/IssuesPage.jsx";
-import AssembliesPage from "./pages/AssembliesPage.jsx";
-import PortalPage from "./pages/PortalPage.jsx";
-import DocumentsPage from "./pages/DocumentsPage.jsx";
-import CompliancePage from "./pages/CompliancePage.jsx";
-import ReportsPage from "./pages/ReportsPage.jsx";
-import NotificationCenter from "./features/notifications/NotificationCenter.jsx";
-import CommandPalette from "./features/command-palette/CommandPalette.jsx";
-import QuickActionDrawer from "./features/quick-actions/QuickActionDrawer.jsx";
+import PageLoader from "./components/shared/PageLoader.jsx";
+import ErrorBoundary from "./components/shared/ErrorBoundary.jsx";
+
+const LoginPage = lazy(() => import("./pages/LoginPage.jsx"));
+const DashboardPage = lazy(() => import("./pages/DashboardPage.jsx"));
+const FractionsPage = lazy(() => import("./pages/FractionsPage.jsx"));
+const FinancePage = lazy(() => import("./pages/FinancePage.jsx"));
+const IssuesPage = lazy(() => import("./pages/IssuesPage.jsx"));
+const AssembliesPage = lazy(() => import("./pages/AssembliesPage.jsx"));
+const PortalPage = lazy(() => import("./pages/PortalPage.jsx"));
+const DocumentsPage = lazy(() => import("./pages/DocumentsPage.jsx"));
+const CompliancePage = lazy(() => import("./pages/CompliancePage.jsx"));
+const ReportsPage = lazy(() => import("./pages/ReportsPage.jsx"));
+const NotificationCenter = lazy(() => import("./features/notifications/NotificationCenter.jsx"));
+const CommandPalette = lazy(() => import("./features/command-palette/CommandPalette.jsx"));
+const QuickActionDrawer = lazy(() => import("./features/quick-actions/QuickActionDrawer.jsx"));
 import AnimateSection from "./components/shared/AnimateSection.jsx";
 import Icon from "./components/shared/Icon.jsx";
 import TenantSelector from "./components/shared/TenantSelector.jsx";
@@ -2154,16 +2157,18 @@ function App() {
 
   if (!isServerMode) {
     return (
-      <LoginPage
-        apiLoginForm={apiLoginForm}
-        setApiLoginForm={setApiLoginForm}
-        apiLoginError={apiLoginError}
-        isApiSyncing={isApiSyncing}
-        showDemoProfiles={DEMO_LOGIN_ENABLED && DEMO_PROFILES_AVAILABLE.length > 0}
-        demoProfiles={DEMO_PROFILES_AVAILABLE}
-        onSubmit={handleApiLogin}
-        onLoginAsProfile={handleApiLoginAsDemoProfile}
-      />
+      <Suspense fallback={<PageLoader />}>
+        <LoginPage
+          apiLoginForm={apiLoginForm}
+          setApiLoginForm={setApiLoginForm}
+          apiLoginError={apiLoginError}
+          isApiSyncing={isApiSyncing}
+          showDemoProfiles={DEMO_LOGIN_ENABLED && DEMO_PROFILES_AVAILABLE.length > 0}
+          demoProfiles={DEMO_PROFILES_AVAILABLE}
+          onSubmit={handleApiLogin}
+          onLoginAsProfile={handleApiLoginAsDemoProfile}
+        />
+      </Suspense>
     );
   }
 
@@ -2331,6 +2336,8 @@ function App() {
           </div>
         </header>
 
+        <ErrorBoundary key={activeModule}>
+        <Suspense fallback={<PageLoader />}>
         <AnimateSection keyName={activeModule} disableAnimation={isCaptureMode}>
           {activeModule === "dashboard" && (
             <DashboardPage
@@ -2458,6 +2465,8 @@ function App() {
             />
           )}
         </AnimateSection>
+        </Suspense>
+        </ErrorBoundary>
       </main>
 
       <nav className="mobile-nav" aria-label="Navegação móvel">
@@ -2482,36 +2491,38 @@ function App() {
         onChange={handleDocumentUploadSelection}
       />
 
-      <QuickActionDrawer
-        open={isQuickActionOpen}
-        actionType={quickActionType}
-        allowedActionTypes={availableQuickActionTypes}
-        onActionTypeChange={setQuickActionType}
-        onClose={() => setIsQuickActionOpen(false)}
-        onSubmit={handleQuickActionSubmit}
-        fractions={fractionsData}
-        allowCommonIssueArea={activeProfile !== "resident"}
-        issueCategories={baseData.catalogs.issueCategories}
-      />
+      <Suspense fallback={null}>
+        <QuickActionDrawer
+          open={isQuickActionOpen}
+          actionType={quickActionType}
+          allowedActionTypes={availableQuickActionTypes}
+          onActionTypeChange={setQuickActionType}
+          onClose={() => setIsQuickActionOpen(false)}
+          onSubmit={handleQuickActionSubmit}
+          fractions={fractionsData}
+          allowCommonIssueArea={activeProfile !== "resident"}
+          issueCategories={baseData.catalogs.issueCategories}
+        />
 
-      <NotificationCenter
-        open={isNotificationsOpen}
-        notifications={notifications}
-        readIds={notificationReadIds}
-        unreadCount={unreadNotifications.length}
-        onClose={() => setIsNotificationsOpen(false)}
-        onMarkAllRead={handleMarkNotificationsRead}
-        onSelectNotification={handleSelectNotification}
-      />
+        <NotificationCenter
+          open={isNotificationsOpen}
+          notifications={notifications}
+          readIds={notificationReadIds}
+          unreadCount={unreadNotifications.length}
+          onClose={() => setIsNotificationsOpen(false)}
+          onMarkAllRead={handleMarkNotificationsRead}
+          onSelectNotification={handleSelectNotification}
+        />
 
-      <CommandPalette
-        open={isCommandPaletteOpen}
-        query={commandQuery}
-        actions={commandActions}
-        onQueryChange={setCommandQuery}
-        onClose={() => setIsCommandPaletteOpen(false)}
-        onSelectAction={handleExecuteCommandAction}
-      />
+        <CommandPalette
+          open={isCommandPaletteOpen}
+          query={commandQuery}
+          actions={commandActions}
+          onQueryChange={setCommandQuery}
+          onClose={() => setIsCommandPaletteOpen(false)}
+          onSelectAction={handleExecuteCommandAction}
+        />
+      </Suspense>
 
       {toastMessage ? <div className="toast-note">{toastMessage}</div> : null}
     </div>
