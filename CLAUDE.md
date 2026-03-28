@@ -29,5 +29,5 @@ npx playwright test
 
 ### Coverage Thresholds (80% minimum)
 - **Frontend**: lines, branches, functions, statements (vitest + v8)
-- **Backend**: lines, branches, functions (Node.js `--experimental-test-coverage`)
 - Enforced locally (pre-commit) and in CI (GitHub Actions)
+- Backend coverage tracking planned once route test coverage increases

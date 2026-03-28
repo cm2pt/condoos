@@ -11,7 +11,7 @@
 
 ## Cobertura (80% mínimo)
 - Frontend: configurado em `vite.config.js` → `test.coverage.thresholds`
-- Backend: flags `--test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80`
+- Backend: cobertura planeada quando testes de rotas aumentarem (atualmente ~58%)
 - CI: `.github/workflows/ci.yml`
 
 ## Padrões de Teste
