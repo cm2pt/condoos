@@ -92,9 +92,14 @@ test.describe("Core UX workflows", () => {
 
   test("finance flow allows receipt download in pdf", async ({ page }) => {
     await loginWithCredentials(page, "manager");
+
+    // Wait for sidebar to be interactive, then navigate to finance
+    await expect(page.locator(".module-nav .module-btn").first()).toBeVisible();
     await page.getByRole("button", { name: "Financeiro" }).click();
     await expect(page.getByRole("heading", { name: /Tesouraria/i })).toBeVisible();
 
+    // Wait for finance table to load
+    await expect(page.locator(".finance-layout .table-wrap")).toBeVisible();
     const chargeRows = page.locator(".finance-layout .table-wrap tbody tr");
     const rowCount = await chargeRows.count();
 

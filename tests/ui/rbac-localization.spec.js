@@ -34,6 +34,9 @@ test.describe("RBAC and localization UX", () => {
     await page.getByRole("button", { name: "Financeiro" }).click();
     await expect(page.getByRole("heading", { name: /Tesouraria/i })).toBeVisible();
 
+    // Wait for filter select to be rendered (Framer Motion entrance animation)
+    await expect(page.locator('select[aria-label="Filtrar por estado financeiro"]')).toBeVisible();
+
     const financeFilterOptions = await page
       .locator('select[aria-label="Filtrar por estado financeiro"] option')
       .allTextContents();
