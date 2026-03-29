@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
+import { motion } from "framer-motion";
 import { formatCurrency, formatDate } from "../lib/formatters.js";
 import Icon from "../components/shared/Icon.jsx";
+import EmptyState from "../components/shared/EmptyState.jsx";
 import {
   fetchAnnualSummary,
   fetchOwnerStatement,
@@ -121,7 +123,13 @@ export default function ReportsPage({ session, fractions }) {
       </div>
 
       {/* Annual summary card */}
-      <article className="panel">
+      <motion.article
+        className="panel"
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      >
         <header className="panel-header">
           <div className="panel-header-left">
             <Icon name="BarChart3" size={16} className="panel-header-icon" />
@@ -139,23 +147,44 @@ export default function ReportsPage({ session, fractions }) {
 
         {annualSummary && !annualLoading && (
           <>
-            <div className="kpi-grid" style={{ marginBottom: "1rem" }}>
-              <article className="kpi-card tone-accent">
+            <motion.div
+              className="kpi-grid"
+              style={{ marginBottom: "1rem" }}
+              initial="hidden"
+              animate="show"
+              variants={{ hidden: {}, show: { transition: { staggerChildren: 0.07 } } }}
+            >
+              <motion.article
+                className="kpi-card tone-accent"
+                variants={{ hidden: { opacity: 0, y: 12, scale: 0.95 }, show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 300, damping: 24 } } }}
+                whileHover={{ y: -4, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <p className="kpi-label">Emitido</p>
                 <strong className="kpi-value">{formatCurrency(annualSummary.totals.emitted)}</strong>
                 <span className="kpi-pulse" aria-hidden="true" />
-              </article>
-              <article className="kpi-card tone-success">
+              </motion.article>
+              <motion.article
+                className="kpi-card tone-success"
+                variants={{ hidden: { opacity: 0, y: 12, scale: 0.95 }, show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 300, damping: 24 } } }}
+                whileHover={{ y: -4, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <p className="kpi-label">Cobrado</p>
                 <strong className="kpi-value">{formatCurrency(annualSummary.totals.collected)}</strong>
                 <span className="kpi-pulse" aria-hidden="true" />
-              </article>
-              <article className="kpi-card tone-warning">
+              </motion.article>
+              <motion.article
+                className="kpi-card tone-warning"
+                variants={{ hidden: { opacity: 0, y: 12, scale: 0.95 }, show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 300, damping: 24 } } }}
+                whileHover={{ y: -4, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <p className="kpi-label">Taxa de cobranca</p>
                 <strong className="kpi-value">{(annualSummary.totals.rate * 100).toFixed(1)}%</strong>
                 <span className="kpi-pulse" aria-hidden="true" />
-              </article>
-            </div>
+              </motion.article>
+            </motion.div>
 
             <div className="bar-chart">
               {annualSummary.months.map((m) => (
@@ -175,10 +204,16 @@ export default function ReportsPage({ session, fractions }) {
             </div>
           </>
         )}
-      </article>
+      </motion.article>
 
       {/* Owner statement card */}
-      <article className="panel">
+      <motion.article
+        className="panel"
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      >
         <header className="panel-header">
           <div className="panel-header-left">
             <Icon name="FileText" size={16} className="panel-header-icon" />
@@ -226,23 +261,44 @@ export default function ReportsPage({ session, fractions }) {
 
         {ownerStatement && !statementLoading && (
           <>
-            <div className="kpi-grid" style={{ marginBottom: "1rem" }}>
-              <article className="kpi-card tone-accent">
+            <motion.div
+              className="kpi-grid"
+              style={{ marginBottom: "1rem" }}
+              initial="hidden"
+              animate="show"
+              variants={{ hidden: {}, show: { transition: { staggerChildren: 0.07 } } }}
+            >
+              <motion.article
+                className="kpi-card tone-accent"
+                variants={{ hidden: { opacity: 0, y: 12, scale: 0.95 }, show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 300, damping: 24 } } }}
+                whileHover={{ y: -4, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <p className="kpi-label">Encargos</p>
                 <strong className="kpi-value">{formatCurrency(ownerStatement.totalCharges)}</strong>
                 <span className="kpi-pulse" aria-hidden="true" />
-              </article>
-              <article className="kpi-card tone-success">
+              </motion.article>
+              <motion.article
+                className="kpi-card tone-success"
+                variants={{ hidden: { opacity: 0, y: 12, scale: 0.95 }, show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 300, damping: 24 } } }}
+                whileHover={{ y: -4, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <p className="kpi-label">Pagamentos</p>
                 <strong className="kpi-value">{formatCurrency(ownerStatement.totalPayments)}</strong>
                 <span className="kpi-pulse" aria-hidden="true" />
-              </article>
-              <article className="kpi-card tone-warning">
+              </motion.article>
+              <motion.article
+                className="kpi-card tone-warning"
+                variants={{ hidden: { opacity: 0, y: 12, scale: 0.95 }, show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 300, damping: 24 } } }}
+                whileHover={{ y: -4, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <p className="kpi-label">Saldo</p>
                 <strong className="kpi-value">{formatCurrency(ownerStatement.finalBalance)}</strong>
                 <span className="kpi-pulse" aria-hidden="true" />
-              </article>
-            </div>
+              </motion.article>
+            </motion.div>
 
             <div className="table-wrap">
               <table>
@@ -277,13 +333,13 @@ export default function ReportsPage({ session, fractions }) {
         )}
 
         {!statementFractionId && !statementLoading && (
-          <div className="empty-state-box">
-            <div className="empty-state-icon-circle"><Icon name="Inbox" size={28} /></div>
-            <p className="empty-state-title">Seleciona uma fracao</p>
-            <p className="empty-state-subtitle">Escolhe uma fracao para visualizar o extrato.</p>
-          </div>
+          <EmptyState
+            icon="Building2"
+            title="Seleciona uma fração"
+            subtitle="Escolhe uma fração para visualizar o extrato."
+          />
         )}
-      </article>
+      </motion.article>
     </div>
   );
 }

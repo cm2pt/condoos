@@ -1,7 +1,11 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { formatCurrency, formatDate, cleanLabel, statusTone } from "../lib/formatters.js";
 import StatusPill from "../components/shared/StatusPill.jsx";
 import Icon from "../components/shared/Icon.jsx";
+import EmptyState from "../components/shared/EmptyState.jsx";
+import AnimatedTableBody from "../components/shared/AnimatedTableBody.jsx";
+import ProgressRing from "../components/shared/ProgressRing.jsx";
 
 const KPI_TONE_ICON = {
   accent: "TrendingUp",
@@ -76,21 +80,55 @@ export default function FinancePage({
 
   return (
     <div className="stack-lg">
-      <div className="kpi-grid finance-kpi-grid">
-        {FINANCE_KPIS.map((card) => (
-          <article key={card.key} className={`kpi-card tone-${card.tone}`}>
-            <div className="kpi-card-header">
-              <div className="kpi-icon-circle">
-                <Icon name={KPI_TONE_ICON[card.tone] || "BarChart3"} size={18} />
+      <motion.div
+        className="kpi-grid finance-kpi-grid"
+        initial="hidden"
+        animate="show"
+        variants={{
+          hidden: { opacity: 0 },
+          show: { opacity: 1, transition: { staggerChildren: 0.07 } },
+        }}
+      >
+        {FINANCE_KPIS.map((card) => {
+          const collectionRate = finance.emitted > 0
+            ? Math.round((finance.collected / finance.emitted) * 100)
+            : 0;
+          return (
+            <motion.article
+              key={card.key}
+              className={`kpi-card tone-${card.tone}`}
+              variants={{
+                hidden: { opacity: 0, y: 20, scale: 0.95 },
+                show: {
+                  opacity: 1,
+                  y: 0,
+                  scale: 1,
+                  transition: { type: "spring", stiffness: 400, damping: 25 },
+                },
+              }}
+              whileHover={{ y: -4, scale: 1.02, transition: { type: "spring", stiffness: 400, damping: 20 } }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <div className="kpi-card-header">
+                <div className="kpi-icon-circle">
+                  <Icon name={KPI_TONE_ICON[card.tone] || "BarChart3"} size={18} />
+                </div>
+                {card.key === "collected" && (
+                  <ProgressRing progress={collectionRate} size={32} strokeWidth={3}>
+                    <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "var(--brand-deep)" }}>
+                      {collectionRate}%
+                    </span>
+                  </ProgressRing>
+                )}
               </div>
-            </div>
-            <p className="kpi-label">{card.label}</p>
-            <strong className="kpi-value">{formatCurrency(finance[card.key])}</strong>
-            <span className="kpi-detail">{card.detail}</span>
-            <span className="kpi-pulse" aria-hidden="true" />
-          </article>
-        ))}
-      </div>
+              <p className="kpi-label">{card.label}</p>
+              <strong className="kpi-value">{formatCurrency(finance[card.key])}</strong>
+              <span className="kpi-detail">{card.detail}</span>
+              <span className="kpi-pulse" aria-hidden="true" />
+            </motion.article>
+          );
+        })}
+      </motion.div>
 
       <div className="bulk-actions-bar" style={{ display: "flex", gap: "0.5rem" }}>
         <button
@@ -114,7 +152,13 @@ export default function FinancePage({
       </div>
 
       <div className="split-grid">
-        <article className="panel">
+        <motion.article
+          className="panel"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        >
           <header className="panel-header">
             <div className="panel-header-left">
               <Icon name="BarChart3" size={16} className="panel-header-icon" />
@@ -139,9 +183,15 @@ export default function FinancePage({
               </div>
             ))}
           </div>
-        </article>
+        </motion.article>
 
-        <article className="panel">
+        <motion.article
+          className="panel"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ type: "spring", stiffness: 300, damping: 30, delay: 0.06 }}
+        >
           <header className="panel-header">
             <div className="panel-header-left">
               <Icon name="PieChart" size={16} className="panel-header-icon" />
@@ -159,7 +209,7 @@ export default function FinancePage({
                 </li>
               ))}
           </ul>
-        </article>
+        </motion.article>
       </div>
 
       <div className="finance-layout">
@@ -222,10 +272,11 @@ export default function FinancePage({
                   <th>Estado</th>
                 </tr>
               </thead>
-              <tbody>
-                {financeRows.slice(0, 18).map((charge) => (
-                  <tr
+              <AnimatedTableBody>
+                {financeRows.slice(0, 18).map((charge, i) => (
+                  <AnimatedTableBody.Row
                     key={charge.id}
+                    index={i}
                     className={selectedFinanceCharge?.id === charge.id ? "row-selected" : ""}
                     onClick={() => onSelectCharge(charge.id)}
                   >
@@ -237,20 +288,20 @@ export default function FinancePage({
                     <td>
                       <StatusPill label={cleanLabel(charge.status)} tone={statusTone(charge.status)} />
                     </td>
-                  </tr>
+                  </AnimatedTableBody.Row>
                 ))}
-              </tbody>
+              </AnimatedTableBody>
             </table>
           </div>
         </article>
 
         <article className="panel finance-detail-panel">
           {!selectedFinanceCharge ? (
-            <div className="empty-state-box">
-              <div className="empty-state-icon-circle"><Icon name="Inbox" size={28} /></div>
-              <p className="empty-state-title">Nenhum encargo selecionado</p>
-              <p className="empty-state-subtitle">Seleciona um encargo na tabela para ver o detalhe.</p>
-            </div>
+            <EmptyState
+              variant="finance"
+              title="Nenhum encargo selecionado"
+              subtitle="Seleciona um encargo na tabela para ver o detalhe."
+            />
           ) : (
             <>
               <header className="panel-header">
@@ -301,11 +352,11 @@ export default function FinancePage({
               <div className="issue-costs">
                 <h4>Pagamentos associados</h4>
                 {selectedFinanceChargePayments.length === 0 ? (
-                  <div className="empty-state-box">
-                    <div className="empty-state-icon-circle"><Icon name="Inbox" size={28} /></div>
-                    <p className="empty-state-title">Sem pagamentos</p>
-                    <p className="empty-state-subtitle">Sem pagamentos registados para este encargo.</p>
-                  </div>
+                  <EmptyState
+                    variant="finance"
+                    title="Sem pagamentos"
+                    subtitle="Sem pagamentos registados para este encargo."
+                  />
                 ) : (
                   <ul className="issue-timeline">
                     {selectedFinanceChargePayments.map((payment) => (

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { cleanLabel } from "../../lib/formatters.js";
 import Icon from "../../components/shared/Icon.jsx";
 
@@ -100,10 +101,6 @@ export default function QuickActionDrawer({
     return () => window.removeEventListener("keydown", onEscape);
   }, [open, onClose]);
 
-  if (!open) {
-    return null;
-  }
-
   const submitCurrentForm = async (event) => {
     event.preventDefault();
     setIsSubmitting(true);
@@ -133,8 +130,26 @@ export default function QuickActionDrawer({
   };
 
   return (
-    <div className="drawer-backdrop" role="dialog" aria-modal="true" onClick={onClose}>
-      <aside className="quick-drawer" onClick={(event) => event.stopPropagation()}>
+    <AnimatePresence>
+      {open && (
+    <motion.div
+      className="drawer-backdrop"
+      role="dialog"
+      aria-modal="true"
+      onClick={onClose}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+    >
+      <motion.aside
+        className="quick-drawer"
+        onClick={(event) => event.stopPropagation()}
+        initial={{ x: 400, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        exit={{ x: 400, opacity: 0 }}
+        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+      >
         <header className="drawer-header">
           <div>
           <p className="eyebrow">Ações rápidas</p>
@@ -462,7 +477,9 @@ export default function QuickActionDrawer({
             </button>
           </footer>
         </form>
-      </aside>
-    </div>
+      </motion.aside>
+    </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

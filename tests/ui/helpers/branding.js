@@ -1,8 +1,8 @@
 export const BRAND_TOKENS = {
-  deep: "#0f4c47",
-  mid: "#1a6b62",
-  sand: "#f5ede0",
-  highlight: "#d4a24c",
+  deep: "#0f766e",
+  mid: "#14b8a6",
+  sand: "#f0fdfa",
+  highlight: "#f59e0b",
 };
 
 export const BRAND_ASSETS = {

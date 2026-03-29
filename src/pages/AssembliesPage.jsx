@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { formatDate, cleanLabel } from "../lib/formatters.js";
 import { TEMPLATE_CHECKLIST } from "../lib/constants.js";
 import StatusPill from "../components/shared/StatusPill.jsx";
 import Icon from "../components/shared/Icon.jsx";
+import EmptyState from "../components/shared/EmptyState.jsx";
 
 // ── Voting Section ──────────────────────────────────────────────────────
 function VotingSection({ assembly, voteItems, voteResults, userRole, onOpenVoting, onCloseVoting, onCastVote }) {
@@ -218,7 +220,11 @@ export default function AssembliesPage({
   return (
     <div className="stack-lg">
       <div className="split-grid">
-        <article className="panel">
+        <motion.article className="panel"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}>
           <header className="panel-header">
             <div className="panel-header-left">
               <Icon name="Vote" size={16} className="panel-header-icon" />
@@ -232,11 +238,7 @@ export default function AssembliesPage({
             </div>
           </header>
           {assemblies.length === 0 ? (
-            <div className="empty-state-box">
-              <div className="empty-state-icon-circle"><Icon name="Inbox" size={28} /></div>
-              <p className="empty-state-title">Sem assembleias</p>
-              <p className="empty-state-subtitle">Não existem assembleias agendadas.</p>
-            </div>
+            <EmptyState variant="assemblies" />
           ) : (
             <ul className="timeline-list">
               {assemblies.map((assembly) => (
@@ -253,9 +255,13 @@ export default function AssembliesPage({
               ))}
             </ul>
           )}
-        </article>
+        </motion.article>
 
-        <article className="panel">
+        <motion.article className="panel"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}>
           <header className="panel-header">
             <div className="panel-header-left">
               <Icon name="FileText" size={16} className="panel-header-icon" />
@@ -271,7 +277,7 @@ export default function AssembliesPage({
               </li>
             ))}
           </ul>
-        </article>
+        </motion.article>
       </div>
 
       {/* Voting sections for assemblies in voting or held status */}
@@ -290,7 +296,11 @@ export default function AssembliesPage({
           />
         ))}
 
-      <article className="panel">
+      <motion.article className="panel"
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}>
         <header className="panel-header">
           <div className="panel-header-left">
             <Icon name="Vote" size={16} className="panel-header-icon" />
@@ -314,7 +324,7 @@ export default function AssembliesPage({
             ))
           )}
         </div>
-      </article>
+      </motion.article>
     </div>
   );
 }

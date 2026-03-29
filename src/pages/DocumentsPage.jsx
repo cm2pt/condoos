@@ -1,6 +1,9 @@
 import { formatDate, cleanLabel } from "../lib/formatters.js";
 import StatusPill from "../components/shared/StatusPill.jsx";
 import Icon from "../components/shared/Icon.jsx";
+import { motion } from "framer-motion";
+import EmptyState from "../components/shared/EmptyState.jsx";
+import AnimatedTableBody from "../components/shared/AnimatedTableBody.jsx";
 
 export default function DocumentsPage({
   documents,
@@ -23,7 +26,13 @@ export default function DocumentsPage({
 
   return (
     <div className="stack-lg">
-      <article className="panel">
+      <motion.article
+        className="panel"
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      >
         <header className="panel-header split-header">
           <div className="panel-header-left">
             <Icon name="FolderOpen" size={16} className="panel-header-icon" />
@@ -60,15 +69,22 @@ export default function DocumentsPage({
             </span>
           </div>
         ) : (
-          <div className="empty-state-box">
-            <div className="empty-state-icon-circle"><Icon name="Inbox" size={28} /></div>
-            <p className="empty-state-title">Portal</p>
-            <p className="empty-state-subtitle">Mostramos apenas documentos úteis para a sua experiência no portal.</p>
-          </div>
+          <EmptyState
+            variant="documents"
+            icon="Inbox"
+            title="Portal"
+            subtitle="Mostramos apenas documentos úteis para a sua experiência no portal."
+          />
         )}
-      </article>
+      </motion.article>
 
-      <article className="panel">
+      <motion.article
+        className="panel"
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      >
         <header className="panel-header">
           <div className="panel-header-left">
             <Icon name="FolderOpen" size={16} className="panel-header-icon" />
@@ -87,20 +103,19 @@ export default function DocumentsPage({
                 <th>Ações</th>
               </tr>
             </thead>
-            <tbody>
+            <AnimatedTableBody>
               {documents.length === 0 ? (
-                <tr className="table-row-static">
+                <AnimatedTableBody.Row key="empty" index={0} className="table-row-static">
                   <td colSpan={showVisibility ? 5 : 4}>
-                    <div className="empty-state-box">
-                      <div className="empty-state-icon-circle"><Icon name="Inbox" size={28} /></div>
-                      <p className="empty-state-title">Sem documentos</p>
-                      <p className="empty-state-subtitle">Não existem documentos para este filtro.</p>
-                    </div>
+                    <EmptyState
+                      variant="documents"
+                      subtitle="Não existem documentos para este filtro."
+                    />
                   </td>
-                </tr>
+                </AnimatedTableBody.Row>
               ) : null}
-              {documents.map((document) => (
-                <tr key={document.id} className="table-row-static">
+              {documents.map((document, i) => (
+                <AnimatedTableBody.Row key={document.id} index={i} className="table-row-static">
                   <td>
                     <div className="doc-list-copy">
                       <span>{document.title}</span>
@@ -138,12 +153,12 @@ export default function DocumentsPage({
                       ) : null}
                     </div>
                   </td>
-                </tr>
+                </AnimatedTableBody.Row>
               ))}
-            </tbody>
+            </AnimatedTableBody>
           </table>
         </div>
-      </article>
+      </motion.article>
     </div>
   );
 }

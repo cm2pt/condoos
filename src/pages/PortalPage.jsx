@@ -1,7 +1,25 @@
 import { formatCurrency, formatDate, cleanLabel, statusTone } from "../lib/formatters.js";
 import { PRIORITY_LABEL, ISSUE_STATUS_LABEL } from "../lib/constants.js";
+import { motion } from "framer-motion";
 import StatusPill from "../components/shared/StatusPill.jsx";
 import Icon from "../components/shared/Icon.jsx";
+import EmptyState from "../components/shared/EmptyState.jsx";
+import AnimatedTableBody from "../components/shared/AnimatedTableBody.jsx";
+
+const kpiContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.07 } },
+};
+
+const kpiItem = {
+  hidden: { opacity: 0, y: 20, scale: 0.95 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { type: "spring", stiffness: 300, damping: 30 },
+  },
+};
 
 export default function PortalPage({
   selectedFraction,
@@ -51,8 +69,13 @@ export default function PortalPage({
         </header>
 
         {selectedFraction ? (
-          <div className="kpi-grid portal-kpi-grid">
-            <article className="kpi-card tone-warning">
+          <motion.div
+            className="kpi-grid portal-kpi-grid"
+            variants={kpiContainer}
+            initial="hidden"
+            animate="show"
+          >
+            <motion.article className="kpi-card tone-warning" variants={kpiItem} whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <div className="kpi-card-header">
                 <div className="kpi-icon-circle tone-warning"><Icon name="Wallet" size={18} /></div>
                 <span className="kpi-label">Saldo atual</span>
@@ -60,8 +83,8 @@ export default function PortalPage({
               <span className="kpi-value">{formatCurrency(balances[selectedFraction.id]?.balance || 0)}</span>
               <span className="kpi-detail">{ownerByFraction[selectedFraction.id] || "Sem titular"}</span>
               <span className="kpi-pulse tone-warning" />
-            </article>
-            <article className="kpi-card tone-accent">
+            </motion.article>
+            <motion.article className="kpi-card tone-accent" variants={kpiItem} whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <div className="kpi-card-header">
                 <div className="kpi-icon-circle tone-accent"><Icon name="TrendingUp" size={18} /></div>
                 <span className="kpi-label">Próxima quota</span>
@@ -69,8 +92,8 @@ export default function PortalPage({
               <span className="kpi-value">{portalNextCharge ? formatCurrency(portalNextCharge.missing) : formatCurrency(0)}</span>
               <span className="kpi-detail">{portalNextCharge ? formatDate(portalNextCharge.dueDate) : "Sem encargos pendentes"}</span>
               <span className="kpi-pulse tone-accent" />
-            </article>
-            <article className="kpi-card tone-success">
+            </motion.article>
+            <motion.article className="kpi-card tone-success" variants={kpiItem} whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <div className="kpi-card-header">
                 <div className="kpi-icon-circle tone-success"><Icon name="CheckCircle2" size={18} /></div>
                 <span className="kpi-label">Pagamentos no período</span>
@@ -78,8 +101,8 @@ export default function PortalPage({
               <span className="kpi-value">{formatCurrency(portalCollectedYear)}</span>
               <span className="kpi-detail">{portalPayments.length} movimentos registados</span>
               <span className="kpi-pulse tone-success" />
-            </article>
-            <article className="kpi-card tone-danger">
+            </motion.article>
+            <motion.article className="kpi-card tone-danger" variants={kpiItem} whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <div className="kpi-card-header">
                 <div className="kpi-icon-circle tone-danger"><Icon name="AlertTriangle" size={18} /></div>
                 <span className="kpi-label">Ocorrências ativas</span>
@@ -87,19 +110,25 @@ export default function PortalPage({
               <span className="kpi-value">{portalOpenIssues.length}</span>
               <span className="kpi-detail">Inclui área comum e fração</span>
               <span className="kpi-pulse tone-danger" />
-            </article>
-          </div>
+            </motion.article>
+          </motion.div>
         ) : (
-          <div className="empty-state-box">
-            <div className="empty-state-icon-circle"><Icon name="Inbox" size={28} /></div>
-            <p className="empty-state-title">Sem fração</p>
-            <p className="empty-state-subtitle">Sem fração selecionada.</p>
-          </div>
+          <EmptyState
+            variant="fractions"
+            title="Sem fração"
+            subtitle="Sem fração selecionada."
+          />
         )}
       </article>
 
       <div className="split-grid">
-        <article className="panel">
+        <motion.article
+          className="panel"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        >
           <header className="panel-header">
             <div className="panel-header-left">
               <Icon name="Wallet" size={16} className="panel-header-icon" />
@@ -119,9 +148,9 @@ export default function PortalPage({
                   <th>Estado</th>
                 </tr>
               </thead>
-              <tbody>
-                {portalChargeRows.slice(0, 12).map((charge) => (
-                  <tr key={charge.id}>
+              <AnimatedTableBody>
+                {portalChargeRows.slice(0, 12).map((charge, index) => (
+                  <AnimatedTableBody.Row key={charge.id} index={index}>
                     <td>{charge.period}</td>
                     <td>{formatDate(charge.dueDate)}</td>
                     <td>{formatCurrency(charge.amount)}</td>
@@ -130,14 +159,20 @@ export default function PortalPage({
                     <td>
                       <StatusPill label={cleanLabel(charge.status)} tone={statusTone(charge.status)} />
                     </td>
-                  </tr>
+                  </AnimatedTableBody.Row>
                 ))}
-              </tbody>
+              </AnimatedTableBody>
             </table>
           </div>
-        </article>
+        </motion.article>
 
-        <article className="panel">
+        <motion.article
+          className="panel"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        >
           <header className="panel-header">
             <div className="panel-header-left">
               <Icon name="Clock" size={16} className="panel-header-icon" />
@@ -146,11 +181,11 @@ export default function PortalPage({
             <span>Últimos lançamentos</span>
           </header>
           {portalPayments.length === 0 ? (
-            <div className="empty-state-box">
-              <div className="empty-state-icon-circle"><Icon name="Inbox" size={28} /></div>
-              <p className="empty-state-title">Sem pagamentos</p>
-              <p className="empty-state-subtitle">Ainda sem pagamentos registados.</p>
-            </div>
+            <EmptyState
+              variant="finance"
+              title="Sem pagamentos"
+              subtitle="Ainda sem pagamentos registados."
+            />
           ) : (
             <ul className="timeline-list">
               {portalPayments.slice(0, 8).map((payment) => (
@@ -179,11 +214,17 @@ export default function PortalPage({
               ))}
             </ul>
           )}
-        </article>
+        </motion.article>
       </div>
 
       <div className="split-grid">
-        <article className="panel">
+        <motion.article
+          className="panel"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        >
           <header className="panel-header">
             <div className="panel-header-left">
               <Icon name="Wrench" size={16} className="panel-header-icon" />
@@ -192,11 +233,11 @@ export default function PortalPage({
             <span>{portalOpenIssues.length} em curso</span>
           </header>
           {portalOpenIssues.length === 0 ? (
-            <div className="empty-state-box">
-              <div className="empty-state-icon-circle"><Icon name="Inbox" size={28} /></div>
-              <p className="empty-state-title">Sem ocorrências</p>
-              <p className="empty-state-subtitle">Sem ocorrências abertas para esta fração.</p>
-            </div>
+            <EmptyState
+              variant="issues"
+              title="Sem ocorrências"
+              subtitle="Sem ocorrências abertas para esta fração."
+            />
           ) : (
             <ul className="issue-timeline">
               {portalOpenIssues.slice(0, 6).map((issue) => (
@@ -215,9 +256,15 @@ export default function PortalPage({
               ))}
             </ul>
           )}
-        </article>
+        </motion.article>
 
-        <article className="panel">
+        <motion.article
+          className="panel"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        >
           <header className="panel-header">
             <div className="panel-header-left">
               <Icon name="FolderOpen" size={16} className="panel-header-icon" />
@@ -246,7 +293,7 @@ export default function PortalPage({
               </li>
             ))}
           </ul>
-        </article>
+        </motion.article>
       </div>
     </div>
   );

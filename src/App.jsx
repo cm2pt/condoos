@@ -95,6 +95,7 @@ import {
 } from "./config/profiles.js";
 import { useNotifications } from "./features/notifications/useNotifications.js";
 import { useCommandActions } from "./features/command-palette/commands.js";
+import { useTheme } from "./contexts/ThemeContext.jsx";
 
 function getPersistedRuntime(baseData) {
   if (typeof window === "undefined") {
@@ -142,6 +143,8 @@ function App() {
   const baseData = seedData;
   const location = useLocation();
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const routePath = location.pathname;
   const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const isCaptureMode = queryParams.get("capture") === "1";
@@ -2173,31 +2176,36 @@ function App() {
   }
 
   return (
-    <div className="condo-app">
+    <div className={`condo-app${sidebarCollapsed ? " sidebar-collapsed" : ""}`}>
       <div className="orb orb-one" aria-hidden="true" />
       <div className="orb orb-two" aria-hidden="true" />
 
       <aside className="sidebar">
         <div className="sidebar-top">
           <div className="brand-lockup">
-            <img className="brand-wordmark" src={BRAND_WORDMARK_SRC} alt="Condoo" />
+            {!sidebarCollapsed && <img className="brand-wordmark" src={BRAND_WORDMARK_SRC} alt="Condoo" />}
+            {sidebarCollapsed && <img className="brand-symbol-mini" src={BRAND_SYMBOL_SRC} alt="Condoo" style={{ width: 28, height: 28 }} />}
           </div>
 
-          <div className="sidebar-tenant-card">
-            <Icon name="Building2" size={16} className="sidebar-tenant-icon" />
-            <div>
-              <strong>{tenantDisplayName}</strong>
-              <small>11 andares · {fractionsData.length} frações</small>
+          {!sidebarCollapsed && (
+            <div className="sidebar-tenant-card">
+              <Icon name="Building2" size={16} className="sidebar-tenant-icon" />
+              <div>
+                <strong>{tenantDisplayName}</strong>
+                <small>11 andares · {fractionsData.length} frações</small>
+              </div>
             </div>
-          </div>
+          )}
 
-          <TenantSelector
-            tenants={apiSession?.tenants}
-            selectedTenantId={selectedTenantId || apiSession?.tenantId}
-            onTenantChange={handleTenantChange}
-          />
+          {!sidebarCollapsed && (
+            <TenantSelector
+              tenants={apiSession?.tenants}
+              selectedTenantId={selectedTenantId || apiSession?.tenantId}
+              onTenantChange={handleTenantChange}
+            />
+          )}
 
-          <p className="sidebar-section-label">Módulos</p>
+          {!sidebarCollapsed && <p className="sidebar-section-label">Módulos</p>}
 
           <nav className="module-nav" aria-label="Módulos principais">
             {availableModules.map((module) => {
@@ -2208,12 +2216,13 @@ function App() {
                   type="button"
                   className={isActive ? "module-btn active" : "module-btn"}
                   onClick={() => setActiveModule(module.id)}
+                  title={sidebarCollapsed ? module.label : undefined}
                 >
                   <div className="module-btn-left">
                     <Icon name={module.icon} size={17} />
-                    <span>{module.label}</span>
+                    {!sidebarCollapsed && <span>{module.label}</span>}
                   </div>
-                  {moduleBadge[module.id] ? <small>{moduleBadge[module.id]}</small> : null}
+                  {!sidebarCollapsed && moduleBadge[module.id] ? <small>{moduleBadge[module.id]}</small> : null}
                 </button>
               );
             })}
@@ -2221,35 +2230,60 @@ function App() {
         </div>
 
         <div className="sidebar-bottom">
-          <details className="sidebar-debug">
-            <summary>
-              <Icon name="Settings" size={14} />
-              <span>Detalhes da sessão</span>
-            </summary>
-            <div className="sidebar-debug-content">
-              <p className="api-meta">
-                Tenant: <strong>{apiSession.tenantName || apiSession.tenantId}</strong>
-              </p>
-              <p className="api-meta">
-                Sync: <strong>{apiLastSyncAt ? formatDate(apiLastSyncAt) : "-"}</strong>
-              </p>
-              <div className="api-actions">
-                <button type="button" className="ghost-btn compact" onClick={handleApiSyncNow} disabled={isApiSyncing}>
-                  <Icon name="RefreshCw" size={13} />
-                  {isApiSyncing ? "A sincronizar..." : "Sincronizar"}
-                </button>
+          {!sidebarCollapsed && (
+            <details className="sidebar-debug">
+              <summary>
+                <Icon name="Settings" size={14} />
+                <span>Detalhes da sessão</span>
+              </summary>
+              <div className="sidebar-debug-content">
+                <p className="api-meta">
+                  Tenant: <strong>{apiSession.tenantName || apiSession.tenantId}</strong>
+                </p>
+                <p className="api-meta">
+                  Sync: <strong>{apiLastSyncAt ? formatDate(apiLastSyncAt) : "-"}</strong>
+                </p>
+                <div className="api-actions">
+                  <button type="button" className="ghost-btn compact" onClick={handleApiSyncNow} disabled={isApiSyncing}>
+                    <Icon name="RefreshCw" size={13} />
+                    {isApiSyncing ? "A sincronizar..." : "Sincronizar"}
+                  </button>
+                </div>
               </div>
-            </div>
-          </details>
+            </details>
+          )}
+
+          <div className="sidebar-bottom-actions">
+            <button
+              type="button"
+              className="theme-toggle"
+              onClick={toggleTheme}
+              aria-label={theme === "light" ? "Ativar modo escuro" : "Ativar modo claro"}
+              title={theme === "light" ? "Modo escuro" : "Modo claro"}
+            >
+              <Icon name={theme === "light" ? "Moon" : "Sun"} size={16} />
+            </button>
+            <button
+              type="button"
+              className="sidebar-collapse-btn"
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              aria-label={sidebarCollapsed ? "Expandir barra lateral" : "Colapsar barra lateral"}
+              title={sidebarCollapsed ? "Expandir" : "Colapsar"}
+            >
+              <Icon name={sidebarCollapsed ? "PanelLeft" : "PanelLeftClose"} size={16} />
+            </button>
+          </div>
 
           <div className="sidebar-user">
             <div className="sidebar-avatar">
               <Icon name="User" size={16} />
             </div>
-            <div className="sidebar-user-info">
-              <strong>{apiSession.user?.email || "demo@condoos.pt"}</strong>
-              <small>{activeProfileLabel} · online</small>
-            </div>
+            {!sidebarCollapsed && (
+              <div className="sidebar-user-info">
+                <strong>{apiSession.user?.email || "demo@condoos.pt"}</strong>
+                <small>{activeProfileLabel} · online</small>
+              </div>
+            )}
             <button type="button" className="sidebar-logout-btn" onClick={handleApiLogout} aria-label="Terminar sessão">
               <Icon name="LogOut" size={15} />
             </button>

@@ -1,6 +1,9 @@
 import { formatCurrency, formatDate, cleanLabel, statusTone } from "../lib/formatters.js";
 import StatusPill from "../components/shared/StatusPill.jsx";
 import Icon from "../components/shared/Icon.jsx";
+import { motion } from "framer-motion";
+import EmptyState from "../components/shared/EmptyState.jsx";
+import AnimatedTableBody from "../components/shared/AnimatedTableBody.jsx";
 
 export default function FractionsPage({
   fractions,
@@ -32,7 +35,7 @@ export default function FractionsPage({
 
   return (
     <div className="stack-lg">
-      <article className="panel">
+      <motion.article className="panel" initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-60px" }} transition={{ type: "spring", stiffness: 300, damping: 30 }}>
         <header className="panel-header split-header">
           <div className="panel-header-left">
             <Icon name="SlidersHorizontal" size={16} className="panel-header-icon" />
@@ -90,7 +93,7 @@ export default function FractionsPage({
             <option value="regular">Apenas regularizadas</option>
           </select>
         </div>
-      </article>
+      </motion.article>
 
       <div className="fractions-layout">
         <article className="panel">
@@ -103,13 +106,7 @@ export default function FractionsPage({
           </header>
 
           {fractions.length === 0 ? (
-            <div className="empty-state-box">
-              <div className="empty-state-icon-circle">
-                <Icon name="Building2" size={28} />
-              </div>
-              <p className="empty-state-title">Nenhuma fração encontrada</p>
-              <p className="empty-state-subtitle">Ajusta os filtros ou cria uma nova fração.</p>
-            </div>
+            <EmptyState variant="fractions" title="Nenhuma fração encontrada" subtitle="Ajusta os filtros ou cria uma nova fração." />
           ) : (
             <div className="table-wrap">
               <table>
@@ -124,12 +121,13 @@ export default function FractionsPage({
                     <th>Saldo</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {fractions.map((fraction) => {
+                <AnimatedTableBody>
+                  {fractions.map((fraction, i) => {
                     const balance = balances[fraction.id]?.balance || 0;
                     return (
-                      <tr
+                      <AnimatedTableBody.Row
                         key={fraction.id}
+                        index={i}
                         className={selectedFraction?.id === fraction.id ? "row-selected" : ""}
                         onClick={() => onSelectFraction(fraction.id)}
                       >
@@ -145,10 +143,10 @@ export default function FractionsPage({
                             tone={balance > 0 ? "warning" : "success"}
                           />
                         </td>
-                      </tr>
+                      </AnimatedTableBody.Row>
                     );
                   })}
-                </tbody>
+                </AnimatedTableBody>
               </table>
             </div>
           )}
@@ -156,13 +154,7 @@ export default function FractionsPage({
 
         <article className="panel fraction-detail-panel">
           {!selectedFraction ? (
-            <div className="empty-state-box">
-              <div className="empty-state-icon-circle">
-                <Icon name="Eye" size={28} />
-              </div>
-              <p className="empty-state-title">Nenhuma fração selecionada</p>
-              <p className="empty-state-subtitle">Seleciona uma fração para ver detalhe.</p>
-            </div>
+            <EmptyState variant="fractions" icon="Eye" title="Nenhuma fração selecionada" subtitle="Seleciona uma fração na tabela para ver o detalhe." />
           ) : (
             <>
               <header className="panel-header">
@@ -216,13 +208,7 @@ export default function FractionsPage({
               <div className="issue-costs">
                 <h4><Icon name="Receipt" size={14} className="panel-header-icon" /> Últimos encargos</h4>
                 {selectedFractionCharges.length === 0 ? (
-                  <div className="empty-state-box">
-                    <div className="empty-state-icon-circle">
-                      <Icon name="Inbox" size={28} />
-                    </div>
-                    <p className="empty-state-title">Sem encargos</p>
-                    <p className="empty-state-subtitle">Esta fração ainda não tem encargos registados.</p>
-                  </div>
+                  <EmptyState icon="Inbox" title="Sem encargos" subtitle="Esta fração ainda não tem encargos registados." />
                 ) : (
                   <ul className="issue-timeline">
                     {selectedFractionCharges.slice(0, 6).map((charge) => (

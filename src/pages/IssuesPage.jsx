@@ -2,6 +2,8 @@ import { formatCurrency, formatDate, cleanLabel, statusTone } from "../lib/forma
 import { ISSUE_COLUMNS, PRIORITY_LABEL, ISSUE_STATUS_LABEL } from "../lib/constants.js";
 import StatusPill from "../components/shared/StatusPill.jsx";
 import Icon from "../components/shared/Icon.jsx";
+import { motion } from "framer-motion";
+import EmptyState from "../components/shared/EmptyState.jsx";
 
 export default function IssuesPage({
   issuesByStatus,
@@ -33,9 +35,24 @@ export default function IssuesPage({
             </div>
           </header>
 
-          <div className="kanban-grid">
+          <motion.div
+            className="kanban-grid"
+            initial="hidden"
+            animate="show"
+            variants={{
+              hidden: { opacity: 0 },
+              show: { opacity: 1, transition: { staggerChildren: 0.08 } },
+            }}
+          >
             {ISSUE_COLUMNS.map((column) => (
-              <div key={column.key} className="kanban-column">
+              <motion.div
+                key={column.key}
+                className="kanban-column"
+                variants={{
+                  hidden: { opacity: 0, y: 16 },
+                  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 30 } },
+                }}
+              >
                 <div className="kanban-head">
                   <h4>{column.label}</h4>
                   <span>{issuesByStatus[column.key].length}</span>
@@ -43,7 +60,7 @@ export default function IssuesPage({
 
                 <div className="kanban-cards">
                   {issuesByStatus[column.key].map((issue) => (
-                    <article
+                    <motion.article
                       key={issue.id}
                       className={selectedIssue?.id === issue.id ? "kanban-card selected" : "kanban-card"}
                       data-priority={issue.priority || undefined}
@@ -56,6 +73,8 @@ export default function IssuesPage({
                           onSelectIssue(issue.id);
                         }
                       }}
+                      whileHover={{ y: -3, scale: 1.01, transition: { type: "spring", stiffness: 400, damping: 20 } }}
+                      whileTap={{ scale: 0.98 }}
                     >
                       <header>
                         <StatusPill label={PRIORITY_LABEL[issue.priority]} tone={statusTone(issue.priority)} />
@@ -70,21 +89,28 @@ export default function IssuesPage({
                             : "Sem atribuição"}
                         </small>
                       </footer>
-                    </article>
+                    </motion.article>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </article>
 
-        <article className="panel issue-detail-panel">
+        <motion.article
+          className="panel issue-detail-panel"
+          initial={{ opacity: 0, x: 24 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        >
           {!selectedIssue ? (
-            <div className="empty-state-box">
-              <div className="empty-state-icon-circle"><Icon name="Inbox" size={28} /></div>
-              <p className="empty-state-title">Sem seleção</p>
-              <p className="empty-state-subtitle">Seleciona uma ocorrência para ver detalhes.</p>
-            </div>
+            <EmptyState
+              variant="issues"
+              icon="Inbox"
+              title="Sem seleção"
+              subtitle="Seleciona uma ocorrência para ver detalhes."
+            />
           ) : (
             <>
               <header className="panel-header">
@@ -180,7 +206,7 @@ export default function IssuesPage({
               </div>
             </>
           )}
-        </article>
+        </motion.article>
       </div>
     </div>
   );

@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { formatCurrency, formatDate, cleanLabel, statusTone } from "../lib/formatters.js";
 import StatusPill from "../components/shared/StatusPill.jsx";
 import Icon from "../components/shared/Icon.jsx";
+import EmptyState from "../components/shared/EmptyState.jsx";
+import ProgressRing from "../components/shared/ProgressRing.jsx";
 
 const KPI_TONE_ICON = {
   accent: "TrendingUp",
@@ -48,12 +50,22 @@ export default function DashboardPage({
           animate="show"
           variants={{
             hidden: { opacity: 0 },
-            show: { opacity: 1, transition: { staggerChildren: 0.05 } },
+            show: { opacity: 1, transition: { staggerChildren: 0.07 } },
           }}
         >
           {cards.map((card) =>
             renderKpiCard(card, motion.article, {
-              variants: { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } },
+              variants: {
+                hidden: { opacity: 0, y: 20, scale: 0.95 },
+                show: {
+                  opacity: 1,
+                  y: 0,
+                  scale: 1,
+                  transition: { type: "spring", stiffness: 400, damping: 25 },
+                },
+              },
+              whileHover: { y: -4, scale: 1.02, transition: { type: "spring", stiffness: 400, damping: 20 } },
+              whileTap: { scale: 0.98 },
             })
           )}
         </motion.div>
@@ -134,7 +146,15 @@ export default function DashboardPage({
       >
         <header className="panel-header">
           <div className="panel-header-left">
-            <Icon name="CheckCircle2" size={16} className="panel-header-icon" />
+            <ProgressRing
+              progress={(onboardingCompletion / Math.max(onboardingChecklist.length, 1)) * 100}
+              size={36}
+              strokeWidth={3}
+            >
+              <span style={{ fontSize: "0.6rem", fontWeight: 700, color: "var(--brand-deep)" }}>
+                {onboardingCompletion}/{onboardingChecklist.length}
+              </span>
+            </ProgressRing>
             <h3>Checklist de onboarding</h3>
           </div>
           <span>
@@ -187,13 +207,11 @@ export default function DashboardPage({
           </div>
         </header>
         {activityLog.length === 0 ? (
-          <div className="empty-state-box">
-            <div className="empty-state-icon-circle">
-              <Icon name="Inbox" size={28} />
-            </div>
-            <p className="empty-state-title">Ainda sem registos</p>
-            <p className="empty-state-subtitle">Usa os botões acima para criar uma fração, encargo ou ocorrência.</p>
-          </div>
+          <EmptyState
+            variant="default"
+            title="Ainda sem registos"
+            subtitle="Usa os botões acima para criar uma fração, encargo ou ocorrência."
+          />
         ) : (
           <ul className="activity-list">
             {activityLog.slice(0, 6).map((item) => (

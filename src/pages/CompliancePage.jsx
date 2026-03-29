@@ -1,8 +1,10 @@
 import { useState, useRef } from "react";
+import { motion } from "framer-motion";
 import { formatDate, cleanLabel, statusTone } from "../lib/formatters.js";
 import { COMPLIANCE_TASKS } from "../lib/constants.js";
 import StatusPill from "../components/shared/StatusPill.jsx";
 import Icon from "../components/shared/Icon.jsx";
+import EmptyState from "../components/shared/EmptyState.jsx";
 
 function TemplateEditor({ template, onSave, onDelete, onPreview }) {
   const [subjectTemplate, setSubjectTemplate] = useState(template.subjectTemplate || "");
@@ -131,7 +133,13 @@ export default function CompliancePage({
   return (
     <div className="stack-lg">
       <div className="split-grid">
-        <article className="panel">
+        <motion.article
+          className="panel"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        >
           <header className="panel-header">
             <div className="panel-header-left">
               <Icon name="ShieldCheck" size={16} className="panel-header-icon" />
@@ -153,9 +161,15 @@ export default function CompliancePage({
               </li>
             ))}
           </ul>
-        </article>
+        </motion.article>
 
-        <article className="panel">
+        <motion.article
+          className="panel"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        >
           <header className="panel-header">
             <div className="panel-header-left">
               <Icon name="FileText" size={16} className="panel-header-icon" />
@@ -185,11 +199,17 @@ export default function CompliancePage({
               <strong>v0.1</strong>
             </li>
           </ul>
-        </article>
+        </motion.article>
       </div>
 
       {templateList.length > 0 && (
-        <article className="panel">
+        <motion.article
+          className="panel"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        >
           <header className="panel-header">
             <div className="panel-header-left">
               <Icon name="FileText" size={16} className="panel-header-icon" />
@@ -249,10 +269,16 @@ export default function CompliancePage({
               />
             </div>
           )}
-        </article>
+        </motion.article>
       )}
 
-      <article className="panel">
+      <motion.article
+        className="panel"
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      >
         <header className="panel-header">
           <div className="panel-header-left">
             <Icon name="ShieldCheck" size={16} className="panel-header-icon" />
@@ -285,35 +311,49 @@ export default function CompliancePage({
             />
           </div>
         </div>
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Ator</th>
-                <th>Dominio</th>
-                <th>Acao</th>
-                <th>Detalhe</th>
-              </tr>
-            </thead>
-            <tbody>
-              {auditEntries.slice(0, 40).map((entry) => (
-                <tr key={entry.id}>
-                  <td>{formatDate(entry.when)}</td>
-                  <td>{entry.actor}</td>
-                  <td>
-                    <StatusPill label={cleanLabel(entry.domain)} tone={entry.tone} />
-                  </td>
-                  <td>{entry.action}</td>
-                  <td>{entry.detail}</td>
+        {auditEntries.length === 0 ? (
+          <EmptyState
+            variant="search"
+            title="Sem eventos de auditoria"
+            subtitle="Nenhum evento encontrado para os filtros selecionados."
+          />
+        ) : (
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Ator</th>
+                  <th>Dominio</th>
+                  <th>Acao</th>
+                  <th>Detalhe</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </article>
+              </thead>
+              <tbody>
+                {auditEntries.slice(0, 40).map((entry) => (
+                  <tr key={entry.id}>
+                    <td>{formatDate(entry.when)}</td>
+                    <td>{entry.actor}</td>
+                    <td>
+                      <StatusPill label={cleanLabel(entry.domain)} tone={entry.tone} />
+                    </td>
+                    <td>{entry.action}</td>
+                    <td>{entry.detail}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </motion.article>
 
-      <article className="panel">
+      <motion.article
+        className="panel"
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      >
         <header className="panel-header">
           <div className="panel-header-left">
             <Icon name="ShieldCheck" size={16} className="panel-header-icon" />
@@ -322,29 +362,38 @@ export default function CompliancePage({
           <span>Campos minimos</span>
         </header>
         <div className="audit-grid">
-          <article>
-            <h4>Financeiro</h4>
-            <p>
-              Criacao/edicao de encargos, alteracao de valores, conciliacao manual e anulacoes de pagamentos devem ser
-              auditados com before/after.
-            </p>
-          </article>
-          <article>
-            <h4>Governance</h4>
-            <p>
-              Convocatorias, alteracoes de ordem de trabalhos, votacoes e atas publicadas exigem registo de ator,
-              timestamp e justificacao.
-            </p>
-          </article>
-          <article>
-            <h4>Dados pessoais</h4>
-            <p>
-              Operacoes de exportacao, apagamento e retificacao de dados devem ter trilho completo para resposta a
-              pedidos do titular.
-            </p>
-          </article>
+          {[
+            {
+              title: "Financeiro",
+              text: "Criacao/edicao de encargos, alteracao de valores, conciliacao manual e anulacoes de pagamentos devem ser auditados com before/after.",
+            },
+            {
+              title: "Governance",
+              text: "Convocatorias, alteracoes de ordem de trabalhos, votacoes e atas publicadas exigem registo de ator, timestamp e justificacao.",
+            },
+            {
+              title: "Dados pessoais",
+              text: "Operacoes de exportacao, apagamento e retificacao de dados devem ter trilho completo para resposta a pedidos do titular.",
+            },
+          ].map((card, i) => (
+            <motion.article
+              key={card.title}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{
+                type: "spring",
+                stiffness: 300,
+                damping: 30,
+                delay: i * 0.08,
+              }}
+            >
+              <h4>{card.title}</h4>
+              <p>{card.text}</p>
+            </motion.article>
+          ))}
         </div>
-      </article>
+      </motion.article>
     </div>
   );
 }

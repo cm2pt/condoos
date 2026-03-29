@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Icon from "../../components/shared/Icon.jsx";
+import EmptyState from "../../components/shared/EmptyState.jsx";
 
 const MODULE_ICON_MAP = {
   dashboard: "LayoutDashboard",
@@ -113,10 +115,11 @@ export default function CommandPalette({ open, query, actions, onQueryChange, on
           ))}
         </ul>
         {actions.length === 0 ? (
-          <div className="empty-state-box" style={{ padding: "20px" }}>
-            <Icon name="Search" size={20} className="empty-state-icon-circle" style={{ width: 40, height: 40 }} />
-            <p className="empty-state-subtitle">Sem resultados para este termo.</p>
-          </div>
+          <EmptyState
+            variant="search"
+            title="Sem resultados"
+            subtitle="Sem resultados para este termo."
+          />
         ) : null}
       </section>
     </div>
