@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { loginWithCredentials } from "./helpers/auth.js";
+import { loginWithCredentials, navigateToModule } from "./helpers/auth.js";
 
 test.describe("RBAC and localization UX", () => {
   test("resident sees only allowed modules and resident-safe documents view", async ({ page }) => {
@@ -20,8 +20,9 @@ test.describe("RBAC and localization UX", () => {
     const iconCount = await page.locator(".module-nav .module-btn .icon").count();
     expect(iconCount).toBe(moduleLabels.length);
 
-    await page.locator(".module-nav .module-btn", { hasText: "Documentos" }).click();
-    await expect(page.locator(".workspace-header h2")).toHaveText(/documental/i);
+    await navigateToModule(page, "Documentos", {
+      heading: page.locator(".workspace-header h2", { hasText: /documental/i }),
+    });
 
     await expect(page.locator("table.docs-table thead th", { hasText: /Visibilidade/i })).toHaveCount(0);
     await expect(page.getByText(/Mostramos apenas documentos/i)).toBeVisible();
@@ -31,9 +32,9 @@ test.describe("RBAC and localization UX", () => {
   test("ui keeps labels in PT-PT for finance and document visibility", async ({ page }) => {
     await loginWithCredentials(page, "manager");
 
-    await expect(page.locator(".module-nav .module-btn").first()).toBeVisible();
-    await page.locator(".module-nav .module-btn", { hasText: "Financeiro" }).click();
-    await expect(page.getByRole("heading", { name: /Tesouraria/i })).toBeVisible();
+    await navigateToModule(page, "Financeiro", {
+      heading: page.getByRole("heading", { name: /Tesouraria/i }),
+    });
 
     // Wait for filter select to be rendered (Framer Motion entrance animation)
     await expect(page.locator('select[aria-label="Filtrar por estado financeiro"]')).toBeVisible();
@@ -48,7 +49,9 @@ test.describe("RBAC and localization UX", () => {
     expect(financeText.includes("overdue")).toBeFalsy();
     expect(financeText.includes("visibility")).toBeFalsy();
 
-    await page.locator(".module-nav .module-btn", { hasText: "Documentos" }).click();
+    await navigateToModule(page, "Documentos", {
+      heading: page.locator(".workspace-header h2", { hasText: /documental/i }),
+    });
     await expect(page.locator(".pill-group .stat-pill").first()).toBeVisible();
     const visibilitySummary = (await page.locator(".pill-group .stat-pill").allTextContents()).map((value) =>
       value

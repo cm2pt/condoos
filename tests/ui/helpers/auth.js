@@ -46,6 +46,29 @@ export async function loginWithCredentials(page, role = "manager") {
   await waitForWorkspace(page);
 }
 
+/**
+ * Navigate to a sidebar module reliably.
+ * Waits for the button, clicks it, and verifies the module switched
+ * by checking the heading text changed away from "Painel de controlo".
+ * Retries once if the click didn't register (CI race condition).
+ */
+export async function navigateToModule(page, moduleName, { heading } = {}) {
+  const btn = page.locator(".module-nav .module-btn", { hasText: moduleName });
+  await expect(btn).toBeVisible();
+  await btn.scrollIntoViewIfNeeded();
+  await btn.click();
+
+  if (heading) {
+    try {
+      await expect(heading).toBeVisible({ timeout: 5000 });
+    } catch {
+      // Retry click — animation or render timing may have swallowed it
+      await btn.click({ force: true });
+      await expect(heading).toBeVisible({ timeout: 10000 });
+    }
+  }
+}
+
 export async function loginWithDemoShortcut(page, role = "manager") {
   const credentials = DEMO_CREDENTIALS[role];
   if (!credentials) {

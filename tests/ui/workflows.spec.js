@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { loginWithCredentials } from "./helpers/auth.js";
+import { loginWithCredentials, navigateToModule } from "./helpers/auth.js";
 
 function normalizeText(value) {
   return String(value || "")
@@ -41,9 +41,9 @@ test.describe("Core UX workflows", () => {
 
   test("manager can upload, version, and download documents", async ({ page }) => {
     await loginWithCredentials(page, "manager");
-    await expect(page.locator(".module-nav .module-btn").first()).toBeVisible();
-    await page.locator(".module-nav .module-btn", { hasText: "Documentos" }).click();
-    await expect(page.locator(".workspace-header h2")).toHaveText(/documental/i);
+    await navigateToModule(page, "Documentos", {
+      heading: page.locator(".workspace-header h2", { hasText: /documental/i }),
+    });
 
     const documentTitle = "Documento UX Playwright";
     const promptAnswers = [documentTitle, "geral", "all"];
@@ -95,9 +95,9 @@ test.describe("Core UX workflows", () => {
     await loginWithCredentials(page, "manager");
 
     // Wait for sidebar to be interactive, then navigate to finance
-    await expect(page.locator(".module-nav .module-btn").first()).toBeVisible();
-    await page.locator(".module-nav .module-btn", { hasText: "Financeiro" }).click();
-    await expect(page.getByRole("heading", { name: /Tesouraria/i })).toBeVisible();
+    await navigateToModule(page, "Financeiro", {
+      heading: page.getByRole("heading", { name: /Tesouraria/i }),
+    });
 
     // Wait for finance table to load
     await expect(page.locator(".finance-layout .table-wrap")).toBeVisible();
