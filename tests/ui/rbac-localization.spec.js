@@ -20,7 +20,7 @@ test.describe("RBAC and localization UX", () => {
     const iconCount = await page.locator(".module-nav .module-btn .icon").count();
     expect(iconCount).toBe(moduleLabels.length);
 
-    await page.getByRole("button", { name: "Documentos" }).click();
+    await page.locator(".module-nav .module-btn", { hasText: "Documentos" }).click();
     await expect(page.locator(".workspace-header h2")).toHaveText(/documental/i);
 
     await expect(page.locator("table.docs-table thead th", { hasText: /Visibilidade/i })).toHaveCount(0);
@@ -31,7 +31,8 @@ test.describe("RBAC and localization UX", () => {
   test("ui keeps labels in PT-PT for finance and document visibility", async ({ page }) => {
     await loginWithCredentials(page, "manager");
 
-    await page.getByRole("button", { name: "Financeiro" }).click();
+    await expect(page.locator(".module-nav .module-btn").first()).toBeVisible();
+    await page.locator(".module-nav .module-btn", { hasText: "Financeiro" }).click();
     await expect(page.getByRole("heading", { name: /Tesouraria/i })).toBeVisible();
 
     // Wait for filter select to be rendered (Framer Motion entrance animation)
@@ -47,7 +48,7 @@ test.describe("RBAC and localization UX", () => {
     expect(financeText.includes("overdue")).toBeFalsy();
     expect(financeText.includes("visibility")).toBeFalsy();
 
-    await page.getByRole("button", { name: "Documentos" }).click();
+    await page.locator(".module-nav .module-btn", { hasText: "Documentos" }).click();
     await expect(page.locator(".pill-group .stat-pill").first()).toBeVisible();
     const visibilitySummary = (await page.locator(".pill-group .stat-pill").allTextContents()).map((value) =>
       value
