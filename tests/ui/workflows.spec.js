@@ -101,17 +101,23 @@ test.describe("Core UX workflows", () => {
 
     // Wait for finance table to load
     await expect(page.locator(".finance-layout .table-wrap")).toBeVisible();
+
+    // Filter to "Parcial" — only partially_paid charges have payments with receipts
+    await expect(page.locator('select[aria-label="Filtrar por estado financeiro"]')).toBeVisible();
+    await page.locator('select[aria-label="Filtrar por estado financeiro"]').selectOption("partially_paid");
+    await page.waitForTimeout(300);
+
     const chargeRows = page.locator(".finance-layout .table-wrap tbody tr");
     const rowCount = await chargeRows.count();
 
     let targetButton = null;
-    const maxScan = Math.min(rowCount, 25);
+    const maxScan = Math.min(rowCount, 10);
     for (let index = 0; index < maxScan; index += 1) {
       await chargeRows.nth(index).click();
       // Wait for detail panel to update — Framer Motion + React re-render
       try {
         await page.getByRole("button", { name: /Recibo PDF/i }).first()
-          .waitFor({ state: "visible", timeout: 1500 });
+          .waitFor({ state: "visible", timeout: 2000 });
         targetButton = page.getByRole("button", { name: /Recibo PDF/i }).first();
         break;
       } catch {
