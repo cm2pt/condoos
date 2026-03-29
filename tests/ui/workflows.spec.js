@@ -105,16 +105,17 @@ test.describe("Core UX workflows", () => {
     const rowCount = await chargeRows.count();
 
     let targetButton = null;
-    const maxScan = Math.min(rowCount, 12);
+    const maxScan = Math.min(rowCount, 25);
     for (let index = 0; index < maxScan; index += 1) {
       await chargeRows.nth(index).click();
-      const receiptButton = page.getByRole("button", { name: /Recibo PDF/i }).first();
-      const visible = await receiptButton
-        .isVisible()
-        .catch(() => false);
-      if (visible) {
-        targetButton = receiptButton;
+      // Wait for detail panel to update — Framer Motion + React re-render
+      try {
+        await page.getByRole("button", { name: /Recibo PDF/i }).first()
+          .waitFor({ state: "visible", timeout: 1500 });
+        targetButton = page.getByRole("button", { name: /Recibo PDF/i }).first();
         break;
+      } catch {
+        // This charge has no payments — try next
       }
     }
 
