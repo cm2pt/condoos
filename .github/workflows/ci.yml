@@ -67,6 +67,16 @@ jobs:
       - name: Run backend tests
         run: npm test
 
+  docs-freshness:
+    name: Documentation freshness check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Check docs against source
+        run: bash scripts/check-docs-freshness.sh
+
   e2e-tests:
     name: E2E tests (Playwright)
     runs-on: ubuntu-latest
