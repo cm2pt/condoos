@@ -5,13 +5,17 @@ All UI text, comments, and commit messages should be in Portuguese (PT-PT) where
 
 ## Architecture
 - **Monorepo**: frontend at `src/`, backend at `backend/`
-- **Backend**: Express + Knex.js (SQLite dev, PostgreSQL prod), routes in `backend/routes/`
-- **Frontend**: React 18 + Vite + TailwindCSS, pages in `src/pages/`
+- **Backend**: Express 5 + Knex 3 (SQLite dev, PostgreSQL prod), routes in `backend/routes/`
+- **Frontend**: React 19 + Vite 8 + TailwindCSS 4 + Framer Motion 12, pages in `src/pages/`
+- **Icons**: Lucide React via `<Icon>` component (`src/components/shared/Icon.jsx`)
+- **Typography**: Plus Jakarta Sans (self-hosted via `@fontsource-variable`)
 - **Auth**: JWT with httpOnly cookies + Bearer token fallback
 - **Multi-tenant**: all queries filter by `tenant_id`, passed via `x-tenant-id` header
+- **Payments**: ifthenpay integration (Multibanco, MBWay, SEPA) via `backend/services/payments/`
+- **Dark mode**: CSS custom properties with `[data-theme="dark"]`, managed by ThemeContext
 
 ## Quality Gates
-A **pre-commit hook** (husky) enforces steps 1–3 automatically. E2E tests run in CI (GitHub Actions).
+A **pre-commit hook** (husky) enforces steps 1-3 automatically. E2E tests run in CI (GitHub Actions).
 
 ```bash
 # 1. Backend tests (30 tests) — requires fresh test DB
@@ -31,3 +35,9 @@ npx playwright test
 - **Frontend**: lines, branches, functions, statements (vitest + v8)
 - Enforced locally (pre-commit) and in CI (GitHub Actions)
 - Backend coverage tracking planned once route test coverage increases
+
+## Key Patterns
+- **SQLite deadlocks**: see `.claude/rules/database.md`
+- **Multi-tenant security**: see `.claude/rules/security.md`
+- **API conventions**: see `.claude/rules/api-conventions.md`
+- **Code style & design system**: see `.claude/rules/code-style.md`

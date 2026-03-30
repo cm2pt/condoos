@@ -17,3 +17,7 @@ backend/data/*.sqlite-shm
 backend/data/*.sqlite-wal
 backend/data/storage/documents/
 .vercel/
+
+# Claude Code — personal settings and ephemeral plans
+.claude/settings.local.json
+.claude/plans/

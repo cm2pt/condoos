@@ -31,6 +31,27 @@
 - Config: `playwright.config.js`
 - Workers: 1 (SQLite pool=1 não suporta paralelismo)
 - Browsers: Chromium apenas
-- Auth helpers: `tests/ui/helpers.js` — `loginWithDemoShortcut(page, profile)`
+- Helpers: `tests/ui/helpers/auth.js`:
+  - `loginWithCredentials(page, role)` — Login com email/password
+  - `loginWithDemoShortcut(page, role)` — Login via botão demo
+  - `navigateToModule(page, moduleName, { heading })` — Navega para módulo com retry
+  - `gotoLogin(page)` — Navega para página de login
+- Helpers adicionais:
+  - `tests/ui/helpers/branding.js` — Constantes de brand (BRAND_ASSETS, BRAND_TOKENS), leitura de CSS tokens
+  - `tests/ui/helpers/accessibility.js` — `expectNoHighImpactA11yViolations()` via axe-core
 - DB: Playwright apaga DB e deixa Knex migrar+seed automaticamente
 - Artefactos (screenshots, vídeos): `test-results/` (gitignored)
+
+### E2E Gotchas
+- **Framer Motion animations**: Elementos podem não estar visíveis imediatamente. Usar `waitFor({ state: "visible", timeout: 2000 })` em vez de `isVisible()` instantâneo
+- **Sidebar navigation**: Botões incluem texto de badges (ex: "Financeiro €2.1k"). Usar `navigateToModule()` helper que faz scroll + click + retry com `force: true`
+- **Finance table sorting**: Cobranças em atraso aparecem primeiro. Para testar recibos, filtrar por status "partially_paid" antes de procurar botão "Recibo PDF"
+- **Dialog handlers**: Usar `page.on("dialog", handler)` com `try/finally` para `page.off("dialog", handler)`
+
+### Credenciais Demo
+| Role | Email | Password |
+|------|-------|----------|
+| manager | gestao.demo@condoos.pt | Condoos!Gestao2026 |
+| accounting | contabilidade.demo@condoos.pt | Condoos!Contabilidade2026 |
+| operations | operacoes.demo@condoos.pt | Condoos!Operacoes2026 |
+| resident | condomino.demo@condoos.pt | Condoos!Condomino2026 |
