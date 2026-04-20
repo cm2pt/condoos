@@ -45,20 +45,20 @@
     "react-router-dom": "^7.13.2"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.11.1",
-    "@playwright/test": "^1.58.2",
+    "@axe-core/playwright": "^4.11.2",
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4.2.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@vitejs/plugin-react": "^6.0.1",
-    "@vitest/coverage-v8": "^4.1.2",
+    "@vitest/coverage-v8": "^4.1.4",
     "husky": "^9.1.7",
-    "jsdom": "^29.0.1",
-    "postcss": "^8.5.8",
+    "jsdom": "^29.0.2",
+    "postcss": "^8.5.10",
     "supertest": "^7.1.1",
     "tailwindcss": "^4.2.2",
-    "vite": "^8.0.3",
+    "vite": "^8.0.9",
     "vitest": "^4.1.2"
   }
 }
